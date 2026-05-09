@@ -1,0 +1,23 @@
+# 视频
+*.mp4
+*.mov
+*.avi
+
+# 帧图
+/tmp/
+players/*/frames/
+players/*/frame_archive/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# 报告
+reports/
+
+# macOS
+.DS_Store
+
+# 临时
+*.log
