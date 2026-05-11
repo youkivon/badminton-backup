@@ -47,7 +47,11 @@ Step 1→ 先看球员站在哪里（前场/中场/后场）
 Step 2→ 再根据位置约束确定动作类型
 违反以上原则的判断视为错误。
 
-已知信息：Stage1 已确认画面中有球员正在挥拍。
+已知信息：Stage1 已确认画面中有球员正在挥拍或准备击球。
+
+⚠️ 【重要提醒】：
+- 球员没有真实的挥拍动作（拍子静止、仅手持拍站立、正在走路/拣球/闲聊）→ 直接输出"non-rally (unable to analyze)"
+- 位置判断是所有动作判断的前提，位置和动作类型必须匹配
 
 以下为分析知识库：
 
@@ -59,6 +63,10 @@ Step 2→ 再根据位置约束确定动作类型
 ② 羽毛球在球员手中/刚离手/球在抛物线上升段（未到达高点）
 ③ 拍子正在向上挥动（手腕/前臂向上刷），拍头高于手腕
 ④ 球员双脚在地面上（无明显蹬地起跳）
+
+【第一步补充：无效帧一票否决】
+在完成任何动作判断之前，先检查以下否决条件（满足则直接输出"non-rally (unable to analyze)"，不继续往下判断）：
+❌ 球员没有真实的挥拍动作（拍子静止、仅手持拍站立、正在走路/拣球/闲聊）
 
 【发球子类型】
 - 正手发高远球：拍子从身体侧后向上挥至最高点，手腕爆发力击打球底
@@ -501,7 +509,8 @@ batch_analyze = batch_analyze_two_stage
 
 def analyze_shots(frames_results: list) -> dict:
     """
-    将帧级分析结果聚合为击球序列
+    将帧级分析结果聚合为击球序列。
+    相邻帧（同球员 + 同动作类型）去重：只保留评分最高的帧，避免同一击球被重复点评。
     """
     NON_SHOT_TYPES = {
         "非击球动作（捡球/死球）",
@@ -513,32 +522,52 @@ def analyze_shots(frames_results: list) -> dict:
         "无球员在画面中",
         "准备发球",
         "正在发球",
+        "non-rally (unable to analyze)",
     }
+
+    # 按时间顺序排列
+    sorted_frames = sorted(frames_results, key=lambda r: r.get("time", ""))
 
     shots = []
     i = 0
-    while i < len(frames_results):
-        r = frames_results[i]
+    while i < len(sorted_frames):
+        r = sorted_frames[i]
         action = r.get("action_type", "")
 
         if action in NON_SHOT_TYPES or not action:
             i += 1
             continue
 
+        hitter = r.get("hitter_side", "Unknown")
+        # 找同球员、同动作类型的连续帧，只保留评分最高的
+        group = [r]
+        j = i + 1
+        while j < len(sorted_frames):
+            nr = sorted_frames[j]
+            if (nr.get("hitter_side") == hitter
+                    and nr.get("action_type") == action
+                    and nr.get("action_type") not in NON_SHOT_TYPES):
+                group.append(nr)
+                j += 1
+            else:
+                break
+        # 取评分最高的帧作为代表
+        best = max(group, key=lambda x: x.get("quality_rating", 0))
+
         shot = {
-            "time": r.get("time", ""),
-            "action_type": action,
-            "quality_rating": r.get("quality_rating", 5),
-            "发力链": r.get("发力链", 5),
-            "闪腕": r.get("闪腕", 5),
-            "步伐": r.get("步伐", 5),
-            "拍面控制": r.get("拍面控制", 5),
-            "整体协调": r.get("整体协调", 5),
-            "errors": r.get("errors", []),
-            "suggestions": r.get("suggestions", []),
-            "frames": [r["frame_file"]]
+            "time": best.get("time", ""),
+            "action_type": best.get("action_type", ""),
+            "quality_rating": best.get("quality_rating", 5),
+            "发力链": best.get("发力链", 5),
+            "闪腕": best.get("闪腕", 5),
+            "步伐": best.get("步伐", 5),
+            "拍面控制": best.get("拍面控制", 5),
+            "整体协调": best.get("整体协调", 5),
+            "errors": best.get("errors", []),
+            "suggestions": best.get("suggestions", []),
+            "frames": [best["frame_file"]]
         }
         shots.append(shot)
-        i += 1
+        i = j  # 跳到下一组
 
     return {"shots": shots}

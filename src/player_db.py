@@ -6,7 +6,8 @@
 import os, json
 from datetime import datetime
 
-PLAYERS_DIR = "/Users/youqifang/Desktop/小程序/players"
+PLAYERS_DIR = os.environ.get("BADMINTON_PLAYERS_DIR",
+                            "/Users/youqifang/Desktop/小程序/players")
 os.makedirs(PLAYERS_DIR, exist_ok=True)
 
 # ── 成就徽章定义 ─────────────────────────────────────────────────────────────

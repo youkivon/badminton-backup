@@ -11,13 +11,14 @@ def _lazy_import():
     global get_near_far_side, get_zone
     from court_position import get_near_far_side, get_zone
 
-# 羽毛球的典型HSV范围（白色球头 + 橙色球裙）
-LOWER_WHITE = np.array([0, 0, 180])
-UPPER_WHITE = np.array([180, 50, 255])
-LOWER_ORANGE = np.array([0, 80, 100])
-UPPER_ORANGE = np.array([30, 255, 255])
-LOWER_YELLOW = np.array([20, 60, 150])  # 浅黄/米白
-UPPER_YELLOW = np.array([40, 120, 220])
+# 羽毛球的典型HSV范围（白色球头 + 橙色球裙 + 浅黄高光）
+# 改进（2025-05-10）：扩大各通道范围，提高召回率
+LOWER_WHITE = np.array([0, 0, 140])    # 原 [0,0,180]，V下限降低包容暗部
+UPPER_WHITE = np.array([180, 80, 255]) # 原 [180,50,255]，S上限提高包容略饱和白
+LOWER_ORANGE = np.array([0, 50, 80])   # 原 [0,80,100]，扩大色相和饱和度范围
+UPPER_ORANGE = np.array([40, 255, 255]) # 原 [30,255,255]，H上限扩大
+LOWER_YELLOW = np.array([15, 30, 120])  # 原 [20,60,150]，扩大高光区域
+UPPER_YELLOW = np.array([45, 100, 255]) # 原 [40,120,220]
 
 
 def detect_shuttlecock(img_or_path, court_corners=None):
@@ -60,67 +61,59 @@ def detect_shuttlecock(img_or_path, court_corners=None):
 
     hsv = cv2.cvtColor(img_small, cv2.COLOR_BGR2HSV)
 
-    # ── 多种颜色通道联合检测 ──────────────────────
-    masks = []
-    names = []
-
+    # ── 多种颜色通道联合检测（改进版）───────────────────
     # 白/灰白色（球头+球裙亮部）
     m_white = cv2.inRange(hsv, LOWER_WHITE, UPPER_WHITE)
-    masks.append(m_white)
-    names.append("white")
-
     # 橙色（球裙）
     m_orange = cv2.inRange(hsv, LOWER_ORANGE, UPPER_ORANGE)
-    masks.append(m_orange)
-    names.append("orange")
-
     # 浅黄白（亮部羽毛）
     m_yellow = cv2.inRange(hsv, LOWER_YELLOW, UPPER_YELLOW)
-    masks.append(m_yellow)
-    names.append("yellow")
+
+    # 三通道并集 + 形态学闭运算（合并羽毛散开区域）
+    combined = cv2.max(m_white, cv2.max(m_orange, m_yellow))
+    kernel = np.ones((5, 5), np.uint8)
+    combined = cv2.morphologyEx(combined, cv2.MORPH_CLOSE, kernel)
+    combined = cv2.morphologyEx(combined, cv2.MORPH_OPEN, kernel)
 
     best_cx, best_cy, best_radius, best_score = None, None, None, 0
 
-    for mi, (mask, name) in enumerate(zip(masks, names)):
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+    cnts, _ = cv2.findContours(combined, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for c in cnts:
+        area = cv2.contourArea(c)
+        # 扩大范围：最小20像素（原来是30），最大8000（原来是4000）
+        if area < 20 or area > 8000:
+            continue
 
-        cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for c in cnts:
-            area = cv2.contourArea(c)
-            if area < 30 or area > 4000:
+        # 椭圆/圆拟合（需要>=5个点）
+        if len(c) >= 5:
+            try:
+                ellipse = cv2.fitEllipse(c)
+                (cx_e, cy_e), (ma, MA), angle = ellipse
+                cx_e /= scale
+                cy_e /= scale
+                radius = max(ma, MA) / 2 / scale
+            except:
                 continue
+        else:
+            continue
 
-            # 椭圆/圆拟合
-            if len(c) >= 5:
-                try:
-                    ellipse = cv2.fitEllipse(c)
-                    (cx_e, cy_e), (ma, MA), angle = ellipse
-                    cx_e /= scale
-                    cy_e /= scale
-                    radius = max(ma, MA) / 2 / scale
-                except:
-                    continue
-            else:
-                continue
+        # 形状检测：轮廓复杂度（羽毛球接近圆形但有毛状边缘）
+        perimeter = cv2.arcLength(c, True)
+        if perimeter < 1:
+            continue
+        circularity = 4 * np.pi * area / (perimeter * perimeter)
 
-            # 形状检测：轮廓复杂度（羽毛球接近圆形但有毛状边缘）
-            perimeter = cv2.arcLength(c, True)
-            if perimeter < 1:
-                continue
-            circularity = 4 * np.pi * area / (perimeter * perimeter)
+        # 面积+圆度综合评分（降低圆度权重，羽毛球轮廓不规则）
+        # 羽毛球在画面中通常 5-100 像素半径
+        size_score = 1.0 if 5 < radius < 100 else max(0, 1 - abs(radius - 40) / 40)
+        # 圆度要求降低（原来是 circularity*0.5），羽毛球羽毛不规则
+        score = circularity * 0.3 + size_score * 0.7
 
-            # 面积+圆度综合评分
-            # 羽毛球在画面中通常 10-80 像素半径
-            size_score = 1.0 if 5 < radius < 100 else max(0, 1 - abs(radius - 40) / 40)
-            score = circularity * 0.5 + size_score * 0.5
-
-            if score > best_score:
-                best_score = score
-                best_cx = int(cx_e)
-                best_cy = int(cy_e)
-                best_radius = int(radius)
+        if score > best_score:
+            best_score = score
+            best_cx = int(cx_e)
+            best_cy = int(cy_e)
+            best_radius = int(radius)
 
     found = best_score > 0.3 and best_cx is not None
 

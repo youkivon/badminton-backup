@@ -6,26 +6,94 @@
 import os, sys, json, datetime, re
 from collections import Counter
 
-# 字体路径（清理 feat/morx/hdmx/bsln/meta 表，避免 fpdf2 subset warn）
-FONT_DIR = "/tmp/fonts"
-FONT_TTF = f"{FONT_DIR}/stHeiti.ttf"
-FONT_CLEAN = f"{FONT_DIR}/stHeiti_clean.ttf"
-os.makedirs(FONT_DIR, exist_ok=True)
+# ── 全局风格配置（字体/颜色/间距全部统一定义，禁止散落数值）────────────
+_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+ASSETS_FONT = os.path.join(_ASSETS_DIR, "stheiti.ttf")
 
-def _build_font():
-    """首次运行时从系统 TTC 提取 TTF，清理 fpdf2 不懂的表"""
-    import fontTools.ttLib
-    ttc = fontTools.ttLib.TTFont("/System/Library/Fonts/STHeiti Light.ttc", fontNumber=0)
-    ttc.save(FONT_TTF)
-    for tag in ["feat", "morx", "hdmx", "bsln", "meta"]:
-        if tag in ttc.keys():
-            del ttc[tag]
-    ttc.save(FONT_CLEAN)
-    sz = os.path.getsize(FONT_TTF) // 1024
-    print(f"字体提取: {sz}KB -> 清理后 {os.path.getsize(FONT_CLEAN)//1024}KB")
+STYLE = dict(
+    # ── 颜色 ───────────────────────────────────────
+    C_DARK   = ( 26,  26,  46),
+    C_MID    = ( 22,  33,  62),
+    C_GREY   = ( 60,  60,  60),
+    C_LIGHT  = (100, 100, 100),
+    C_RED    = (198,  40,  40),
+    C_GREEN  = ( 39, 174,  96),
+    C_ORG    = (239, 108,   0),
+    C_BLUE   = (  0,  90, 180),
+    C_GOLD   = (255, 180,   0),
+    C_LINE   = (220, 220, 220),
 
-if not os.path.exists(FONT_CLEAN):
-    _build_font()
+    # 评分→颜色映射
+    TAG_C = {
+        0: (198,  40,  40), 1: (198,  40,  40), 2: (198,  40,  40),
+        3: (239, 108,   0), 4: (239, 108,   0), 5: (239, 108,   0),
+        6: ( 39, 174,  96), 7: ( 39, 174,  96),
+        8: (  0,  90, 180), 9: (  0,  90, 180), 10: (  0,  90, 180),
+    },
+
+    # ── 字体大小 ───────────────────────────────────
+    F_TITLE        = 20,
+    F_SECTION      = 13,
+    F_LABEL        = 10,
+    F_BODY         =  9,
+    F_SMALL        =  8.5,
+    F_MINI         =  8,
+    F_TINY         =  7.5,
+    F_CHART_SCORE  = 11,
+
+    # ── 间距 ───────────────────────────────────────
+    LN_BODY  =  4.5,
+    LN_SMALL =  4,
+    LN_TINY  =  3.5,
+    ROW_H    = 10,
+    ROW_H_SM =  8,
+    ROW_H_LG = 13,
+
+    # ── 卡片布局 ────────────────────────────────────
+    IMG_W    = 65,
+    IMG_H    = 36,
+    CARD_BAR =  3,
+    CARD_TOP = 14,
+)
+
+# ── 向后兼容别名（旧代码直接用 C_DARK / TAG_C，不改原代码）─────────────
+C_DARK  = STYLE["C_DARK"]
+C_MID   = STYLE["C_MID"]
+C_GREY  = STYLE["C_GREY"]
+C_LIGHT = STYLE["C_LIGHT"]
+C_RED   = STYLE["C_RED"]
+C_GREEN = STYLE["C_GREEN"]
+C_ORG   = STYLE["C_ORG"]
+C_BLUE  = STYLE["C_BLUE"]
+C_GOLD  = STYLE["C_GOLD"]
+C_LINE  = STYLE["C_LINE"]
+TAG_C   = STYLE["TAG_C"]
+# ──────────────────────────────────────────────────────────────────────────
+
+# VLM英文错误代码 → 中文翻译
+ERROR_CODE_TRANSLATION = {
+    "E1-power chain break":          "E1-发力链断裂",
+    "E1-power chain broken":          "E1-发力链断裂",
+    "E1-insufficient power":         "E1-发力不足",
+    "E1-stiff wrist":                 "E1-手腕僵硬",
+    "E1-incomplete follow-through":   "E1-收拍不完整",
+    "E2-racquet face open":          "E2-拍面开放",
+    "E2-racquet face angle":         "E2-拍面角度不正",
+    "E3-raised elbow":               "E3-抬肘过高",
+    "E3-elbow too high":              "E3-肘关节抬得过高",
+    "E3-excessive elbow lift":         "E3-肘关节过度抬起",
+    "E3-low contact point":           "E3-击球点过低",
+    "E4-poor body rotation":          "E4-身体转动不足",
+    "E4-lack of hip rotation":        "E4-髋关节转动不充分",
+    "E5-insufficient wrist snap":     "E5-手腕爆发不足",
+    "E5-excessive wrist movement":    "E5-手腕挥动过大",
+    "E5-wrist instability":           "E5-手腕支撑不稳定",
+    "E6-early trunk rotation":        "E6-躯干过早旋转",
+    "E7-ball of foot landing":        "E7-踮脚步着陆",
+    "E8-high center of gravity":      "E8-重心过高",
+    "E9-no pivot":                    "E9-无重心转移",
+    "E10-over执拍":                   "E10-握拍方式不当",
+}
 
 from fpdf import FPDF
 import sys
@@ -70,18 +138,114 @@ class Report(FPDF):
     def header(self): pass
     def footer(self):
         self.set_y(-15)
-        self.set_font("STHeiti", size=8)
+        self.set_font("STHeiti", size=STYLE["F_MINI"])
         self.set_text_color(180, 180, 180)
         self.cell(0, 10, f"- {self.page_no()} -", align="C")
 
+
+def _translate_err(text):
+    """把VLM英文错误代码翻译成中文（复用模块级翻译表）"""
+    translated = text.strip()
+    for en, zh in ERROR_CODE_TRANSLATION.items():
+        if en.lower() in translated.lower():
+            translated = re.sub(re.escape(en), zh, translated, flags=re.IGNORECASE)
+    return translated
+
+# VLM动作类型 → 中文
+ACTION_TYPE_TRANSLATION = {
+    "Smash":          "杀球",
+    "smash":          "杀球",
+    "Drop shot":      "吊球",
+    "drop shot":      "吊球",
+    "Net shot":       "网前球",
+    "net shot":       "网前球",
+    "Clear":          "高远球",
+    "clear":          "高远球",
+    "Drive":          "抽球",
+    "drive":          "抽球",
+    "Lob":            "挑球",
+    "lob":            "挑球",
+    "Push shot":      "推球",
+    "push shot":      "推球",
+    "Block":          "封网",
+    "block":          "封网",
+    "Defense":        "防守",
+    "defense":        "防守",
+    "Attack":         "进攻",
+    "attack":         "进攻",
+    "Backhand":       "反手",
+    "backhand":       "反手",
+    "Forehand":       "正手",
+    "forehand":       "正手",
+    "Save":           "救球",
+    "save":           "救球",
+}
+
+def _translate_action_type(at):
+    """把VLM英文动作类型翻译成中文"""
+    return ACTION_TYPE_TRANSLATION.get(at, at)
 
 def clean_err(text, max_len=50):
     text = text.strip()
     text = re.sub(r"^[）\)\u3001、\s]+", "", text)
     text = re.sub(r"^[\d\u2460-\u2473]+[\.\、\s]+", "", text)
+    text = _translate_err(text)           # ← 翻译VLM英文错误代码
     if len(text) > max_len:
         text = text[:max_len] + "…"
     return text
+
+
+_TRANSLATION_DICT = {
+    "Lower the elbow": "降低肘关节",
+    "maintain a more natural swing path": "保持更自然的挥拍轨迹",
+    "focus on explosive wrist snap": "注重击球瞬间的手腕爆发",
+    "at impact": "在击球瞬间",
+    "by practicing slow-motion swings": "通过慢动作挥拍练习",
+    "to perfect timing": "来完善发力时机",
+    "improve footwork recovery": "改进步伐回动",
+    "landing on the balls of the feet": "以前脚掌落地",
+    "immediately pivoting to reset": "立即转髋重心调整",
+    "keep it slightly bent and close to the body": "保持肘关节微屈靠近身体",
+    "engage the legs and hips": "调动腿和髋部发力",
+    "initiate with leg drive and hip rotation": "以蹬腿转髋启动",
+    "keep elbow slightly bent": "保持肘关节微屈",
+    "maintain optimal swing path": "保持最佳挥拍路径",
+    "Practice slow-motion drills": "进行慢动作练习",
+    "to reinforce proper sequencing": "强化正确的发力顺序",
+    "engage hips and shoulders earlier": "更早调动髋肩转动",
+    "generate more power from legs and core": "更多利用腿部核心发力",
+    "increase shot depth and consistency": "增加回球深度和稳定性",
+    "overhead clear drills": "头顶高远球练习",
+    "full-body coordination": "全身协调配合",
+    "improve coordination between leg drive and hip rotation": "改进蹬腿与转髋的协调配合",
+    "achieve a more efficient, downward strike": "实现更有效的向下击打",
+    "practice wrist relaxation and snap": "练习手腕放松与爆发",
+    "with light touch drills": "进行轻触球练习",
+    "use mirror or video feedback": "使用镜子或视频反馈",
+    "adjust racquet face angle": "调整拍面角度",
+    "to slightly downward at contact": "在触球时稍微向下",
+    "for better net control": "以更好地控制网前",
+    "ensure full wrist snap at impact": "确保击球瞬间手腕充分爆发",
+    "explosive deceleration": "爆发性减速",
+    "lower the elbow": "降低肘关节",
+    "lower the elbow at the start of the swing": "在挥拍起始时降低肘关节",
+    "lower the elbow at contact": "在击球瞬间降低肘关节",
+    "lower the elbow during backswing": "在引拍时降低肘关节",
+    "lower the elbow during the backswing": "在引拍时降低肘关节",
+    "avoid raising the elbow too high": "避免肘关节抬得过高",
+}
+
+
+def _translate_suggestion_impl(text):
+    """把英文改进建议翻译成中文"""
+    if not text:
+        return text
+    translated = text
+    # 按长度从长到短排序，确保优先匹配更长短语
+    sorted_items = sorted(_TRANSLATION_DICT.items(), key=lambda x: len(x[0]), reverse=True)
+    for en, zh in sorted_items:
+        translated = translated.replace(en, zh)
+    return translated
 
 
 def _infer_action_types(shots):
@@ -97,7 +261,16 @@ def _infer_action_types(shots):
         text = text.strip()
         text = re.sub(r"^[）\)\u3001、\s]+", "", text)
         text = re.sub(r"^[\d\u2460-\u2473]+[\.\、\s]+", "", text)
-        return text
+        # 翻译VLM英文错误代码（遍历所有，翻译到的替换）
+        translated = text
+        for en, zh in ERROR_CODE_TRANSLATION.items():
+            if en.lower() in translated.lower():
+                translated = re.sub(re.escape(en), zh, translated, flags=re.IGNORECASE)
+        return translated
+
+    def _translate_suggestion(text):
+        """把英文改进建议翻译成中文（代理到模块级函数）"""
+        return _translate_suggestion_impl(text)
 
     def _do_infer(shot):
         at = shot.get("action_type", "")
@@ -166,7 +339,7 @@ def make_report(data: dict, output_path: str):
     """
     pdf = Report()
     pdf.set_auto_page_break(auto=True, margin=10)
-    pdf.add_font("STHeiti", "", FONT_CLEAN)
+    pdf.add_font("STHeiti", "", ASSETS_FONT)
     pdf.add_page()
 
     LM = pdf.l_margin
@@ -185,7 +358,7 @@ def make_report(data: dict, output_path: str):
     # ─── 标题栏 ───
     pdf.set_fill_color(*C_MID)
     pdf.rect(LM, pdf.y - 4, 3, 30, "F")
-    pdf.set_font("STHeiti", size=20)
+    pdf.set_font("STHeiti", size=STYLE["F_TITLE"])
     pdf.set_text_color(*C_DARK)
     pdf.set_x(LM + 8)
     title = "羽毛球技术动作分析报告"
@@ -193,7 +366,7 @@ def make_report(data: dict, output_path: str):
         title = f"{player_name} · 技术分析报告"
     pdf.cell(BW - 8, 13, title, align="L", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(1)
-    pdf.set_font("STHeiti", size=9)
+    pdf.set_font("STHeiti", size=STYLE["F_BODY"])
     pdf.set_text_color(*C_LIGHT)
     pdf.set_x(LM + 8)
     meta = (f"视频：{data['video']}  |  时长：{data.get('duration','未知')}  |  "
@@ -207,7 +380,7 @@ def make_report(data: dict, output_path: str):
     # ─── 进步对比 Banner（如果有历史数据） ───
     if progress.get("enough_data"):
         pdf.set_fill_color(*C_MID)
-        pdf.set_font("STHeiti", size=10)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(255, 255, 255)
 
         delta = progress["delta"]
@@ -223,7 +396,7 @@ def make_report(data: dict, output_path: str):
     # ─── Section 1: 球员信息 ───
     pdf.set_fill_color(*C_BLUE)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-    pdf.set_font("STHeiti", size=13)
+    pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
     pdf.cell(0, 8, "一、球员信息", new_x="LMARGIN", new_y="NEXT")
@@ -245,7 +418,7 @@ def make_report(data: dict, output_path: str):
     headers = ["队伍", "球员位置"]
     pdf.set_fill_color(*C_DARK)
     pdf.set_text_color(255, 255, 255)
-    pdf.set_font("STHeiti", size=9)
+    pdf.set_font("STHeiti", size=STYLE["F_BODY"])
     for cx, cw, h in zip(col_x, col_w, headers):
         pdf.set_xy(cx, pdf.y)
         pdf.cell(cw, 8, h, border=1, fill=True, align="C")
@@ -261,7 +434,7 @@ def make_report(data: dict, output_path: str):
             pdf.rect(cx, pdf.y, cw, row_h, "FD")
             pdf.set_xy(cx, pdf.y)
             pdf.set_text_color(*tc)
-            pdf.set_font("STHeiti", size=9)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
             pdf.cell(cw, row_h, val, border=0, fill=False, align="C")
         pdf.y += row_h
     pdf.ln(5)
@@ -269,7 +442,7 @@ def make_report(data: dict, output_path: str):
     # ─── Section 2: 整体评价 ───
     pdf.set_fill_color(*C_ORG)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-    pdf.set_font("STHeiti", size=13)
+    pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
     pdf.cell(0, 8, "二、整体技术评价", new_x="LMARGIN", new_y="NEXT")
@@ -277,11 +450,11 @@ def make_report(data: dict, output_path: str):
 
     ratings = [s.get("quality_rating", 3) for s in shots]
     avg_q = sum(ratings) / len(ratings) if ratings else 0
-    pdf.set_font("STHeiti", size=10)
+    pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
     pdf.set_text_color(*C_GREY)
     pdf.multi_cell(BW, 6, f"本次分析共 {len(shots)} 个有效动作帧，整体技术评分：{avg_q:.1f}/10（{qtext(int(round(avg_q)))}）。")
     pdf.ln(2)
-    pdf.set_font("STHeiti", size=10)
+    pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
     pdf.cell(0, 6, "主要技术问题分布：", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
 
@@ -297,7 +470,7 @@ def make_report(data: dict, output_path: str):
     ex = [LM, LM + ew[0]]
 
     pdf.set_fill_color(*C_MID)
-    pdf.set_font("STHeiti", size=9)
+    pdf.set_font("STHeiti", size=STYLE["F_BODY"])
     pdf.set_text_color(255, 255, 255)
     for h, cx, w in zip(["问题类型", "出现次数"], ex, ew):
         pdf.set_xy(cx, pdf.y)
@@ -315,12 +488,12 @@ def make_report(data: dict, output_path: str):
         pdf.rect(ex[1], cur_y, ew[1], row_h, "FD")
 
         pdf.set_xy(ex[0], cur_y)
-        pdf.set_font("STHeiti", size=9)
+        pdf.set_font("STHeiti", size=STYLE["F_BODY"])
         pdf.set_text_color(*C_GREY)
         pdf.multi_cell(ew[0], 4.5, err, border=0)
 
         pdf.set_xy(ex[1], cur_y)
-        pdf.set_font("STHeiti", size=9)
+        pdf.set_font("STHeiti", size=STYLE["F_BODY"])
         pdf.set_text_color(*C_RED)
         pdf.cell(ew[1], row_h, f"{cnt}次", border=0, fill=False, align="C")
 
@@ -330,7 +503,7 @@ def make_report(data: dict, output_path: str):
     # ─── Section 3: 详细动作分析 ───
     pdf.set_fill_color(*C_BLUE)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-    pdf.set_font("STHeiti", size=13)
+    pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
     pdf.cell(0, 8, "三、详细技术分析", new_x="LMARGIN", new_y="NEXT")
@@ -346,7 +519,7 @@ def make_report(data: dict, output_path: str):
         ql = qlabel(q)
         tc = TAG_C.get(int(round(q)), C_LIGHT)
 
-        action_type = shot.get("action_type", "")
+        action_type = _translate_action_type(shot.get("action_type", ""))
 
         # 分析失败且无实质内容：跳过此帧，不绘制卡片
         if action_type == "分析失败" and not shot.get("errors") and not shot.get("suggestions"):
@@ -367,13 +540,13 @@ def make_report(data: dict, output_path: str):
         pdf.set_fill_color(*tc)
         pdf.rect(LM, card_start_y, 3, 14, "F")
         pdf.set_fill_color(240, 244, 248)
-        pdf.set_font("STHeiti", size=10)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(*C_DARK)
         pdf.set_x(LM + 4)
         pdf.cell(pdf.w - LM - pdf.r_margin - 4, 7, title, border=1, fill=True, new_x="LMARGIN", new_y="NEXT")
         pdf.set_fill_color(*tc)
         pdf.set_text_color(255, 255, 255)
-        pdf.set_font("STHeiti", size=9)
+        pdf.set_font("STHeiti", size=STYLE["F_BODY"])
         pdf.set_x(LM + 4)
         pdf.cell(pdf.w - LM - pdf.r_margin - 4, 6, f"  {ql}  {q}/10",
                  border=1, fill=True, new_x="LMARGIN", new_y="NEXT")
@@ -383,8 +556,11 @@ def make_report(data: dict, output_path: str):
         # shots 数据源有两个版本：frames_results 用 frame_file，analyze_shots 用 frames[0]
         _frames = shot.get("frames", [])
         frame_file = shot.get("frame_file", _frames[0] if _frames else "")
-        frames_dir = data.get("frames_dir", "/tmp/bad_shots/target_frames")
-        img_path = f"{frames_dir}/{frame_file}"
+        frames_dir = data.get("frames_dir", "")
+        # frames_dir 必须指向有效目录，拒绝污染源 /tmp/bad_shots/target_frames
+        if not frames_dir or not os.path.isdir(frames_dir):
+            frames_dir = ""
+        img_path = f"{frames_dir}/{frame_file}" if frame_file else ""
         txt_x = LM + IMG_W_MM + 5
         txt_w = pdf.w - LM - pdf.r_margin - IMG_W_MM - 5
 
@@ -436,11 +612,22 @@ def make_report(data: dict, output_path: str):
                                         fill=ann_rgba)
                     im = PILImage.alpha_composite(im, label_bg)
                     # 保存临时文件
-                    tmp_path = f"{frames_dir}/ann_{frame_file}"
-                    im.convert("RGB").save(tmp_path, "JPEG", quality=85)
-                    img_path_ann = tmp_path
+                    # 保存到 session 隔离目录，拒绝污染
+                    ann_dir = os.path.dirname(img_path) if img_path else ""
+                    if ann_dir and os.path.isdir(ann_dir):
+                        tmp_path = f"{ann_dir}/ann_{frame_file}"
+                        im.convert("RGB").save(tmp_path, "JPEG", quality=85)
+                        img_path_ann = tmp_path
+                    else:
+                        img_path_ann = img_path
                 else:
                     img_path_ann = img_path
+
+                # annotated 文件必须和原始帧在同一目录，防止跨 session 污染
+                ann_base = os.path.dirname(img_path) if img_path else ""
+                ann_path = f"{ann_base}/ann_{frame_file}" if ann_base and frame_file else ""
+                if ann_path and os.path.exists(ann_path):
+                    img_path_ann = ann_path
 
                 iw2, ih2 = im.size, im.size
                 ratio = ih / iw
@@ -501,7 +688,7 @@ def make_report(data: dict, output_path: str):
             for s in suggestions[:2]:
                 pdf.set_x(txt_x)
                 pdf.set_text_color(*C_GREY)
-                pdf.multi_cell(txt_w, 4.5, f"→ {clean_err(s, 300)}")
+                pdf.multi_cell(txt_w, 4.5, f"→ {_translate_suggestion_impl(s)}")
             end_y = pdf.y
 
         # 卡片底部 = 图片底部 和 文字底部 的较大者
@@ -515,7 +702,7 @@ def make_report(data: dict, output_path: str):
         pdf.add_page()
     pdf.set_fill_color(*C_RED)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-    pdf.set_font("STHeiti", size=13)
+    pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
     pdf.cell(0, 8, "四、教练总结与建议", new_x="LMARGIN", new_y="NEXT")
@@ -531,7 +718,7 @@ def make_report(data: dict, output_path: str):
         t_c = trend_color(t)
         summary.append(f"进步趋势：{t_icon}（较上次{'上升' if t=='up' else '下降' if t=='down' else '持平'}）")
 
-    pdf.set_font("STHeiti", size=10)
+    pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
     pdf.set_text_color(*C_GREY)
     for line in summary:
         pdf.multi_cell(BW, 6, line)
@@ -638,12 +825,12 @@ def make_report(data: dict, output_path: str):
         pdf.set_fill_color(*C_RED)
         pdf.rect(LM, c_y, 2, 1, "F")
         pdf.set_xy(LM + 5, c_y + 1)
-        pdf.set_font("STHeiti", size=9.5)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(*C_RED)
         pdf.cell(BW - 10, 5, f"问题：{err}（{cnt}次）")
         pdf.ln(5)
         pdf.set_x(LM + 5)
-        pdf.set_font("STHeiti", size=9)
+        pdf.set_font("STHeiti", size=STYLE["F_BODY"])
         pdf.set_text_color(*C_GREY)
         pdf.multi_cell(BW - 10, 5, f"→ {tip}")
         pdf.y = c_y + 14
@@ -675,7 +862,7 @@ def make_report(data: dict, output_path: str):
             pdf.multi_cell(BW - 10, 5, f"{kb_a}")
             if kb_video_title:
                 pdf.set_x(LM + 5)
-                pdf.set_font("STHeiti", size=8)
+                pdf.set_font("STHeiti", size=STYLE["F_MINI"])
                 pdf.set_text_color(*C_BLUE)
                 pdf.cell(BW - 10, 5, f"▶ {kb_video_title}")
                 pdf.ln(4)
@@ -683,7 +870,7 @@ def make_report(data: dict, output_path: str):
                 if kb_video_url:
                     vid_short = kb_video_url.replace('https://www.bilibili.com/video/', '▶  bilibili.com/')
                     pdf.set_x(LM + 5)
-                    pdf.set_font("STHeiti", size=7.5)
+                    pdf.set_font("STHeiti", size=STYLE["F_TINY"])
                     pdf.set_text_color(*C_LIGHT)
                     pdf.cell(BW - 10, 4, vid_short)
             pdf.y = box_y + estimated_h + 2
@@ -697,7 +884,7 @@ def make_report(data: dict, output_path: str):
         pdf.add_page()
     pdf.set_fill_color(*C_BLUE)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-    pdf.set_font("STHeiti", size=13)
+    pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
     pdf.cell(0, 8, "五、五维技术评分", new_x="LMARGIN", new_y="NEXT")
@@ -745,12 +932,12 @@ def make_report(data: dict, output_path: str):
 
         # 维度名称
         pdf.set_xy(LM + 4, cur_y + 2)
-        pdf.set_font("STHeiti", size=10)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(*C_DARK)
         pdf.cell(LABEL_W, 6, dim)
 
         # 分数
-        pdf.set_font("STHeiti", size=11)
+        pdf.set_font("STHeiti", size=STYLE["F_CHART_SCORE"])
         pdf.set_text_color(*bar_color)
         score_x = LM + LABEL_W
         pdf.set_xy(score_x, cur_y + 1)
@@ -770,7 +957,7 @@ def make_report(data: dict, output_path: str):
             pdf.rect(bar_x, bar_y, fill_w, bar_h, "F")
 
         # 分数标签在条上方
-        pdf.set_font("STHeiti", size=7.5)
+        pdf.set_font("STHeiti", size=STYLE["F_TINY"])
         pdf.set_text_color(120, 120, 120)
         pdf.set_xy(bar_x + fill_w - 8 if fill_w > 8 else bar_x + fill_w + 1, bar_y - 0.5)
         if fill_w > 8:
@@ -783,16 +970,16 @@ def make_report(data: dict, output_path: str):
             sign = "+" if delta > 0 else ""
             d_color = C_GREEN if delta > 0 else (C_RED if delta < 0 else C_ORG)
             d_icon = "↑" if delta > 0 else ("↓" if delta < 0 else "→")
-            pdf.set_font("STHeiti", size=9)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
             pdf.set_text_color(*d_color)
             pdf.set_xy(delta_x, cur_y + 2)
             pdf.cell(DELTA_W, 6, f"{d_icon} {sign}{delta:.1f}分")
-            pdf.set_font("STHeiti", size=7.5)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
             pdf.set_text_color(140, 140, 140)
             pdf.set_xy(delta_x, cur_y + 8)
             pdf.cell(DELTA_W, 4, f"上次{prev:.1f}分")
         elif prev is None and progress.get("enough_data"):
-            pdf.set_font("STHeiti", size=8)
+            pdf.set_font("STHeiti", size=STYLE["F_MINI"])
             pdf.set_text_color(180, 180, 180)
             pdf.set_xy(bar_x + BAR_MAX_W + 4, cur_y + 4)
             pdf.cell(DELTA_W, 5, "首次分析")
@@ -806,7 +993,7 @@ def make_report(data: dict, output_path: str):
             pdf.add_page()
         pdf.set_fill_color(*C_GREEN)
         pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-        pdf.set_font("STHeiti", size=13)
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
         pdf.set_text_color(*C_MID)
         pdf.set_x(LM + 6)
         pdf.cell(0, 8, "六、进步跟踪", new_x="LMARGIN", new_y="NEXT")
@@ -817,7 +1004,7 @@ def make_report(data: dict, output_path: str):
         trend = progress.get("quality_trend", {})
         t_str = "上升" if delta > 0 else ("下降" if delta < 0 else "持平")
 
-        pdf.set_font("STHeiti", size=10)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(*C_GREY)
         pdf.multi_cell(BW, 6, f"从 {progress['first_avg']} 分（{progress['first_date']}）"
                              f" → {progress['latest_avg']} 分（{progress['latest_date']}），"
@@ -834,7 +1021,7 @@ def make_report(data: dict, output_path: str):
         imp_headers = ["问题", "上次", "本次", "变化"]
 
         if improved:
-            pdf.set_font("STHeiti", size=9)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
             pdf.set_text_color(*C_GREEN)
             pdf.cell(0, 6, f"改善项目（{len(improved)}项）", new_x="LMARGIN", new_y="NEXT")
             pdf.set_fill_color(*C_MID)
@@ -859,7 +1046,7 @@ def make_report(data: dict, output_path: str):
             pdf.ln(3)
 
         if worsened:
-            pdf.set_font("STHeiti", size=9)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
             pdf.set_text_color(*C_RED)
             pdf.cell(0, 6, f"加重项目（{len(worsened)}项）", new_x="LMARGIN", new_y="NEXT")
             for i, item in enumerate(worsened[:5]):
@@ -933,7 +1120,7 @@ def make_report(data: dict, output_path: str):
 
         pdf.set_fill_color(*C_ORG)
         pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-        pdf.set_font("STHeiti", size=13)
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
         pdf.set_text_color(*C_MID)
         pdf.set_x(LM + 6)
         pdf.cell(0, 8, "七、技术评分历史曲线", new_x="LMARGIN", new_y="NEXT")
@@ -956,7 +1143,7 @@ def make_report(data: dict, output_path: str):
             pdf.add_page()
         pdf.set_fill_color(*C_GOLD if new_badges else C_BLUE)
         pdf.rect(LM, pdf.y - 1, 3, 10, "F")
-        pdf.set_font("STHeiti", size=13)
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
         pdf.set_text_color(*C_MID)
         pdf.set_x(LM + 6)
         badge_title = "八、成就徽章"
@@ -985,18 +1172,18 @@ def make_report(data: dict, output_path: str):
             pdf.rect(bx + 1, by, cell_w - 2, row_h - 2, "FD")
 
             pdf.set_xy(bx + 1, by + 1)
-            pdf.set_font("STHeiti", size=14)
+            pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
             tc = C_GOLD if b["earned"] else (180, 180, 180)
             pdf.set_text_color(*tc)
             pdf.cell(cell_w - 2, 8, b["icon"], align="C")
 
             pdf.set_xy(bx + 1, by + 8)
-            pdf.set_font("STHeiti", size=7.5)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
             pdf.set_text_color(C_DARK if b["earned"] else (160, 160, 160))
             pdf.cell(cell_w - 2, 4, b["name"], align="C")
 
             pdf.set_xy(bx + 1, by + 12)
-            pdf.set_font("STHeiti", size=6.5)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
             pdf.set_text_color(*C_LIGHT)
             pdf.multi_cell(cell_w - 2, 3.5, b["desc"], align="C")
 

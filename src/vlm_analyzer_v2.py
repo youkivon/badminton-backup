@@ -8,7 +8,7 @@
   2. VLM Stage1：问"是否有挥拍 + 哪边在挥拍"
   3. VLM Stage2：传入球位置context，让VLM结合场地上下文判断动作
 """
-import os, json, time, cv2
+import os, json, time, cv2, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
 import base64, mimetypes
@@ -43,74 +43,48 @@ STAGE1_PROMPT = (
 )
 
 # ============================================================
-# Stage2 Prompt V2：结合球位置上下文
+# Stage2 Prompt V4：严格动作分类 + 位置约束 + 发球识别
 # ============================================================
-STAGE2_PROMPT_V2 = r"""You are a professional badminton AI coach. Analyze this video frame with court context.
+STAGE2_PROMPT_V2 = r"""你是一位专业的羽毛球教练。请分析图片中球员的击球动作。
 
-KNOWN INFO from OpenCV ball detection:
-- Ball pixel position: (cx, cy)
-- If cy < 40% of image height -> ball is on FAR side (opponent's court)
-- If cy > 60% of image height -> ball is on NEAR side (our court)
-- If 40% < cy < 60% -> ball at MIDDLE
+【核心原则：宁可漏判，不能误判】
+如果图片中球不可见、挥拍轨迹不清晰、或动作存在明显疑义无法判断，必须直接输出 SKIP，不得擅自编造动作类型。
+严禁在没有足够视觉证据的情况下输出任何击球动作描述。
+【重要：判断前先排除法】
+在输出动作类型之前，必须依次问自己：
+1. 发球？→ 击球手在端线后，拍头向上或向后倾斜，双脚在地面，球刚离手或即将离手
+2. 杀球？→ 拍面明显朝下（朝地面），挥拍轨迹从上往下，身体有蹬地/跳跃发力感
+3. 高远球？→ 拍面朝后（背对球网方向），球在击球手身后或头顶上方
+4. 吊球？→ 挥拍向下但柔和，拍面有切动，力量轻
+5. 平抽？→ 挥拍基本水平，拍面正对球网，身体站直
+6. 挑球？→ 拍面从下往上挥，力量轻
+7. 放网/搓球？→ 挥拍轻柔，身体弯腰前倾，拍面接近球网
+8. 推球？→ 挥拍短促向前，力量轻
 
-CRITICAL RULE: The hitter MUST be on the same side as the ball. If ball is far side (cy small), hitter is also on far side -> only BACKCOURT techniques are possible.
+【发球识别标准——必须同时满足以下全部条件才判发球】：
+① 击球手位于端线附近或发球线后
+② 球刚离手或仍在手上（可见手持羽毛球）
+③ 拍头向上或明显朝后
+④ 双脚都在地面上（无跳跃）
+若有任何一条不满足，即使其他条件符合也不判为发球。
 
-【Position Rules】
-- Player in bottom half of image, large, thick limbs -> FRONTCOURT/NEAR
-- Player in top half of image, small, ads/background visible -> BACKCOURT/FAR
-- Between -> MIDDLE
+【位置约束——违反以下任一条，动作类型必须重新判断】：
+- 近端球员（画面底部/大尺寸）不可能打出杀球（除非他明显跳起且拍面朝下）
+- 球员身体弯腰前倾、大臂抬起举拍 → 不可能是杀球/高远球
+- 拍面明显朝上 → 可能是挑球/高远球/放网，不是杀球
+- 击球手在网前（画面下半部分且靠近球网）→ 不可能是杀球/高远球，最可能是放网/搓球/扑球
 
-【CRITICAL CONSTRAINTS - Violate these and your answer is wrong】
-- Hitter at FRONTCOURT (near net) -> CANNOT be: smash, clear, drive, drop shot
-- Hitter at BACKCOURT (far baseline) -> CANNOT be: net shot, drop, push, block
-- Ball at FAR side (cy < 40%) + hitter at FAR -> MUST be BACKCOURT technique (smash/clear/drive/drop)
-- Ball at NEAR side (cy > 60%) + hitter at NEAR -> frontcourt technique possible
-
-【Backcourt Techniques (hitter at backcourt / far side)】
-- Smash: full body coordination, leg drive + hip rotation + arm swing + wrist snap, large downward angle
-- Clear: high arc, overhead, arm extended upward
-- Drive: flat, fast, horizontal trajectory
-- Drop shot: same swing as smash but decelerate at impact, gentle touch
-
-【Frontcourt Techniques (hitter at net / near side)】
-- Net shot: tap ball just above net, minimal spin
-- Slice/net shot: wrist/finger rotation, ball tumbles
-- Push: wrist forward, slight downward face, fast
-- Lift/clear: low contact point, under-the-ball, lift upward
-- Block: deflect at net with minimal swing
-
-【Serve】(only if cy > 60% AND player near baseline AND ball in hand/upward)
-- Short serve: flick or push forward
-- High serve: overhead lift to backcourt
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-【Scoring (0-10)】
-1. Power chain: leg drive -> hip -> shoulder -> arm -> wrist, smooth transfer
-2. Wrist snap: explosive wrist deceleration at impact
-3. Footwork: quick recovery, toes first landing
-4. Racquet face: correct angle, sweet spot contact
-5. Overall: balance, flow, timing, quick recovery
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-【Error Codes】
-Smash: E1-power chain break, E3-raised elbow, E5-insufficient wrist snap
-Clear: E1-insufficient power, E4-poor body rotation
-Net shot: E1-stiff wrist, E2-racquet face open, E3-low contact point
-Slice: E1-insufficient rotation, E2-back contact point
-Lift: E1-arm only, E2-too low contact
-Serve: E1-incomplete swing, E2-low contact point
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-【Output Format (strict order)】
-ActionType: [from above list]
-OverallScore: [0-10]
-PowerChain: [0-10]
-WristSnap: [0-10]
-Footwork: [0-10]
-RacquetFace: [0-10]
-Coordination: [0-10]
-MainErrors: [1-2 errors, format: Ecode-description]
-Suggestions: [specific improvement methods]"""
+【输出格式】（严格按此顺序，中文输出）
+Hitter: [Near/Far] [颜色+性别]
+ActionType: [动作类型]
+OverallScore: [0-10整数]
+PowerChain: [0-10整数]
+WristSnap: [0-10整数]
+Footwork: [0-10整数]
+RacquetFace: [0-10整数]
+Coordination: [0-10整数]
+MainErrors: [错误代码，无则写：无明显错误]
+Suggestions: [中文改进建议]"""
 
 
 def _image_to_data_uri(path):
@@ -167,7 +141,7 @@ def is_swinging(image_path: str):
         elif line.startswith("Reason:"):
             reason = line.split("Reason:", 1)[1].strip()
 
-    return ("Yes" in answer or "yes" in answer.lower(), side, reason, text)
+    return (answer.strip(), side.strip(), reason.strip())
 
 
 def stage2_analyze_v2(image_path: str, ball_info: dict, prev_frame_path: str = ""):
@@ -195,12 +169,9 @@ def stage2_analyze_v2(image_path: str, ball_info: dict, prev_frame_path: str = "
             court_half = "MIDDLE"
             ball_zone = "midcourt"
 
-        ball_context = (
-            f"OpenCV Ball Detection: pixel=({cx},{cy}), relative=({x_pct:.0f}%,{y_pct:.0f}%), "
-            f"Ball on {court_half}, {ball_zone}."
-        )
+        ball_context = "OpenCV检测到画面中可能有羽毛球。"
     else:
-        ball_context = "Ball NOT detected in frame."
+        ball_context = "OpenCV未检测到羽毛球，请根据画面自行判断。"
 
     prompt = f"{ball_context}\n\n{STAGE2_PROMPT_V2}"
 
@@ -217,7 +188,7 @@ def stage2_analyze_v2(image_path: str, ball_info: dict, prev_frame_path: str = "
             {"type": "text", "text": prompt}
         ]
 
-    text = _call_vlm(content, max_tokens=600, temperature=0.6)
+    text = _call_vlm(content, max_tokens=1200, temperature=0.6)
     if text is None:
         return _error_result(image_path, "VLM call failed")
 
@@ -228,15 +199,27 @@ def _parse_stage2_result(image_path, text, ball_info=None):
     out = {
         "frame_file": os.path.basename(image_path),
         "raw_response": text,
+        "hitter": "",
         "action_type": "",
         "quality_rating": 5,
         "发力链": 5, "闪腕": 5, "步伐": 5,
         "拍面控制": 5, "整体协调": 5,
         "errors": [], "suggestions": [],
         "ball_detected": ball_info.get("found") if ball_info else False,
-        "ball_cx": ball_info.get("cx"),
-        "ball_cy": ball_info.get("cy"),
+        "ball_cx": ball_info.get("cx") if ball_info else None,
+        "ball_cy": ball_info.get("cy") if ball_info else None,
     }
+
+    # 预检：纯SKIP响应（无标签格式）→ 归为unable to determine，不丢弃
+    stripped = text.strip().upper()
+    if stripped == "SKIP":
+        out["action_type"] = "unable to determine"
+        out["quality_rating"] = 0
+        for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
+            out[k] = 0
+        out["errors"] = ["视觉证据不足，无法确定动作类型"]
+        out["suggestions"] = []
+        return out
 
     # 中文
     label_map = {
@@ -253,7 +236,11 @@ def _parse_stage2_result(image_path, text, ball_info=None):
     }
 
     # 英文备用
+    # 英文标签（含空格变体，Hitter: 有时带空格）
     en_label_map = {
+        "Hitter :": "hitter",  # 带空格版本
+        "Hitter:": "hitter",
+        "Hitter: ": "hitter",  # 尾部空格
         "ActionType:": "action_type",
         "OverallScore:": "quality_rating",
         "PowerChain:": "发力链",
@@ -264,8 +251,23 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "MainErrors:": "errors",
         "Suggestions:": "suggestions",
     }
+    # 中文标签
+    cn_label_map = {
+        "击球主角:": "hitter",
+        "动作类型:": "action_type",
+        "综合评分:": "quality_rating",
+        "发力链:": "发力链",
+        "闪腕:": "闪腕",
+        "步伐:": "步伐",
+        "拍面控制:": "拍面控制",
+        "整体协调:": "整体协调",
+        "主要错误:": "errors",
+        "错误类型:": "errors",
+        "改进建议:": "suggestions",
+        "建议:": "suggestions",
+    }
 
-    all_label_map = {**label_map, **en_label_map}
+    all_label_map = {**label_map, **en_label_map, **cn_label_map}
 
     current_key = None
     current_list = []
@@ -283,7 +285,8 @@ def _parse_stage2_result(image_path, text, ball_info=None):
 
                 if key in ("errors", "suggestions"):
                     if val and val.lower() not in ("none", "无", "n/a", "n/a-"):
-                        items = [p.strip() for p in val.split(";") if p.strip()]
+                        # 兼容中英文分隔符
+                        items = [p.strip() for p in re.split(r'[;；]', val) if p.strip()]
                         out[key] = items
                 elif key == "quality_rating":
                     try:
@@ -298,10 +301,16 @@ def _parse_stage2_result(image_path, text, ball_info=None):
                         pass
                 elif key == "action_type":
                     out[key] = val
-                    if any(x in val for x in ["cannot determine", "unable", "信息不足"]):
+                    val_lower = val.lower()
+                    if any(x in val_lower for x in ["skip", "cannot determine", "unable", "信息不足", "无法判断", "不确定"]):
+                        out["action_type"] = "SKIP"
                         out["quality_rating"] = 0
                         for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
                             out[k] = 0
+                        out["errors"] = ["视觉证据不足，该帧跳过"]
+                        out["suggestions"] = []
+                elif key == "hitter":
+                    out[key] = val
 
                 matched = True
                 break
@@ -372,12 +381,12 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
             if done % 20 == 0 or done == total:
                 print(f"    Stage1 progress: {done}/{total}")
 
-    swing_count = sum(1 for r in stage1_results if r and r[0])
+    swing_count = sum(1 for r in stage1_results if r and "yes" in r[0].lower())
     print(f"  [V2] Stage1 done: {swing_count}/{total} frames have swings")
 
     # Step2: Stage2
     stage2_map = {}
-    swing_indices = [i for i, r in enumerate(stage1_results) if r and r[0]]
+    swing_indices = [i for i, r in enumerate(stage1_results) if r and "yes" in r[0].lower()]
 
     if swing_indices:
         print(f"  [V2] Step2: Action classification...")
@@ -404,15 +413,20 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
                 if done % 10 == 0 or done == len(swing_indices):
                     print(f"    Stage2 progress: {done}/{len(swing_indices)}")
 
-    # 组装全量结果
+    # 组装全量结果（SKIP帧直接丢弃，不进入报告）
     all_results = []
     for i, path in enumerate(frame_paths):
         if i in stage2_map:
-            all_results.append(stage2_map[i])
+            res = stage2_map[i]
+            # SKIP：视觉证据不足的帧直接丢弃
+            if res.get("action_type") == "SKIP":
+                continue
+            all_results.append(res)
         else:
             swinging, side, reason = False, "Unknown", "Unknown"
             if stage1_results[i]:
-                swinging, side, reason, _ = stage1_results[i]
+                ans, side, reason = stage1_results[i]
+                swinging = "yes" in ans.lower()
             res = {
                 "frame_file": os.path.basename(path),
                 "raw_response": f"[Stage1 No] {reason}",
