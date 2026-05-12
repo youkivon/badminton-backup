@@ -1,8 +1,8 @@
 {
   "name": "游琪方",
   "created_at": "2026-05-07",
-  "last_analysis": "2026-05-11",
-  "total_sessions": 4,
+  "last_analysis": "2026-05-12",
+  "total_sessions": 5,
   "play_style": "",
   "tags": [],
   "wechat_id": "",
@@ -2325,6 +2325,547 @@
       "report_path": "/Users/youqifang/Desktop/小程序/reports/badminton_report_2026-05-11_135048_v2.pdf",
       "quality_trend": "up",
       "prev_avg_quality": 6.4
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-12_151601_389.mp4",
+      "video_key": "df5df388a5f9",
+      "duration": "5分9秒",
+      "shots_count": 24,
+      "avg_quality": 6.1,
+      "shots": [
+        {
+          "time": "0s",
+          "action_type": "前场放网前球",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0001.jpg"
+          ],
+          "speed_kmh": 99.3,
+          "avg_speed_kmh": 70.7,
+          "trajectory": "arc",
+          "ball_detected": true
+        },
+        {
+          "time": "112s",
+          "action_type": "后场高远球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0057.jpg"
+          ],
+          "speed_kmh": 98.7,
+          "avg_speed_kmh": 69.3,
+          "trajectory": "arc",
+          "ball_detected": true
+        },
+        {
+          "time": "160s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0081.jpg"
+          ],
+          "speed_kmh": 98.5,
+          "avg_speed_kmh": 69.9,
+          "trajectory": "arc",
+          "ball_detected": true
+        },
+        {
+          "time": "204s",
+          "action_type": "前场放网前球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0103.jpg"
+          ],
+          "speed_kmh": 79.7,
+          "avg_speed_kmh": 60.5,
+          "trajectory": "arc",
+          "ball_detected": true
+        },
+        {
+          "time": "296s",
+          "action_type": "前场扑球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0149.jpg"
+          ],
+          "speed_kmh": 98.1,
+          "avg_speed_kmh": 74.6,
+          "trajectory": "arc",
+          "ball_detected": true
+        },
+        {
+          "time": "366s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0184.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "382s",
+          "action_type": "前场放网前球",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0192.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "456s",
+          "action_type": "前场放网前球",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0229.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "466s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0234.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "474s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0238.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "518s",
+          "action_type": "前场放网前球",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0260.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "554s",
+          "action_type": "中场正手抽球",
+          "player": "近端球员",
+          "quality_rating": 7,
+          "发力链": 7,
+          "闪腕": 7,
+          "步伐": 6,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-发力链断裂, E3-架肘"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0278.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "564s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0283.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "570s",
+          "action_type": "后场高远球",
+          "player": "远端球员",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0286.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "582s",
+          "action_type": "前场挑球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 6,
+          "闪腕": 5,
+          "步伐": 7,
+          "拍面控制": 6,
+          "整体协调": 7,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0292.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "732s",
+          "action_type": "前场放网前球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0367.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "746s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0374.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "808s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0405.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "840s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0421.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "956s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0479.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "1000s",
+          "action_type": "前场扑球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0501.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "1002s",
+          "action_type": "前场放网前球",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0502.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "1068s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "近端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-发力链断裂, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0535.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        },
+        {
+          "time": "1114s",
+          "action_type": "后场击球（单帧推断）",
+          "player": "远端球员",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E2-手腕僵硬, E5-闪腕不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0558.jpg"
+          ],
+          "speed_kmh": null,
+          "trajectory": "unknown",
+          "ball_detected": false
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/游琪方/frame_archive/2026-05-12",
+      "error_history": {
+        "E2-手腕僵硬, E5-闪腕不充分": {
+          "count": 17,
+          "prev_count": 0,
+          "status": "new"
+        },
+        "E1-发力链断裂, E5-闪腕不充分": {
+          "count": 6,
+          "prev_count": 0,
+          "status": "new"
+        },
+        "E1-发力链断裂, E3-架肘": {
+          "count": 1,
+          "prev_count": 0,
+          "status": "new"
+        }
+      },
+      "total_errors": 24,
+      "unique_errors": 3,
+      "quality_trend": "down",
+      "prev_avg_quality": 6.6
     }
   ]
 }

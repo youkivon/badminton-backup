@@ -425,7 +425,7 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
             try:
                 stage1_results[i] = future.result()
             except Exception as e:
-                stage1_results[i] = (False, "Unknown", str(e), "")
+                stage1_results[i] = (False, "Unknown", str(e))
             done += 1
             if done % 20 == 0 or done == total:
                 print(f"    Stage1 progress: {done}/{total}")
