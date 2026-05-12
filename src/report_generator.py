@@ -650,7 +650,7 @@ def make_report(data: dict, output_path: str):
         findings  = shot.get("key_findings", [])
         errors    = shot.get("errors", [])
         suggestions = shot.get("suggestions", [])
-        if action_type in ("准备发球", "死球", "捡球", "无效帧", "分析失败"):
+        if action_type in ("准备发球", "死球", "捡球", "无效帧", "分析失败", "无法判断"):
             hit_kw = ("击球", "闪腕", "球速", "发力", "挥拍", "击球点", "击球瞬间")
             errors     = [e for e in errors     if not any(k in e for k in hit_kw)]
             suggestions = [s for s in suggestions if not any(k in s for k in hit_kw)]

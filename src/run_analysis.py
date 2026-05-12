@@ -387,6 +387,13 @@ if __name__ == "__main__":
         SESSION_FRAMES_DIR, args.skip_analysis, ANALYSIS_CACHE, existing_frames, VIDEO_KEY
     )
 
+    # 过滤脏数据：无法判断/无质量帧不进报告
+    bad_labels = {"无法判断", "unable to determine", "unknown", ""}
+    before = len(shots)
+    shots = [s for s in shots if s.get("action_type", "") not in bad_labels and s.get("quality_rating", 0) > 0]
+    if before != len(shots):
+        print(f"[Filter] 过滤 {before - len(shots)} 个无效帧（无法判断/无质量），剩余 {len(shots)} 个有效击球")
+
     # ── Step 3: 保存到球员档案 ─────────────────────────
     try:
         db = importlib.import_module("player_db")
