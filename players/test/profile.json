@@ -1,0 +1,393 @@
+{
+  "name": "test",
+  "created_at": "2026-05-12",
+  "last_analysis": "2026-05-12",
+  "total_sessions": 6,
+  "play_style": "",
+  "tags": [],
+  "wechat_id": "",
+  "badges": [
+    "first_analysis",
+    "streak_3"
+  ],
+  "sessions": [
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 4,
+      "avg_quality": 0.0,
+      "shots": [
+        {
+          "time": "2s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0002.jpg"
+          ]
+        },
+        {
+          "time": "6s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0004.jpg"
+          ]
+        },
+        {
+          "time": "14s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0008.jpg"
+          ]
+        },
+        {
+          "time": "16s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0009.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {
+        "视觉证据不足，无法确定动作类型": {
+          "count": 4,
+          "prev_count": 0,
+          "status": "new"
+        }
+      },
+      "total_errors": 4,
+      "unique_errors": 1,
+      "quality_trend": null,
+      "prev_avg_quality": null,
+      "new_badges": [
+        "first_analysis"
+      ]
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 4,
+      "avg_quality": 0.0,
+      "shots": [
+        {
+          "time": "2s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0002.jpg"
+          ]
+        },
+        {
+          "time": "6s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0004.jpg"
+          ]
+        },
+        {
+          "time": "14s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0008.jpg"
+          ]
+        },
+        {
+          "time": "16s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 0,
+          "闪腕": 0,
+          "步伐": 0,
+          "拍面控制": 0,
+          "整体协调": 0,
+          "errors": [
+            "视觉证据不足，无法确定动作类型"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0009.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {
+        "视觉证据不足，无法确定动作类型": {
+          "count": 4,
+          "prev_count": 0,
+          "status": "new"
+        }
+      },
+      "total_errors": 4,
+      "unique_errors": 1,
+      "quality_trend": "same",
+      "prev_avg_quality": 0.0
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 2,
+      "avg_quality": 0.0,
+      "shots": [
+        {
+          "time": "2s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0002.jpg"
+          ]
+        },
+        {
+          "time": "12s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0008.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {},
+      "total_errors": 0,
+      "unique_errors": 0,
+      "quality_trend": "same",
+      "prev_avg_quality": 0.0,
+      "new_badges": [
+        "streak_3"
+      ]
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 2,
+      "avg_quality": 0.0,
+      "shots": [
+        {
+          "time": "2s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0003.jpg"
+          ]
+        },
+        {
+          "time": "4s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0004.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {},
+      "total_errors": 0,
+      "unique_errors": 0,
+      "quality_trend": "same",
+      "prev_avg_quality": 0.0
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 1,
+      "avg_quality": 0.0,
+      "shots": [
+        {
+          "time": "10s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0008.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {},
+      "total_errors": 0,
+      "unique_errors": 0,
+      "quality_trend": "same",
+      "prev_avg_quality": 0.0
+    },
+    {
+      "date": "2026-05-12",
+      "video": "微信视频2026-05-08_152654_889.mp4",
+      "video_key": "0eed381a25b0",
+      "duration": "0分18秒",
+      "shots_count": 3,
+      "avg_quality": 2.0,
+      "shots": [
+        {
+          "time": "2s",
+          "action_type": "后场击球（单帧推断）",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-高远球发力不充分, E4-侧身引拍不充分"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0004.jpg"
+          ]
+        },
+        {
+          "time": "10s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0008.jpg"
+          ]
+        },
+        {
+          "time": "12s",
+          "action_type": "unable to determine",
+          "quality_rating": 0,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0009.jpg"
+          ]
+        }
+      ],
+      "frames_dir": "/Users/youqifang/Desktop/小程序/players/test/frame_archive/2026-05-12",
+      "error_history": {
+        "E1-高远球发力不充分, E4-侧身引拍不充分": {
+          "count": 1,
+          "prev_count": 0,
+          "status": "new"
+        }
+      },
+      "total_errors": 1,
+      "unique_errors": 1,
+      "quality_trend": "up",
+      "prev_avg_quality": 0.0
+    }
+  ]
+}

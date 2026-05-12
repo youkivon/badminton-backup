@@ -1,0 +1,835 @@
+{
+  "date": "2026-05-09",
+  "video": "微信视频2026-05-08_152645_580.mp4",
+  "video_key": "aba97f45dfb7",
+  "duration": "4分44秒",
+  "shots_count": 51,
+  "avg_quality": 6.5,
+  "quality_trend": "same",
+  "prev_avg_quality": 6.5,
+  "error_history": {
+    "E1-放网手腕僵硬": {
+      "count": 3,
+      "prev_count": 0,
+      "status": "new"
+    },
+    "E2-放网拍面上仰": {
+      "count": 3,
+      "prev_count": 0,
+      "status": "new"
+    },
+    "E1-搓球旋转不够": {
+      "count": 3,
+      "prev_count": 0,
+      "status": "new"
+    },
+    "E2-搓球击球点偏后": {
+      "count": 3,
+      "prev_count": 0,
+      "status": "new"
+    },
+    "E1-搓球旋转不够，球无翻滚或翻滚不转": {
+      "count": 1,
+      "prev_count": 0,
+      "status": "new"
+    },
+    "E2-搓球击球点偏后，手臂伸直": {
+      "count": 1,
+      "prev_count": 0,
+      "status": "new"
+    }
+  },
+  "total_errors": 14,
+  "unique_errors": 6,
+  "shots": [
+    {
+      "time": "2s",
+      "action_type": "正手高远球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0002.jpg"
+      ]
+    },
+    {
+      "time": "4s",
+      "action_type": "前场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬",
+        "E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0003.jpg"
+      ]
+    },
+    {
+      "time": "6s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0004.jpg"
+      ]
+    },
+    {
+      "time": "28s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0015.jpg"
+      ]
+    },
+    {
+      "time": "30s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0016.jpg"
+      ]
+    },
+    {
+      "time": "38s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0020.jpg"
+      ]
+    },
+    {
+      "time": "40s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0021.jpg"
+      ]
+    },
+    {
+      "time": "42s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0022.jpg"
+      ]
+    },
+    {
+      "time": "44s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0023.jpg"
+      ]
+    },
+    {
+      "time": "46s",
+      "action_type": "搓球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0024.jpg"
+      ]
+    },
+    {
+      "time": "48s",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0025.jpg"
+      ]
+    },
+    {
+      "time": "50s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬",
+        "E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0026.jpg"
+      ]
+    },
+    {
+      "time": "54s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0028.jpg"
+      ]
+    },
+    {
+      "time": "56s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0029.jpg"
+      ]
+    },
+    {
+      "time": "68s",
+      "action_type": "正手杀球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0035.jpg"
+      ]
+    },
+    {
+      "time": "70s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0036.jpg"
+      ]
+    },
+    {
+      "time": "78s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 8,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0040.jpg"
+      ]
+    },
+    {
+      "time": "80s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0041.jpg"
+      ]
+    },
+    {
+      "time": "82s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0042.jpg"
+      ]
+    },
+    {
+      "time": "84s",
+      "action_type": "搓球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0043.jpg"
+      ]
+    },
+    {
+      "time": "86s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0044.jpg"
+      ]
+    },
+    {
+      "time": "98s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0050.jpg"
+      ]
+    },
+    {
+      "time": "100s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0051.jpg"
+      ]
+    },
+    {
+      "time": "102s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0052.jpg"
+      ]
+    },
+    {
+      "time": "104s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0053.jpg"
+      ]
+    },
+    {
+      "time": "106s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0054.jpg"
+      ]
+    },
+    {
+      "time": "114s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0058.jpg"
+      ]
+    },
+    {
+      "time": "116s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0059.jpg"
+      ]
+    },
+    {
+      "time": "118s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 6,
+      "闪腕": 7,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E1-搓球旋转不够，球无翻滚或翻滚不转",
+        "E2-搓球击球点偏后，手臂伸直"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0060.jpg"
+      ]
+    },
+    {
+      "time": "122s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0062.jpg"
+      ]
+    },
+    {
+      "time": "134s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [
+        "E1-搓球旋转不够",
+        "E2-搓球击球点偏后"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0068.jpg"
+      ]
+    },
+    {
+      "time": "136s",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0069.jpg"
+      ]
+    },
+    {
+      "time": "138s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0070.jpg"
+      ]
+    },
+    {
+      "time": "140s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0071.jpg"
+      ]
+    },
+    {
+      "time": "144s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0073.jpg"
+      ]
+    },
+    {
+      "time": "146s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0074.jpg"
+      ]
+    },
+    {
+      "time": "150s",
+      "action_type": "正手杀球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0076.jpg"
+      ]
+    },
+    {
+      "time": "154s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0078.jpg"
+      ]
+    },
+    {
+      "time": "156s",
+      "action_type": "正手杀球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0079.jpg"
+      ]
+    },
+    {
+      "time": "158s",
+      "action_type": "搓球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0080.jpg"
+      ]
+    },
+    {
+      "time": "160s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E1-搓球旋转不够",
+        "E2-搓球击球点偏后"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0081.jpg"
+      ]
+    },
+    {
+      "time": "162s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [
+        "E1-搓球旋转不够",
+        "E2-搓球击球点偏后"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0082.jpg"
+      ]
+    },
+    {
+      "time": "168s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0085.jpg"
+      ]
+    },
+    {
+      "time": "170s",
+      "action_type": "搓球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 7,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0086.jpg"
+      ]
+    },
+    {
+      "time": "172s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [
+        "E1-放网手腕僵硬",
+        "E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0087.jpg"
+      ]
+    },
+    {
+      "time": "198s",
+      "action_type": "搓球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0100.jpg"
+      ]
+    },
+    {
+      "time": "200s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0101.jpg"
+      ]
+    },
+    {
+      "time": "202s",
+      "action_type": "正手杀球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0102.jpg"
+      ]
+    },
+    {
+      "time": "204s",
+      "action_type": "放网前球（单帧推断）",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 7,
+      "步伐": 6,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0103.jpg"
+      ]
+    },
+    {
+      "time": "206s",
+      "action_type": "搓球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0104.jpg"
+      ]
+    },
+    {
+      "time": "208s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [],
+      "suggestions": [],
+      "frames": [
+        "f_0105.jpg"
+      ]
+    }
+  ],
+  "new_badges": [
+    "streak_3"
+  ]
+}

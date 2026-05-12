@@ -1,0 +1,2330 @@
+{
+  "name": "游琪方",
+  "created_at": "2026-05-07",
+  "last_analysis": "2026-05-11",
+  "total_sessions": 4,
+  "play_style": "",
+  "tags": [],
+  "wechat_id": "",
+  "badges": [
+    "score_break_8",
+    "first_analysis",
+    "streak_3",
+    "total_up_20pct"
+  ],
+  "sessions": [
+    {
+      "date": "2026-05-07",
+      "video": "8c6a0afa453a8b53110e95895dfa1daa.mp4",
+      "duration": "4分41秒",
+      "shots_count": 100,
+      "avg_quality": 1.0,
+      "quality_trend": null,
+      "prev_avg_quality": null,
+      "error_history": {},
+      "total_errors": 0,
+      "unique_errors": 0,
+      "shots": [
+        {
+          "frame_file": "f_0001.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "0s"
+        },
+        {
+          "frame_file": "f_0002.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "2s"
+        },
+        {
+          "frame_file": "f_0003.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "4s"
+        },
+        {
+          "frame_file": "f_0004.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "6s"
+        },
+        {
+          "frame_file": "f_0005.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "8s"
+        },
+        {
+          "frame_file": "f_0006.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "10s"
+        },
+        {
+          "frame_file": "f_0007.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "12s"
+        },
+        {
+          "frame_file": "f_0008.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "14s"
+        },
+        {
+          "frame_file": "f_0009.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "16s"
+        },
+        {
+          "frame_file": "f_0010.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "18s"
+        },
+        {
+          "frame_file": "f_0011.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "20s"
+        },
+        {
+          "frame_file": "f_0012.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "22s"
+        },
+        {
+          "frame_file": "f_0013.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "24s"
+        },
+        {
+          "frame_file": "f_0014.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "26s"
+        },
+        {
+          "frame_file": "f_0015.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "28s"
+        },
+        {
+          "frame_file": "f_0017.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "32s"
+        },
+        {
+          "frame_file": "f_0018.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "34s"
+        },
+        {
+          "frame_file": "f_0019.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "36s"
+        },
+        {
+          "frame_file": "f_0020.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "38s"
+        },
+        {
+          "frame_file": "f_0021.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "40s"
+        },
+        {
+          "frame_file": "f_0022.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "42s"
+        },
+        {
+          "frame_file": "f_0023.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "44s"
+        },
+        {
+          "frame_file": "f_0024.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "46s"
+        },
+        {
+          "frame_file": "f_0025.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "48s"
+        },
+        {
+          "frame_file": "f_0026.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "50s"
+        },
+        {
+          "frame_file": "f_0027.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "52s"
+        },
+        {
+          "frame_file": "f_0028.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "54s"
+        },
+        {
+          "frame_file": "f_0029.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "56s"
+        },
+        {
+          "frame_file": "f_0030.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "58s"
+        },
+        {
+          "frame_file": "f_0031.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "60s"
+        },
+        {
+          "frame_file": "f_0032.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "62s"
+        },
+        {
+          "frame_file": "f_0033.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "64s"
+        },
+        {
+          "frame_file": "f_0034.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "66s"
+        },
+        {
+          "frame_file": "f_0035.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "68s"
+        },
+        {
+          "frame_file": "f_0036.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "70s"
+        },
+        {
+          "frame_file": "f_0037.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "72s"
+        },
+        {
+          "frame_file": "f_0038.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "74s"
+        },
+        {
+          "frame_file": "f_0039.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "76s"
+        },
+        {
+          "frame_file": "f_0040.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "78s"
+        },
+        {
+          "frame_file": "f_0041.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "80s"
+        },
+        {
+          "frame_file": "f_0042.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "82s"
+        },
+        {
+          "frame_file": "f_0043.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "84s"
+        },
+        {
+          "frame_file": "f_0044.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "86s"
+        },
+        {
+          "frame_file": "f_0045.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "88s"
+        },
+        {
+          "frame_file": "f_0046.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "90s"
+        },
+        {
+          "frame_file": "f_0047.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "92s"
+        },
+        {
+          "frame_file": "f_0049.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "96s"
+        },
+        {
+          "frame_file": "f_0052.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "102s"
+        },
+        {
+          "frame_file": "f_0053.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "104s"
+        },
+        {
+          "frame_file": "f_0054.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "106s"
+        },
+        {
+          "frame_file": "f_0055.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "108s"
+        },
+        {
+          "frame_file": "f_0056.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "110s"
+        },
+        {
+          "frame_file": "f_0057.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "112s"
+        },
+        {
+          "frame_file": "f_0060.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "118s"
+        },
+        {
+          "frame_file": "f_0062.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "122s"
+        },
+        {
+          "frame_file": "f_0063.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "124s"
+        },
+        {
+          "frame_file": "f_0064.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "126s"
+        },
+        {
+          "frame_file": "f_0065.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "128s"
+        },
+        {
+          "frame_file": "f_0066.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "130s"
+        },
+        {
+          "frame_file": "f_0067.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "132s"
+        },
+        {
+          "frame_file": "f_0068.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "134s"
+        },
+        {
+          "frame_file": "f_0069.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "136s"
+        },
+        {
+          "frame_file": "f_0070.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "138s"
+        },
+        {
+          "frame_file": "f_0071.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "140s"
+        },
+        {
+          "frame_file": "f_0075.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "148s"
+        },
+        {
+          "frame_file": "f_0076.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "150s"
+        },
+        {
+          "frame_file": "f_0077.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "152s"
+        },
+        {
+          "frame_file": "f_0078.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "154s"
+        },
+        {
+          "frame_file": "f_0080.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "158s"
+        },
+        {
+          "frame_file": "f_0081.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "160s"
+        },
+        {
+          "frame_file": "f_0084.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "166s"
+        },
+        {
+          "frame_file": "f_0085.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "168s"
+        },
+        {
+          "frame_file": "f_0086.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "170s"
+        },
+        {
+          "frame_file": "f_0088.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "174s"
+        },
+        {
+          "frame_file": "f_0090.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "178s"
+        },
+        {
+          "frame_file": "f_0091.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "180s"
+        },
+        {
+          "frame_file": "f_0092.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "182s"
+        },
+        {
+          "frame_file": "f_0093.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "184s"
+        },
+        {
+          "frame_file": "f_0094.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "186s"
+        },
+        {
+          "frame_file": "f_0095.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "188s"
+        },
+        {
+          "frame_file": "f_0096.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "190s"
+        },
+        {
+          "frame_file": "f_0097.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "192s"
+        },
+        {
+          "frame_file": "f_0098.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "194s"
+        },
+        {
+          "frame_file": "f_0099.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "196s"
+        },
+        {
+          "frame_file": "f_0100.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "198s"
+        },
+        {
+          "frame_file": "f_0101.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "200s"
+        },
+        {
+          "frame_file": "f_0102.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "202s"
+        },
+        {
+          "frame_file": "f_0103.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "204s"
+        },
+        {
+          "frame_file": "f_0104.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "206s"
+        },
+        {
+          "frame_file": "f_0106.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "210s"
+        },
+        {
+          "frame_file": "f_0108.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "214s"
+        },
+        {
+          "frame_file": "f_0109.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "216s"
+        },
+        {
+          "frame_file": "f_0110.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "218s"
+        },
+        {
+          "frame_file": "f_0111.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "220s"
+        },
+        {
+          "frame_file": "f_0112.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "222s"
+        },
+        {
+          "frame_file": "f_0113.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "224s"
+        },
+        {
+          "frame_file": "f_0116.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "230s"
+        },
+        {
+          "frame_file": "f_0119.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "236s"
+        },
+        {
+          "frame_file": "f_0120.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "238s"
+        },
+        {
+          "frame_file": "f_0121.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "240s"
+        }
+      ],
+      "new_badges": [
+        "first_analysis"
+      ]
+    },
+    {
+      "date": "2026-05-07",
+      "video": "8c6a0afa453a8b53110e95895dfa1daa.mp4",
+      "duration": "4分41秒",
+      "shots_count": 100,
+      "avg_quality": 1.0,
+      "quality_trend": "same",
+      "prev_avg_quality": 1.0,
+      "error_history": {},
+      "total_errors": 0,
+      "unique_errors": 0,
+      "shots": [
+        {
+          "frame_file": "f_0001.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "0s"
+        },
+        {
+          "frame_file": "f_0002.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "2s"
+        },
+        {
+          "frame_file": "f_0003.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "4s"
+        },
+        {
+          "frame_file": "f_0004.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "6s"
+        },
+        {
+          "frame_file": "f_0005.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "8s"
+        },
+        {
+          "frame_file": "f_0006.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "10s"
+        },
+        {
+          "frame_file": "f_0007.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "12s"
+        },
+        {
+          "frame_file": "f_0008.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "14s"
+        },
+        {
+          "frame_file": "f_0009.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "16s"
+        },
+        {
+          "frame_file": "f_0010.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "18s"
+        },
+        {
+          "frame_file": "f_0011.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "20s"
+        },
+        {
+          "frame_file": "f_0012.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "22s"
+        },
+        {
+          "frame_file": "f_0013.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "24s"
+        },
+        {
+          "frame_file": "f_0014.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "26s"
+        },
+        {
+          "frame_file": "f_0015.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "28s"
+        },
+        {
+          "frame_file": "f_0017.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "32s"
+        },
+        {
+          "frame_file": "f_0018.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "34s"
+        },
+        {
+          "frame_file": "f_0019.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "36s"
+        },
+        {
+          "frame_file": "f_0020.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "38s"
+        },
+        {
+          "frame_file": "f_0021.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "40s"
+        },
+        {
+          "frame_file": "f_0022.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "42s"
+        },
+        {
+          "frame_file": "f_0023.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "44s"
+        },
+        {
+          "frame_file": "f_0024.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "46s"
+        },
+        {
+          "frame_file": "f_0025.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "48s"
+        },
+        {
+          "frame_file": "f_0026.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "50s"
+        },
+        {
+          "frame_file": "f_0027.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "52s"
+        },
+        {
+          "frame_file": "f_0028.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "54s"
+        },
+        {
+          "frame_file": "f_0029.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "56s"
+        },
+        {
+          "frame_file": "f_0030.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "58s"
+        },
+        {
+          "frame_file": "f_0031.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "60s"
+        },
+        {
+          "frame_file": "f_0032.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "62s"
+        },
+        {
+          "frame_file": "f_0033.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "64s"
+        },
+        {
+          "frame_file": "f_0034.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "66s"
+        },
+        {
+          "frame_file": "f_0035.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "68s"
+        },
+        {
+          "frame_file": "f_0036.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "70s"
+        },
+        {
+          "frame_file": "f_0037.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "72s"
+        },
+        {
+          "frame_file": "f_0038.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "74s"
+        },
+        {
+          "frame_file": "f_0039.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "76s"
+        },
+        {
+          "frame_file": "f_0040.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "78s"
+        },
+        {
+          "frame_file": "f_0041.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "80s"
+        },
+        {
+          "frame_file": "f_0042.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "82s"
+        },
+        {
+          "frame_file": "f_0043.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "84s"
+        },
+        {
+          "frame_file": "f_0044.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "86s"
+        },
+        {
+          "frame_file": "f_0045.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "88s"
+        },
+        {
+          "frame_file": "f_0046.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "90s"
+        },
+        {
+          "frame_file": "f_0047.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "92s"
+        },
+        {
+          "frame_file": "f_0049.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "96s"
+        },
+        {
+          "frame_file": "f_0052.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "102s"
+        },
+        {
+          "frame_file": "f_0053.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "104s"
+        },
+        {
+          "frame_file": "f_0054.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "106s"
+        },
+        {
+          "frame_file": "f_0055.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "108s"
+        },
+        {
+          "frame_file": "f_0056.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "110s"
+        },
+        {
+          "frame_file": "f_0057.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "112s"
+        },
+        {
+          "frame_file": "f_0060.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "118s"
+        },
+        {
+          "frame_file": "f_0062.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "122s"
+        },
+        {
+          "frame_file": "f_0063.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "124s"
+        },
+        {
+          "frame_file": "f_0064.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "126s"
+        },
+        {
+          "frame_file": "f_0065.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "128s"
+        },
+        {
+          "frame_file": "f_0066.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "130s"
+        },
+        {
+          "frame_file": "f_0067.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "132s"
+        },
+        {
+          "frame_file": "f_0068.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "134s"
+        },
+        {
+          "frame_file": "f_0069.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "136s"
+        },
+        {
+          "frame_file": "f_0070.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "138s"
+        },
+        {
+          "frame_file": "f_0071.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "140s"
+        },
+        {
+          "frame_file": "f_0075.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "148s"
+        },
+        {
+          "frame_file": "f_0076.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "150s"
+        },
+        {
+          "frame_file": "f_0077.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "152s"
+        },
+        {
+          "frame_file": "f_0078.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "154s"
+        },
+        {
+          "frame_file": "f_0080.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "158s"
+        },
+        {
+          "frame_file": "f_0081.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "160s"
+        },
+        {
+          "frame_file": "f_0084.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "166s"
+        },
+        {
+          "frame_file": "f_0085.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "168s"
+        },
+        {
+          "frame_file": "f_0086.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "170s"
+        },
+        {
+          "frame_file": "f_0088.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "174s"
+        },
+        {
+          "frame_file": "f_0090.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "178s"
+        },
+        {
+          "frame_file": "f_0091.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "180s"
+        },
+        {
+          "frame_file": "f_0092.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "182s"
+        },
+        {
+          "frame_file": "f_0093.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "184s"
+        },
+        {
+          "frame_file": "f_0094.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "186s"
+        },
+        {
+          "frame_file": "f_0095.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "188s"
+        },
+        {
+          "frame_file": "f_0096.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "190s"
+        },
+        {
+          "frame_file": "f_0097.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "192s"
+        },
+        {
+          "frame_file": "f_0098.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "194s"
+        },
+        {
+          "frame_file": "f_0099.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "196s"
+        },
+        {
+          "frame_file": "f_0100.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "198s"
+        },
+        {
+          "frame_file": "f_0101.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "200s"
+        },
+        {
+          "frame_file": "f_0102.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "202s"
+        },
+        {
+          "frame_file": "f_0103.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "204s"
+        },
+        {
+          "frame_file": "f_0104.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "206s"
+        },
+        {
+          "frame_file": "f_0106.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "210s"
+        },
+        {
+          "frame_file": "f_0108.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "214s"
+        },
+        {
+          "frame_file": "f_0109.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "216s"
+        },
+        {
+          "frame_file": "f_0110.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "218s"
+        },
+        {
+          "frame_file": "f_0111.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "220s"
+        },
+        {
+          "frame_file": "f_0112.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "222s"
+        },
+        {
+          "frame_file": "f_0113.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "224s"
+        },
+        {
+          "frame_file": "f_0116.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "230s"
+        },
+        {
+          "frame_file": "f_0119.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "236s"
+        },
+        {
+          "frame_file": "f_0120.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "238s"
+        },
+        {
+          "frame_file": "f_0121.jpg",
+          "error": "HTTP Error 401: Unauthorized",
+          "action_type": "分析失败",
+          "quality_rating": 1,
+          "key_findings": [],
+          "errors": [],
+          "suggestions": [],
+          "time": "240s"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-11",
+      "video_key": "9a0a4dcf5911",
+      "duration": "1分0秒",
+      "shots_count": 5,
+      "avg_quality": 6.4,
+      "shots": [
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0016.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 5,
+          "闪腕": 5,
+          "步伐": 5,
+          "拍面控制": 5,
+          "整体协调": 5,
+          "errors": [],
+          "suggestions": [],
+          "frames": [
+            "f_0029.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 7,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0048.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 7,
+          "拍面控制": 6,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0052.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0089.jpg"
+          ]
+        }
+      ],
+      "report_path": "/Users/youqifang/Desktop/小程序/reports/badminton_report_2026-05-11_135048.pdf",
+      "quality_trend": "up",
+      "prev_avg_quality": 1.0,
+      "new_badges": [
+        "streak_3",
+        "score_break_8",
+        "total_up_20pct"
+      ]
+    },
+    {
+      "date": "2026-05-11",
+      "video_key": "9a0a4dcf5911",
+      "duration": "1分0秒",
+      "shots_count": 10,
+      "avg_quality": 6.6,
+      "shots": [
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0002.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "扑球",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 6,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-扑球击球点偏后, E2-扑球过于用力"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0015.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 5,
+          "步伐": 6,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0016.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 7,
+          "闪腕": 7,
+          "步伐": 6,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0022.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0053.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0057.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 6,
+          "闪腕": 7,
+          "步伐": 5,
+          "拍面控制": 7,
+          "整体协调": 6,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0058.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 8,
+          "闪腕": 6,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0089.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 7,
+          "发力链": 7,
+          "闪腕": 7,
+          "步伐": 7,
+          "拍面控制": 8,
+          "整体协调": 7,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0101.jpg"
+          ]
+        },
+        {
+          "time": "",
+          "action_type": "放网前球",
+          "quality_rating": 6,
+          "发力链": 7,
+          "闪腕": 5,
+          "步伐": 7,
+          "拍面控制": 6,
+          "整体协调": 6,
+          "errors": [
+            "E1-放网手腕僵硬, E2-放网拍面上仰"
+          ],
+          "suggestions": [],
+          "frames": [
+            "f_0102.jpg"
+          ]
+        }
+      ],
+      "report_path": "/Users/youqifang/Desktop/小程序/reports/badminton_report_2026-05-11_135048_v2.pdf",
+      "quality_trend": "up",
+      "prev_avg_quality": 6.4
+    }
+  ]
+}

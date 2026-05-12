@@ -1,0 +1,183 @@
+{
+  "date": "2026-05-11",
+  "video_key": "9a0a4dcf5911",
+  "duration": "1分0秒",
+  "shots_count": 10,
+  "avg_quality": 6.6,
+  "shots": [
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0002.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "扑球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-扑球击球点偏后, E2-扑球过于用力"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0015.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 5,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0016.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 7,
+      "步伐": 6,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0022.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0053.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0057.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 6,
+      "闪腕": 7,
+      "步伐": 5,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0058.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0089.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0101.jpg"
+      ]
+    },
+    {
+      "time": "",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 5,
+      "步伐": 7,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0102.jpg"
+      ]
+    }
+  ],
+  "report_path": "/Users/youqifang/Desktop/小程序/reports/badminton_report_2026-05-11_135048_v2.pdf",
+  "quality_trend": "up",
+  "prev_avg_quality": 6.4,
+  "frames_dir": "/Users/youqifang/Desktop/小程序/players/游琪方/frame_archive/2026-05-11"
+}

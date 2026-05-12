@@ -325,11 +325,14 @@ def _parse_stage2_result(image_path: str, text: str) -> dict:
         "frame_file": os.path.basename(image_path),
         "raw_response": text,
         "action_type": "",
-        "quality_rating": 5,
-        "发力链": 5, "闪腕": 5, "步伐": 5,
-        "拍面控制": 5, "整体协调": 5,
+        "quality_rating": 0,
+        "发力链": 0, "闪腕": 0, "步伐": 0,
+        "拍面控制": 0, "整体协调": 0,
         "errors": [], "suggestions": []
     }
+    # 追踪评分是否被 VLM 显式返回（未显式返回 = 解析失败，强制置0）
+    rating_keys = {"quality_rating", "发力链", "闪腕", "步伐", "拍面控制", "整体协调"}
+    _explicitly_set = {k: False for k in rating_keys}
 
     for line in text.split("\n"):
         line = line.strip()
@@ -339,40 +342,44 @@ def _parse_stage2_result(image_path: str, text: str) -> dict:
                 out["quality_rating"] = 0
                 for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
                     out[k] = 0
+                    _explicitly_set[k] = True
+                _explicitly_set["quality_rating"] = True
         elif line.startswith("综合评分:") or line.startswith("评分:"):
             try:
                 score = int(line.split(":")[1].strip().split(".")[0])
                 out["quality_rating"] = max(0, min(10, score))
+                _explicitly_set["quality_rating"] = True
             except:
                 pass
 
         elif line.startswith("发力链:"):
             try:
                 out["发力链"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
+                _explicitly_set["发力链"] = True
             except:
                 pass
-
         elif line.startswith("闪腕:"):
             try:
                 out["闪腕"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
+                _explicitly_set["闪腕"] = True
             except:
                 pass
-
         elif line.startswith("步伐:"):
             try:
                 out["步伐"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
+                _explicitly_set["步伐"] = True
             except:
                 pass
-
         elif line.startswith("拍面控制:"):
             try:
                 out["拍面控制"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
+                _explicitly_set["拍面控制"] = True
             except:
                 pass
-
         elif line.startswith("整体协调:"):
             try:
                 out["整体协调"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
+                _explicitly_set["整体协调"] = True
             except:
                 pass
         elif line.startswith("主要问题:"):
@@ -382,9 +389,11 @@ def _parse_stage2_result(image_path: str, text: str) -> dict:
         elif line.startswith("改进建议:"):
             out["suggestions"] = [s.strip() for s in line.split(":", 1)[1].strip().split("；") if s.strip()]
 
-    if not out["action_type"]:
-        out["action_type"] = "无法判断（信息不足）"
+    # VLM 未显式返回评分 → 解析失败，强制置 0（而非默认 5 分掩盖错误）
+    if not _explicitly_set["quality_rating"]:
         out["quality_rating"] = 0
+    if not out["action_type"]:
+        out["action_type"] = "无法判断（解析异常）"
 
     return out
 

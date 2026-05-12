@@ -454,6 +454,52 @@ def make_report(data: dict, output_path: str):
     pdf.set_text_color(*C_GREY)
     pdf.multi_cell(BW, 6, f"本次分析共 {len(shots)} 个有效动作帧，整体技术评分：{avg_q:.1f}/10（{qtext(int(round(avg_q)))}）。")
     pdf.ln(2)
+
+    # ── 球速统计（小节）─────────────────────────────────
+    speeds = [s["speed_kmh"] for s in shots if s.get("speed_kmh") and s.get("speed_kmh") > 0]
+    if speeds:
+        max_s = max(speeds)
+        avg_s = sum(speeds) / len(speeds)
+        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+        pdf.set_text_color(*C_GREY)
+        pdf.multi_cell(BW, 5.5, f"球速数据（{len(speeds)}个有效样本）：最高 {max_s:.0f} km/h，平均 {avg_s:.0f} km/h。")
+        pdf.ln(1)
+
+        # 速度分布条（简化横向柱状图，文本绘制）
+        speed_bins = [
+            ("慢速 <100", lambda v: v < 100),
+            ("中速 100-200", lambda v: 100 <= v < 200),
+            ("快速 200-300", lambda v: 200 <= v < 300),
+            ("极速 >300", lambda v: v >= 300),
+        ]
+        bin_counts = [sum(1 for v in speeds if pred(v)) for _, pred in speed_bins]
+        max_bin = max(bin_counts) if bin_counts else 1
+        bar_max_w = BW * 0.6   # 最大条宽度
+
+        for label, _ in speed_bins:
+            cnt = bin_counts[speed_bins.index((label, _))]
+            if cnt == 0:
+                continue
+            bar_w = bar_max_w * cnt / max_bin
+            pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+            pdf.set_text_color(*C_GREY)
+            pdf.cell(BW * 0.25, 5, label, align="L")
+            # 彩色条：慢=绿，中=黄，快=橙，极=红
+            if "慢速" in label:
+                bar_c = C_GREEN
+            elif "中速" in label:
+                bar_c = C_GOLD
+            elif "快速" in label:
+                bar_c = C_ORG
+            else:
+                bar_c = C_RED
+            pdf.set_fill_color(*bar_c)
+            pdf.rect(pdf.x, pdf.y - 4, bar_w, 5, "F")
+            pdf.set_text_color(*C_GREY)
+            pdf.cell(BW * 0.1, 5, f" {cnt}")
+            pdf.ln(5)
+        pdf.ln(2)
+
     pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
     pdf.cell(0, 6, "主要技术问题分布：", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
@@ -577,8 +623,10 @@ def make_report(data: dict, output_path: str):
         _frames = shot.get("frames", [])
         frame_file = shot.get("frame_file", _frames[0] if _frames else "")
         frames_dir = data.get("frames_dir", "")
-        # frames_dir 必须指向有效目录，拒绝污染源 /tmp/bad_shots/target_frames
-        if not frames_dir or not os.path.isdir(frames_dir):
+        # frames_dir 必须指向有效目录；拒绝 /tmp/bad_shots/target_frames 等污染路径
+        _FORBIDDEN = ("/tmp/bad_shots", "/tmp/session_frames")
+        if not frames_dir or not os.path.isdir(frames_dir) \
+           or any(frames_dir.startswith(f) for f in _FORBIDDEN):
             frames_dir = ""
         img_path = f"{frames_dir}/{frame_file}" if frame_file else ""
         txt_x = LM + IMG_W_MM + 5
@@ -649,12 +697,15 @@ def make_report(data: dict, output_path: str):
                 if ann_path and os.path.exists(ann_path):
                     img_path_ann = ann_path
 
-                iw2, ih2 = im.size, im.size
-                ratio = ih / iw
+                iw, ih = im.size
+                ratio = ih / iw  # 原始宽高比
                 draw_h = IMG_W_MM * ratio
                 if draw_h > IMG_H_MM:
-                    draw_h = IMG_H_MM
-                pdf.image(img_path_ann, x=LM, y=body_y, w=IMG_W_MM, h=draw_h)
+                    # 高度超标时按高度限制，反算宽度（保持比例不变形）
+                    draw_w = IMG_H_MM / ratio
+                    pdf.image(img_path_ann, x=LM, y=body_y, w=draw_w, h=IMG_H_MM)
+                else:
+                    pdf.image(img_path_ann, x=LM, y=body_y, w=IMG_W_MM, h=draw_h)
             except Exception as e:
                 print(f"  [!] 标注失败: {e}")
                 pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "D")
@@ -695,36 +746,60 @@ def make_report(data: dict, output_path: str):
             pdf.set_xy(txt_x, end_y)
             pdf.set_text_color(40, 40, 40)
             pdf.cell(txt_w, 5, "技术诊断：")
-            end_y = pdf.y + 5
+            end_y = pdf.get_y() + 5
             for f in findings[:2]:
                 pdf.set_x(txt_x)
                 pdf.set_text_color(*C_GREY)
                 pdf.multi_cell(txt_w, 4.5, f"• {clean_err(f, 120)}")
-            end_y = pdf.y + 1
+            end_y = pdf.get_y() + 1
 
         if errors:
             pdf.set_x(txt_x)
             pdf.ln(1)
             pdf.set_text_color(180, 40, 40)
             pdf.cell(txt_w, 5, "常见错误：")
-            end_y = pdf.y + 5
+            end_y = pdf.get_y() + 5
             for e in errors[:2]:
                 pdf.set_x(txt_x)
                 pdf.set_text_color(*C_GREY)
                 pdf.multi_cell(txt_w, 4.5, f"x {clean_err(e, 100)}")
-            end_y = pdf.y + 1
+            end_y = pdf.get_y() + 1
 
         if suggestions:
             pdf.set_x(txt_x)
             pdf.ln(1)
             pdf.set_text_color(30, 120, 80)
             pdf.cell(txt_w, 5, "改进建议：")
-            end_y = pdf.y + 5
+            end_y = pdf.get_y() + 5
             for s in suggestions[:2]:
                 pdf.set_x(txt_x)
                 pdf.set_text_color(*C_GREY)
                 pdf.multi_cell(txt_w, 4.5, f"→ {_translate_suggestion_impl(s)}")
-            end_y = pdf.y
+            end_y = pdf.get_y()
+
+        # 球速标签
+        spd = shot.get("speed_kmh")
+        if spd and spd > 0:
+            pdf.set_x(txt_x)
+            pdf.ln(1)
+            # 速度颜色：>250红色(极速)，>180橙色(快速)，>100黄色(中速)，绿色(慢速)
+            if spd >= 250:
+                spd_c = C_RED
+            elif spd >= 180:
+                spd_c = C_ORG
+            elif spd >= 100:
+                spd_c = C_GOLD
+            else:
+                spd_c = C_GREEN
+            pdf.set_fill_color(*spd_c)
+            tag_w = 22
+            tag_h = 6
+            pdf.rect(pdf.x, end_y + 1, tag_w, tag_h, "F")
+            pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_xy(pdf.x, end_y + 1.5)
+            pdf.cell(tag_w, tag_h - 1, f" 球速 {spd:.0f}km/h", align="L")
+            end_y += tag_h + 2
 
         # 卡片底部 = 图片底部 和 文字底部 的较大者
         card_bottom = max(body_y + IMG_H_MM, end_y) + 4

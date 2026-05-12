@@ -255,27 +255,30 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "raw_response": text,
         "hitter": "",
         "action_type": "",
-        "quality_rating": 5,
-        "发力链": 5, "闪腕": 5, "步伐": 5,
-        "拍面控制": 5, "整体协调": 5,
+        "quality_rating": 0,
+        "发力链": 0, "闪腕": 0, "步伐": 0,
+        "拍面控制": 0, "整体协调": 0,
         "errors": [], "suggestions": [],
-        "ball_detected": ball_info.get("found") if ball_info else False,
-        "ball_cx": ball_info.get("cx") if ball_info else None,
-        "ball_cy": ball_info.get("cy") if ball_info else None,
+        "ball_detected": (ball_info or {}).get("found", False),
+        "ball_cx": (ball_info or {}).get("cx"),
+        "ball_cy": (ball_info or {}).get("cy"),
     }
+    # 追踪评分是否被 VLM 显式返回（未显式返回 = 解析失败，强制置 0）
+    rating_keys = {"quality_rating", "发力链", "闪腕", "步伐", "拍面控制", "整体协调"}
+    _explicitly_set = {k: False for k in rating_keys}
 
-    # 预检：纯SKIP响应（无标签格式）→ 归为无法判断，不丢弃
+    # 预检：纯 SKIP 响应（无标签格式）→ 直接归为 SKIP，不进报告
     stripped = text.strip().upper()
     if stripped == "SKIP":
-        out["action_type"] = "无法判断"
+        out["action_type"] = "SKIP"
         out["quality_rating"] = 0
         for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
             out[k] = 0
-        out["errors"] = ["视觉证据不足，无法确定动作类型"]
-        out["suggestions"] = []
+            _explicitly_set[k] = True
+        _explicitly_set["quality_rating"] = True
         return out
 
-    # 中文
+    # ── 标签解析 ───────────────────────────────────────
     label_map = {
         "动作类型:": "action_type",
         "综合评分:": "quality_rating",
@@ -288,13 +291,10 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "主要问题:": "errors",
         "改进建议:": "suggestions",
     }
-
-    # 英文备用
-    # 英文标签（含空格变体，Hitter: 有时带空格）
     en_label_map = {
-        "Hitter :": "hitter",  # 带空格版本
+        "Hitter :": "hitter",
         "Hitter:": "hitter",
-        "Hitter: ": "hitter",  # 尾部空格
+        "Hitter: ": "hitter",
         "ActionType:": "action_type",
         "OverallScore:": "quality_rating",
         "PowerChain:": "发力链",
@@ -305,7 +305,6 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "MainErrors:": "errors",
         "Suggestions:": "suggestions",
     }
-    # 中文标签
     cn_label_map = {
         "击球主角:": "hitter",
         "动作类型:": "action_type",
@@ -320,37 +319,30 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "改进建议:": "suggestions",
         "建议:": "suggestions",
     }
-
     all_label_map = {**label_map, **en_label_map, **cn_label_map}
-
-    current_key = None
-    current_list = []
 
     for line in text.split("\n"):
         line = line.strip()
         if not line:
             continue
-
-        # 检查是否是新字段开头
-        matched = False
         for prefix, key in all_label_map.items():
             if line.startswith(prefix):
                 val = line.split(":", 1)[1].strip()
-
                 if key in ("errors", "suggestions"):
                     if val and val.lower() not in ("none", "无", "n/a", "n/a-"):
-                        # 兼容中英文分隔符
                         items = [p.strip() for p in re.split(r'[;；]', val) if p.strip()]
                         out[key] = items
                 elif key == "quality_rating":
                     try:
                         score = int(val.split(".")[0])
                         out[key] = max(0, min(10, score))
+                        _explicitly_set[key] = True
                     except:
                         pass
                 elif key in ("发力链", "闪腕", "步伐", "拍面控制", "整体协调"):
                     try:
                         out[key] = max(0, min(10, int(val.split(".")[0])))
+                        _explicitly_set[key] = True
                     except:
                         pass
                 elif key == "action_type":
@@ -361,14 +353,17 @@ def _parse_stage2_result(image_path, text, ball_info=None):
                         out["quality_rating"] = 0
                         for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
                             out[k] = 0
+                            _explicitly_set[k] = True
+                        _explicitly_set["quality_rating"] = True
                         out["errors"] = ["视觉证据不足，该帧跳过"]
                         out["suggestions"] = []
                 elif key == "hitter":
                     out[key] = val
-
-                matched = True
                 break
 
+    # VLM 未显式返回评分 → 解析失败，强制置 0（而非默认 5 分掩盖错误）
+    if not _explicitly_set["quality_rating"]:
+        out["quality_rating"] = 0
     if not out["action_type"]:
         out["action_type"] = "无法判断"
         out["quality_rating"] = 0

@@ -1,0 +1,123 @@
+{
+  "date": "2026-05-10",
+  "video": "微信视频2026-05-10_094415_500.mp4",
+  "video_key": "a8a7a1b26ae7",
+  "duration": "6分46秒",
+  "shots_count": 6,
+  "avg_quality": 7.0,
+  "quality_trend": "up",
+  "prev_avg_quality": 2.2,
+  "error_history": {
+    "E1-放网手腕僵硬, E2-放网拍面上仰": {
+      "count": 6,
+      "prev_count": 0,
+      "status": "new"
+    }
+  },
+  "total_errors": 6,
+  "unique_errors": 1,
+  "shots": [
+    {
+      "time": "130.0s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 7,
+      "整体协调": 8,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0521.jpg"
+      ]
+    },
+    {
+      "time": "186.75s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 8,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0748.jpg"
+      ]
+    },
+    {
+      "time": "273.5s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_1095.jpg"
+      ]
+    },
+    {
+      "time": "287.0s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_1149.jpg"
+      ]
+    },
+    {
+      "time": "384.5s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 8,
+      "闪腕": 7,
+      "步伐": 7,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_1539.jpg"
+      ]
+    },
+    {
+      "time": "62.25s",
+      "action_type": "放网前球",
+      "quality_rating": 7,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 7,
+      "拍面控制": 8,
+      "整体协调": 7,
+      "errors": [
+        "E1-放网手腕僵硬, E2-放网拍面上仰"
+      ],
+      "suggestions": [],
+      "frames": [
+        "f_0250.jpg"
+      ]
+    }
+  ]
+}

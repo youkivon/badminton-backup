@@ -152,8 +152,8 @@ def pixel_to_court(pixel_point: tuple, inv_M: np.ndarray) -> tuple:
         x = transformed[0] / transformed[2]
         y = transformed[1] / transformed[2]
     else:
-        x, y = transformed[0], transformed[1]
-    return (round(x, 1), round(y, 1))
+        x, y = float(transformed[0]), float(transformed[1])
+    return (round(float(x), 1), round(float(y), 1))
 
 
 def court_to_pixel(court_point: tuple, M: np.ndarray) -> tuple:
@@ -173,8 +173,8 @@ def court_to_pixel(court_point: tuple, M: np.ndarray) -> tuple:
         x = transformed[0] / transformed[2]
         y = transformed[1] / transformed[2]
     else:
-        x, y = transformed[0], transformed[1]
-    return (round(x, 1), round(y, 1))
+        x, y = float(transformed[0]), float(transformed[1])
+    return (round(float(x), 1), round(float(y), 1))
 
 
 class CourtZone:

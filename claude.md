@@ -44,7 +44,7 @@
 ## 核心流程
 
 ```
-视频 → 帧提取（0.5fps + OpenCV羽毛球检测）
+视频     → 帧提取（4fps + OpenCV羽毛球检测，有球帧全部送VLM上限150帧）
      → VLM 逐帧分析（并发3路 + 重试）
      → 动作聚合（shots）
      → 保存球员档案（history/ + frame_archive/）
@@ -92,8 +92,10 @@ python ~/Desktop/小程序/src/run_analysis.py ~/Desktop/视频.mp4 --frames_dir
 
 ### 报告生成（report_generator.py）
 
-- 库：fpdf2（ReportLab 有中文字体问题）
-- 字体：思源黑体（Noto Sans CJK）
+- 库：fpdf2（配合 Unicode 中文字体解决乱码）
+- 字体：stheiti.ttf 华文细黑（TrueType Unicode），`add_font("STHeiti", fname=ASSETS_FONT, uni=True)`
+- 图片宽高比：动态计算，宽度优先，高度按原始比例自适应（不变形）
+- 卡片高度：文字超长时自动扩展（图文不重叠）
 - 流程：`make_report(report_data, output_path)`
 - 报告存档：两份（`reports/` + `~/Desktop/`）
 
@@ -151,8 +153,8 @@ python ~/Desktop/小程序/src/run_analysis.py ~/Desktop/视频.mp4 --frames_dir
 
 ## 已知限制
 
-1. **VLM 误判**：击球姿态帧可能被误判为"死球/拣球"；0.5fps 视频球已飞过一步不一定是漏检
-2. **击球检出率**：低帧率视频（0.5fps）是当前核心瓶颈，VLM prompt 已做针对性调优
+1. **VLM 误判**：击球姿态帧可能被误判为"死球/拣球"
+- [x] **击球检出率**：历史瓶颈（2fps），已升级为 4fps + 兜底规则
 3. **球员识别**：当前依赖场上位置 + 制服颜色，无人脸识别
 4. **无骨骼追踪**：当前方案为纯 VLM 视觉分析，无骨骼关键点数据
 
@@ -161,7 +163,18 @@ python ~/Desktop/小程序/src/run_analysis.py ~/Desktop/视频.mp4 --frames_dir
 ## 下一步计划（供接手参考）
 
 - [x] Day 2：VLM prompt 调优 + 并发提速 + 缓存逻辑修复
-- [ ] Day 3：用实际视频验证 VLM 改动效果
+- [x] VLM V1 锁定（V2 因 Stage1 过严导致有效击球 0 帧，已废弃）
+- [x] 技术监理两层过滤（不确定性跳过 + 非击球帧清空）
+- [x] Claude Code 全链路代码审查（2026-05-12）：发现 P0/P1 问题 6 个，已列入 W1D1~W1D3 执行计划
+- [ ] W1D1（5月12日）：字体验证 + add_font修复 + 图片不变形修复
+- [ ] W1D2（5月13日）：图文重叠修复 + V2球员字段修复
+- [ ] W1D3（5月14日）：VLM解析健壮性（默认5分→0分）
+- [ ] W1D4（5月15日）：全链路集成测试（关键里程碑）
+- [ ] W1D5（5月16日）：压力测试 + 徽章验证
+- [ ] W2D1~D2（5月19~20日）：真实视频验证 + 微信推送
+- [ ] W2D3~D4（5月21~22日）：战术 prompt 调优
+- [ ] W2D5（5月23日）：球员档案进步曲线验证
+- [ ] W2D6~D7（5月24~25日）：部署上线
 - [ ] 成就徽章系统完善
 - [ ] 进步对比报告（含历史帧图并排）
 - [ ] 小程序后端 API 设计

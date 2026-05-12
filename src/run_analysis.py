@@ -66,25 +66,30 @@ def detect_shuttlecock(image_path):
         h, w = img.shape[:2]
         img = cv2.resize(img, (320, int(h * 320 / w)))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_white = np.array([0, 0, 180])
-        upper_white = np.array([180, 50, 255])
+        
+        # 白色球头检测：面积 200-1500，弧长比>10（更接近圆）
+        lower_white = np.array([0, 0, 200])
+        upper_white = np.array([180, 30, 255])
         mask_white = cv2.inRange(hsv, lower_white, upper_white)
-        lower_orange = np.array([0, 80, 100])
-        upper_orange = np.array([30, 255, 255])
-        mask_orange = cv2.inRange(hsv, lower_orange, upper_orange)
         cnts_w = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         for c in cnts_w:
             area = cv2.contourArea(c)
-            if 50 < area < 2000:
+            if 200 < area < 1500:
                 approx = cv2.approxPolyDP(c, 0.05 * cv2.arcLength(c, True), True)
-                if len(approx) > 5:
+                # 羽毛球球头近似圆（6-12边），弧长比>10（更严格）
+                if 6 <= len(approx) <= 12 and area / (cv2.arcLength(c, True) ** 2 / (4 * np.pi)) > 0.5:
                     return True
+        
+        # 橙色球裙检测：面积 300-3000，多边形 7-16边
+        lower_orange = np.array([0, 60, 120])
+        upper_orange = np.array([25, 255, 255])
+        mask_orange = cv2.inRange(hsv, lower_orange, upper_orange)
         cnts_o = cv2.findContours(mask_orange, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         for c in cnts_o:
             area = cv2.contourArea(c)
-            if 100 < area < 4000:
+            if 300 < area < 3000:
                 approx = cv2.approxPolyDP(c, 0.05 * cv2.arcLength(c, True), True)
-                if 6 <= len(approx) <= 15:
+                if 7 <= len(approx) <= 16:
                     return True
         return False
     except Exception:
@@ -93,29 +98,32 @@ def detect_shuttlecock(image_path):
 
 def extract_smart_frames(video_path, frames_dir, min_gap_sec=1):
     """
-    智能抽帧（0.5fps，每2秒1帧）：
-    1. 0.5fps 抽整段视频，大幅减少无意义帧
-    2. OpenCV 快速过滤无球帧（羽毛球颜色检测）
-    3. 有球帧按时间均匀采样最多 20 帧
-    4. 优先选球在画面中的帧送 VLM，控制分析成本
+    智能抽帧（2fps 高频采样 + ball_frames 全量保留）：
+    1. 2fps 抽整段视频，确保击球瞬间被捕获（原 0.5fps 导致大量漏检）
+    2. OpenCV 羽毛球检测（已修复阈值）
+    3. 有球帧全部保留（上限 150 帧）
+    4. 无球帧按时间均匀采样最多 50 帧
+    5. 总计最多 200 帧送 VLM
     """
     os.makedirs(frames_dir, exist_ok=True)
     import subprocess
 
-    print(f"[Step 1] 智能抽帧（0.5fps + 羽毛球检测）...")
+    print(f"[Step 1] 智能抽帧（2fps 高频采样）...")
     import hashlib
     st = os.stat(video_path)
     sig = f"{os.path.basename(video_path)}|{st.st_size}|{int(st.st_mtime)}"
     video_key = hashlib.md5(sig.encode()).hexdigest()[:12]
     tmp_all = f"/tmp/bad_shots/all_frames_{video_key}"
     os.makedirs(tmp_all, exist_ok=True)
-    cmd = ['ffmpeg', '-i', video_path, '-vf', 'fps=0.5', '-q:v', '2',
+    
+    # 2fps 高频采样（原 0.5fps 导致漏掉大量击球瞬间）
+    cmd = ['ffmpeg', '-i', video_path, '-vf', 'fps=2', '-q:v', '2',
            f'{tmp_all}/all_%04d.jpg', '-y']
     r = subprocess.run(cmd, capture_output=True, text=True)
     all_frames = sorted([f for f in os.listdir(tmp_all) if f.endswith('.jpg')])
     if not all_frames:
         print(f"  [!] 抽帧失败，改用备用方法")
-        subprocess.run(['ffmpeg', '-i', video_path, '-vf', 'fps=1/5', '-q:v', '2',
+        subprocess.run(['ffmpeg', '-i', video_path, '-vf', 'fps=1', '-q:v', '2',
                        f'{frames_dir}/f_%04d.jpg', '-y'],
                       capture_output=True)
         return sorted([f for f in os.listdir(frames_dir) if f.endswith('.jpg')])
@@ -133,20 +141,20 @@ def extract_smart_frames(video_path, frames_dir, min_gap_sec=1):
 
     print(f"  → 有球帧: {len(ball_frames)}，无球帧: {len(noball_frames)}")
 
-    max_total = 100
-    max_noball = 20
-    selected = list(ball_frames)
-    remaining = max_total - len(selected)
-    if remaining > 0 and noball_frames:
-        step = max(1, len(noball_frames) // remaining)
+    # 有球帧全部保留（最多 150 帧），确保不漏掉任何击球
+    max_ball = 150
+    selected = list(ball_frames[:max_ball])
+    
+    # 无球帧均匀采样（最多 50 帧），补充过渡动作
+    max_noball = 50
+    if noball_frames:
+        step = max(1, len(noball_frames) // max_noball)
         sampled_noball = [noball_frames[i] for i in range(0, len(noball_frames), step)]
-        selected.extend(sampled_noball[:min(len(sampled_noball), max_noball)])
-    if len(selected) > max_total:
-        step = max(1, len(selected) // max_total)
-        selected = [selected[i] for i in range(0, len(selected), step)][:max_total]
+        selected.extend(sampled_noball[:max_noball])
 
+    # 按时间排序
     selected = sorted(selected, key=lambda f: int(re.search(r'all_(\d+)', f).group(1)))
-    print(f"  → 送检帧数: {len(selected)}（有球优先）")
+    print(f"  → 送检帧数: {len(selected)}（有球{len(ball_frames[:max_ball])} + 无球{len(selected)-len(ball_frames[:max_ball])})")
 
     for f in selected:
         _m = re.search(r'all_(\d+)', f)
@@ -159,7 +167,73 @@ def extract_smart_frames(video_path, frames_dir, min_gap_sec=1):
     return frames
 
 
-# ── Step 2 辅助函数 ──────────────────────────────────
+def _run_ball_tracking(shots, video_path, frames_dir, video_key):
+    """
+    对每个 shot 提取高帧率 clip 并追踪羽毛球速度。
+    速度数据写入 shot["speed_kmh"]、shot["trajectory"]、shot["ball_detected"]。
+    """
+    try:
+        import shuttlecock_tracker as bt
+    except Exception as e:
+        print(f"[Ball Tracking] 模块加载失败: {e}")
+        return
+
+    clip_cache = {}   # shot_time_sec → clip_path
+    clip_dir = f"/tmp/bad_shots/clips_{video_key}"
+    os.makedirs(clip_dir, exist_ok=True)
+
+    tracked = 0
+    no_ball = 0
+    err_count = 0
+
+    for shot in shots:
+        t_str = shot.get("time", "")
+        m = re.search(r"(\d+)", t_str)
+        if not m:
+            shot["speed_kmh"] = None
+            shot["trajectory"] = "unknown"
+            shot["ball_detected"] = False
+            continue
+        shot_time_sec = int(m.group(1))
+
+        # 复用 clip（相邻 shot 时间差 < 3秒则用同一个 clip）
+        cache_key = None
+        for k in clip_cache:
+            if abs(k - shot_time_sec) < 3:
+                cache_key = k
+                break
+        if cache_key is None:
+            clip_path = bt.extract_clip(
+                video_path, shot_time_sec,
+                duration_sec=4, fps=15,
+                output_path=os.path.join(clip_dir, f"shot_{shot_time_sec}s_15fps.mp4")
+            )
+            if clip_path:
+                clip_cache[shot_time_sec] = clip_path
+            else:
+                shot["speed_kmh"] = None
+                shot["trajectory"] = "unknown"
+                shot["ball_detected"] = False
+                err_count += 1
+                continue
+        else:
+            clip_path = clip_cache[cache_key]
+
+        result = bt.track_clip(clip_path, fps=15)
+
+        shot["speed_kmh"] = round(result["speed_kmh"], 1) if result["speed_kmh"] else None
+        shot["avg_speed_kmh"] = round(result["avg_speed_kmh"], 1) if result["avg_speed_kmh"] else None
+        shot["trajectory"] = result.get("trajectory", "unknown")
+        shot["ball_detected"] = result.get("detected", False)
+
+        if result.get("detected"):
+            tracked += 1
+        else:
+            no_ball += 1
+
+    print(f"[Ball Tracking] 完成: 追踪到球 {tracked} / {tracked+no_ball}，失败 {err_count}")
+
+
 def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_frames, video_key):
     """加载已有分析数据，或重新分析"""
     if skip_analysis:
@@ -227,9 +301,12 @@ def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_fra
             fname = r.get("frame_file", "")
             if fname not in seen:
                 seen.add(fname)
+                side = r.get("hitter_side", "Unknown")
+                player = f"{'近端' if side == 'Near' else '远端' if side == 'Far' else ''}球员" if side != "Unknown" else ""
                 shots.append({
                     "time": r.get("time", ""),
                     "action_type": r.get("action_type", ""),
+                    "player": player,
                     "quality_rating": r.get("quality_rating", 5),
                     "发力链": r.get("发力链", 0),
                     "闪腕": r.get("闪腕", 0),
@@ -394,7 +471,19 @@ if __name__ == "__main__":
     if before != len(shots):
         print(f"[Filter] 过滤 {before - len(shots)} 个无效帧（无法判断/无质量），剩余 {len(shots)} 个有效击球")
 
-    # ── Step 3: 保存到球员档案 ─────────────────────────
+    # ── Step 3: 球速追踪（提取高帧率clip，用HSV追踪羽毛球） ─────────
+    _run_ball_tracking(shots, VIDEO_PATH, SESSION_FRAMES_DIR, VIDEO_KEY)
+
+    # 回写缓存（含球速数据）
+    try:
+        cache = json.load(open(ANALYSIS_CACHE, encoding="utf-8")) if os.path.exists(ANALYSIS_CACHE) else {}
+        cache["shots"] = shots
+        with open(ANALYSIS_CACHE, "w", encoding="utf-8") as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[警告] 缓存回写失败: {e}")
+
+    # ── Step 4: 保存到球员档案 ─────────────────────────
     try:
         db = importlib.import_module("player_db")
         importlib.reload(db)
@@ -409,20 +498,6 @@ if __name__ == "__main__":
 
     if db and PLAYER_NAME != "未知球员":
         print(f"[Step 3] 保存到球员档案: {PLAYER_NAME}")
-        session_data = {
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "video": os.path.basename(VIDEO_PATH),
-            "video_key": VIDEO_KEY,
-            "duration": duration,
-            "shots_count": len(shots),
-            "avg_quality": round(sum(s.get("quality_rating", 0) for s in shots) / len(shots), 1) if shots else 0,
-            "quality_trend": None,
-            "prev_avg_quality": None,
-            "error_history": {},
-            "total_errors": 0,
-            "unique_errors": 0,
-            "shots": shots
-        }
 
         from collections import Counter
         err_counter = Counter()
