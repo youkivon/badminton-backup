@@ -397,6 +397,9 @@ if __name__ == "__main__":
 
     duration = get_video_duration(VIDEO_PATH)
 
+    # arc_dir 在球员分支内计算，但 report_data 在分支外引用
+    arc_dir = None
+
     if db and PLAYER_NAME != "未知球员":
         print(f"[Step 3] 保存到球员档案: {PLAYER_NAME}")
         session_data = {
