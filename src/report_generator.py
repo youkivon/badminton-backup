@@ -96,16 +96,28 @@ ERROR_CODE_TRANSLATION = {
 }
 
 from fpdf import FPDF
-import sys
-sys.path.insert(0, '/tmp')
-from knowledge_retriever import KnowledgeRetriever
+import sys as _sys
+_sys.path.insert(0, '/tmp')
 
-# 懒加载知识库（首次使用时初始化）
+# 知识库：文件不存在时优雅降级（不阻塞报告生成）
 _kb_retriever = None
+_kb_enabled = False
+
+try:
+    from knowledge_retriever import KnowledgeRetriever
+    _kb_enabled = True
+except Exception:
+    KnowledgeRetriever = None
+
 def _get_retriever():
     global _kb_retriever
+    if not _kb_enabled:
+        return None
     if _kb_retriever is None:
-        _kb_retriever = KnowledgeRetriever()
+        try:
+            _kb_retriever = KnowledgeRetriever()
+        except Exception:
+            return None
     return _kb_retriever
 
 # 颜色
@@ -909,7 +921,7 @@ def make_report(data: dict, output_path: str):
     for err, cnt in top_errors:
         # 知识库检索（score字段不存在；以matched_qa非空判断命中）
         retriever = _get_retriever()
-        kb_result = retriever.search(err, top_k=2)
+        kb_result = (retriever.search(err, top_k=2) if retriever else [])
         kb_q = kb_a = kb_video_title = kb_video_url = None
         article_result = next((r for r in kb_result if r.get('source') == 'article' and r.get('matched_qa')), None)
         video_result = next((r for r in kb_result if r.get('source') == 'video'), None)
