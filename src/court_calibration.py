@@ -18,6 +18,7 @@
 
 import numpy as np
 import cv2
+import typing
 
 # 羽毛球场地标准尺寸（cm）
 COURT_LENGTH = 1340   # 场地长度
@@ -228,7 +229,7 @@ def get_near_far_side(y_cm):
 def estimate_court_corners_from_frame(
     frame,
     net_side: str = "bottom",
-) -> np.ndarray | None:
+) -> typing.Optional[np.ndarray]:
     """
     从单帧图像估算球场四角（简化版，无需模型）。
 
