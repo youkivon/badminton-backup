@@ -514,6 +514,26 @@ def make_report(data: dict, output_path: str):
     IMG_H_MM = 36
     from PIL import Image as PILImage
 
+    # ── 同类型错误去重：每类错误只配一张图，后续仅文字 ──────────────
+    shown_error_keys = set()   # 已配图的错误类型
+    NO_IMG = object()          # 标记"此卡不配图"
+
+    # 预扫描：每个 shot 应该用哪条 error 配图（None=不放图）
+    shot_img_error = {}        # shot_idx → error 文本 or NO_IMG or None
+    for i, shot in enumerate(shots):
+        errors = shot.get("errors", [])
+        chosen = None
+        for e in errors[:2]:   # 只看前两条
+            key = clean_err(e, 40)
+            if key not in shown_error_keys and len(key) > 2:
+                chosen = e
+                shown_error_keys.add(key)
+                break
+        shot_img_error[i] = chosen   # None=无error，None!NO_IMG=有error但都重复
+
+    # 重置，进入正式渲染
+    shown_error_keys = set()
+
     for i, shot in enumerate(shots):
         q = shot.get("quality_rating", 3)
         ql = qlabel(q)
@@ -564,8 +584,16 @@ def make_report(data: dict, output_path: str):
         txt_x = LM + IMG_W_MM + 5
         txt_w = pdf.w - LM - pdf.r_margin - IMG_W_MM - 5
 
-        # 图片（带球员标注）- 必须是文件而非目录
-        if frame_file and os.path.isfile(img_path):
+        # 图片（带球员标注）- 同类型错误只配一次图，其余留空线框
+        this_img_err = shot_img_error.get(i)        # None/NO_IMG/具体error文本
+        render_img = (this_img_err is not None and this_img_err is not NO_IMG
+                      and frame_file and os.path.isfile(img_path))
+        if render_img:
+            # 标记此错误类型已配图，后续相同类型不再配图
+            err_key = clean_err(this_img_err, 40)
+            shown_error_keys.add(err_key)
+
+        if render_img:
             try:
                 from PIL import Image as PILImage, ImageDraw, ImageFont
                 im = PILImage.open(img_path)
@@ -580,20 +608,16 @@ def make_report(data: dict, output_path: str):
                     color_map = {"白": "#FFFFFF", "蓝": "#0066CC", "红": "#CC0000",
                                  "黑": "#333333", "绿": "#228B22", "黄": "#FFCC00"}
                     ann_color = color_map.get(color_name, "#FFFFFF")
-                    # 转换 hex 字符串为 RGBA tuple
                     def hex_to_rgba(h, alpha=180):
                         h = h.lstrip('#')
                         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) + (alpha,)
                     ann_rgba = hex_to_rgba(ann_color, 180)
-                    ann_rgba_str = hex_to_rgba(ann_color, 120)
-                    # 远端球员画面位置偏上/偏小，近端偏下/偏大
                     if pos == "远端":
                         box_x0, box_y0 = int(iw*0.3), int(ih*0.15)
                         box_x1, box_y1 = int(iw*0.7), int(ih*0.55)
                     else:
                         box_x0, box_y0 = int(iw*0.2), int(ih*0.45)
                         box_x1, box_y1 = int(iw*0.8), int(ih*0.95)
-                    # 半透明背景框
                     overlay = PILImage.new("RGBA", im.size, (0,0,0,0))
                     od = ImageDraw.Draw(overlay)
                     for edge_w in range(3):
@@ -601,7 +625,6 @@ def make_report(data: dict, output_path: str):
                                      box_x1+edge_w, box_y1+edge_w],
                                     outline=ann_color, width=3)
                     im = PILImage.alpha_composite(im.convert("RGBA"), overlay)
-                    # 标签背景
                     label_bg = PILImage.new("RGBA", im.size, (0,0,0,0))
                     ld = ImageDraw.Draw(label_bg)
                     lw, lh = 8, 8
@@ -611,8 +634,6 @@ def make_report(data: dict, output_path: str):
                                          box_x0+lw+dx, box_y0-2+dy],
                                         fill=ann_rgba)
                     im = PILImage.alpha_composite(im, label_bg)
-                    # 保存临时文件
-                    # 保存到 session 隔离目录，拒绝污染
                     ann_dir = os.path.dirname(img_path) if img_path else ""
                     if ann_dir and os.path.isdir(ann_dir):
                         tmp_path = f"{ann_dir}/ann_{frame_file}"
@@ -623,7 +644,6 @@ def make_report(data: dict, output_path: str):
                 else:
                     img_path_ann = img_path
 
-                # annotated 文件必须和原始帧在同一目录，防止跨 session 污染
                 ann_base = os.path.dirname(img_path) if img_path else ""
                 ann_path = f"{ann_base}/ann_{frame_file}" if ann_base and frame_file else ""
                 if ann_path and os.path.exists(ann_path):
@@ -639,7 +659,22 @@ def make_report(data: dict, output_path: str):
                 print(f"  [!] 标注失败: {e}")
                 pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "D")
         else:
-            pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "D")
+            # 无图：留空线框，浅灰背景
+            pdf.set_fill_color(248, 248, 248)
+            pdf.set_draw_color(210, 210, 210)
+            pdf.set_line_width(0.3)
+            pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "FD")
+            # 中间显示简短说明
+            pdf.set_font("STHeiti", size=7)
+            pdf.set_text_color(180, 180, 180)
+            note = ""
+            if this_img_err is NO_IMG:
+                note = "同类问题见上图"
+            elif this_img_err:
+                note = f"等问题：{clean_err(this_img_err, 14)}"
+            if note:
+                pdf.set_xy(LM, body_y + IMG_H_MM/2 - 3)
+                pdf.cell(IMG_W_MM, 6, note, align="C")
 
         # 文字
         pdf.set_xy(txt_x, body_y)
