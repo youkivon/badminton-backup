@@ -320,10 +320,10 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "ball_cy": ball_info.get("cy") if ball_info else None,
     }
 
-    # 预检：纯SKIP响应（无标签格式）→ 归为unable to determine，不丢弃
+    # 预检：纯SKIP响应（无标签格式）→ 归为无法判断，不丢弃
     stripped = text.strip().upper()
     if stripped == "SKIP":
-        out["action_type"] = "unable to determine"
+        out["action_type"] = "无法判断"
         out["quality_rating"] = 0
         for k in ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]:
             out[k] = 0
@@ -426,7 +426,7 @@ def _parse_stage2_result(image_path, text, ball_info=None):
                 break
 
     if not out["action_type"]:
-        out["action_type"] = "unable to determine"
+        out["action_type"] = "无法判断"
         out["quality_rating"] = 0
 
     return out
@@ -436,7 +436,7 @@ def _error_result(image_path, err_msg):
     return {
         "frame_file": os.path.basename(image_path),
         "raw_response": err_msg,
-        "action_type": "unable to determine",
+        "action_type": "无法判断",
         "quality_rating": 0,
         "发力链": 0, "闪腕": 0, "步伐": 0,
         "拍面控制": 0, "整体协调": 0,
