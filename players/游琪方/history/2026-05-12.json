@@ -536,6 +536,9 @@
   },
   "total_errors": 24,
   "unique_errors": 3,
-  "quality_trend": "down",
-  "prev_avg_quality": 6.6
+  "quality_trend": "same",
+  "prev_avg_quality": 6.1,
+  "new_badges": [
+    "streak_7"
+  ]
 }

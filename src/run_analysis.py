@@ -536,6 +536,15 @@ if __name__ == "__main__":
             "unique_errors": len(err_counter),
         }
 
+        # 生成标注图（ann_ 前缀），供报告渲染帧图
+        if arc_dir:
+            try:
+                import annotate_frames as af
+                ann_count = af.annotate_session_frames(session_data, arc_dir)
+                print(f"  → 标注图已生成: {ann_count} 张")
+            except Exception as e:
+                print(f"  [警告] 标注图生成失败: {e}")
+
         profile = db.add_session(PLAYER_NAME, session_data)
         print(f"  → 档案已保存（累计 {profile['total_sessions']} 次分析）")
     else:
