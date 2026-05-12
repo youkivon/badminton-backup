@@ -225,8 +225,11 @@ def add_session(name: str, session_data: dict, frames_dir: str = None):
 
     save_profile(name, profile)
 
-    # 同时保存详细历史 JSON
-    hist_path = os.path.join(get_player_dir(name), "history", f"{session_data['date']}.json")
+    # 同时保存详细历史 JSON（用时间戳避免同一天多次分析互相覆盖）
+    from datetime import datetime as _dt
+    ts = _dt.now().strftime("%H%M%S")
+    hist_path = os.path.join(get_player_dir(name), "history",
+                             f"{session_data['date']}_{ts}.json")
     with open(hist_path, "w", encoding="utf-8") as f:
         json.dump(session_data, f, ensure_ascii=False, indent=2)
 

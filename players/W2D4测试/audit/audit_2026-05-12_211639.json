@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-05-12_211639",
+  "player": "W2D4测试",
+  "shots_count": 2,
+  "checks": [
+    {
+      "item": "C1",
+      "passed": true,
+      "detail": "0帧",
+      "severity": "ok"
+    },
+    {
+      "item": "C2",
+      "passed": true,
+      "detail": "0帧",
+      "severity": "ok"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "warnings": 0,
+    "errors": 0
+  }
+}

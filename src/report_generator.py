@@ -197,6 +197,11 @@ def _translate_action_type(at):
     """把VLM英文动作类型翻译成中文"""
     return ACTION_TYPE_TRANSLATION.get(at, at)
 
+def _error_key(e):
+    """从错误字符串提取去重用的 key（只看错误代码 E1/E2/...，不看描述文本）"""
+    m = re.match(r'(E\d+)', e.upper())
+    return m.group(1) if m else e[:20]
+
 def clean_err(text, max_len=50):
     text = text.strip()
     text = re.sub(r"^[）\)\u3001、\s]+", "", text)
@@ -572,25 +577,22 @@ def make_report(data: dict, output_path: str):
     IMG_H_MM = 36
     from PIL import Image as PILImage
 
-    # ── 同类型错误去重：每类错误只配一张图，后续仅文字 ──────────────
-    shown_error_keys = set()   # 已配图的错误类型
-    NO_IMG = object()          # 标记"此卡不配图"
-
-    # 预扫描：每个 shot 应该用哪条 error 配图（None=不放图）
-    shot_img_error = {}        # shot_idx → error 文本 or NO_IMG or None
+    # 每个 shot 选取一个错误标注叠加到图上（按顺序选第一个 E 编号）
+    shot_img_error = {}        # shot_idx → error 文本 or None
     for i, shot in enumerate(shots):
-        errors = shot.get("errors", [])
+        flat_errors = []
+        for err_str in shot.get("errors", []):
+            for part in err_str.split(','):
+                part = part.strip()
+                if part:
+                    flat_errors.append(part)
         chosen = None
-        for e in errors[:2]:   # 只看前两条
-            key = clean_err(e, 40)
-            if key not in shown_error_keys and len(key) > 2:
+        for e in flat_errors[:3]:
+            key = _error_key(e)
+            if len(key) >= 2:
                 chosen = e
-                shown_error_keys.add(key)
                 break
-        shot_img_error[i] = chosen   # None=无error，None!NO_IMG=有error但都重复
-
-    # 重置，进入正式渲染
-    shown_error_keys = set()
+        shot_img_error[i] = chosen
 
     for i, shot in enumerate(shots):
         q = shot.get("quality_rating", 3)
@@ -640,18 +642,23 @@ def make_report(data: dict, output_path: str):
         if not frames_dir or not os.path.isdir(frames_dir) \
            or any(frames_dir.startswith(f) for f in _FORBIDDEN):
             frames_dir = ""
-        img_path = f"{frames_dir}/{frame_file}" if frame_file else ""
+        # 优先使用 annotated 文件（ann_f_xxx.jpg），不存在则 fallback 到原始帧
+        img_path = ""
+        if frame_file:
+            ann_name = frame_file.replace("f_", "ann_f_")
+            ann_path = f"{frames_dir}/{ann_name}" if frames_dir else ann_name
+            raw_path = f"{frames_dir}/{frame_file}" if frames_dir else frame_file
+            if os.path.isfile(ann_path):
+                img_path = ann_path
+            elif os.path.isfile(raw_path):
+                img_path = raw_path
         txt_x = LM + IMG_W_MM + 5
         txt_w = pdf.w - LM - pdf.r_margin - IMG_W_MM - 5
 
-        # 图片（带球员标注）- 同类型错误只配一次图，其余留空线框
-        this_img_err = shot_img_error.get(i)        # None/NO_IMG/具体error文本
-        render_img = (this_img_err is not None and this_img_err is not NO_IMG
+        # 图片（带球员标注）
+        this_img_err = shot_img_error.get(i)        # None/具体error文本
+        render_img = (this_img_err is not None
                       and frame_file and os.path.isfile(img_path))
-        if render_img:
-            # 标记此错误类型已配图，后续相同类型不再配图
-            err_key = clean_err(this_img_err, 40)
-            shown_error_keys.add(err_key)
 
         if render_img:
             try:
@@ -694,15 +701,8 @@ def make_report(data: dict, output_path: str):
                                          box_x0+lw+dx, box_y0-2+dy],
                                         fill=ann_rgba)
                     im = PILImage.alpha_composite(im, label_bg)
-                    ann_dir = os.path.dirname(img_path) if img_path else ""
-                    if ann_dir and os.path.isdir(ann_dir):
-                        tmp_path = f"{ann_dir}/ann_{frame_file}"
-                        im.convert("RGB").save(tmp_path, "JPEG", quality=85)
-                        img_path_ann = tmp_path
-                    else:
-                        img_path_ann = img_path
-                else:
-                    img_path_ann = img_path
+                # img_path 已在上面（lines 643-652）正确指向 archive 目录的 ann_f_xxxx.jpg
+                img_path_ann = img_path
 
                 ann_base = os.path.dirname(img_path) if img_path else ""
                 ann_path = f"{ann_base}/ann_{frame_file}" if ann_base and frame_file else ""
@@ -731,9 +731,7 @@ def make_report(data: dict, output_path: str):
             pdf.set_font("STHeiti", size=7)
             pdf.set_text_color(180, 180, 180)
             note = ""
-            if this_img_err is NO_IMG:
-                note = "同类问题见上图"
-            elif this_img_err:
+            if this_img_err:
                 note = f"等问题：{clean_err(this_img_err, 14)}"
             if note:
                 pdf.set_xy(LM, body_y + IMG_H_MM/2 - 3)
@@ -787,6 +785,28 @@ def make_report(data: dict, output_path: str):
                 pdf.set_x(txt_x)
                 pdf.set_text_color(*C_GREY)
                 pdf.multi_cell(txt_w, 4.5, f"→ {_translate_suggestion_impl(s)}")
+            end_y = pdf.get_y()
+
+        # 战术分析
+        击球选择 = shot.get("击球选择", "")
+        战术意识 = shot.get("战术意识", "")
+        跑位意识 = shot.get("跑位意识", "")
+        tactic_items = [
+            ("击球选择", 击球选择),
+            ("战术意识", 战术意识),
+            ("跑位意识", 跑位意识),
+        ]
+        tactic_items = [(k, v) for k, v in tactic_items if v]
+        if tactic_items:
+            pdf.ln(2)
+            pdf.set_x(txt_x)
+            pdf.set_text_color(60, 60, 140)
+            pdf.cell(txt_w, 5, "战术分析：")
+            end_y = pdf.get_y() + 5
+            for k, v in tactic_items:
+                pdf.set_x(txt_x)
+                pdf.set_text_color(*C_GREY)
+                pdf.multi_cell(txt_w, 4.5, f"· {k}：{v}")
             end_y = pdf.get_y()
 
         # 球速标签
@@ -1192,7 +1212,7 @@ def make_report(data: dict, output_path: str):
         import numpy as np
         from PIL import Image as PILImage  # ← 加这行
 
-        plt.rcParams["font.family"] = ["STHeiti", "Heiti SC", "Arial Unicode MS"]
+        plt.rcParams["font.family"] = ["STHeiti", "Arial Unicode MS"]
         plt.rcParams["axes.unicode_minus"] = False
 
         dates = [s.get("date", "")[-5:] for s in sessions]  # MM-DD

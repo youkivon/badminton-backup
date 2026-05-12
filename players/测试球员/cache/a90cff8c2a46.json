@@ -1,0 +1,1815 @@
+{
+  "shots": [
+    {
+      "time": "32s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0017.jpg"
+      ],
+      "speed_kmh": 87.1,
+      "avg_speed_kmh": 63.7,
+      "trajectory": "arc",
+      "ball_detected": true
+    },
+    {
+      "time": "64s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间强化手腕爆发力释放，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作虽完成击球，但击球点偏后，发力效率未最大化，建议更早启动击球",
+      "战术意识": "中，选择中前场过渡球，但未形成有效压制或调动对手",
+      "跑位意识": "一般，球员站位略靠后，未及时调整至最佳击球位置，影响击球角度与发力",
+      "frames": [
+        "f_0033.jpg"
+      ],
+      "speed_kmh": 91.4,
+      "avg_speed_kmh": 73.5,
+      "trajectory": "straight",
+      "ball_detected": true
+    },
+    {
+      "time": "128s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与甩腕的衔接，击球时手腕应更灵活爆发，避免僵硬发力"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球，若对手处于被动则合理，但若对手站位靠前则应选择平抽快挡更高效",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位",
+      "frames": [
+        "f_0065.jpg"
+      ],
+      "speed_kmh": 82.0,
+      "avg_speed_kmh": 60.4,
+      "trajectory": "arc",
+      "ball_detected": true
+    },
+    {
+      "time": "224s",
+      "action_type": "高远球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，同时优化引拍节奏以增强发力链传导"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员虽处于后场，但身体重心偏前，未完全侧身，影响发力效率",
+      "frames": [
+        "f_0113.jpg"
+      ],
+      "speed_kmh": 83.2,
+      "avg_speed_kmh": 56.2,
+      "trajectory": "arc",
+      "ball_detected": true
+    },
+    {
+      "time": "256s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球质量"
+      ],
+      "击球选择": "有优化空间，球员位于中场偏后，击球点略低，应选择更主动的进攻或过渡球，当前动作可能为防守性回球",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0129.jpg"
+      ],
+      "speed_kmh": 65.9,
+      "avg_speed_kmh": 56.1,
+      "trajectory": "arc",
+      "ball_detected": true
+    },
+    {
+      "time": "352s",
+      "action_type": "后场击球（单帧推断）",
+      "player": "远端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前击球点略低，可提升击球高度以增加控制力",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0177.jpg"
+      ],
+      "speed_kmh": 52.8,
+      "avg_speed_kmh": 48.1,
+      "trajectory": "arc",
+      "ball_detected": true
+    },
+    {
+      "time": "416s",
+      "action_type": "后场击球（单帧推断）",
+      "player": "远端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间强化手腕爆发制动，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作虽完成击球，但击球点偏后，发力效率不高，建议更早启动击球",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0209.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "448s",
+      "action_type": "高远球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，确保拍面后仰角度与击球点匹配"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0225.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "704s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，易被对手预判",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位",
+      "frames": [
+        "f_0353.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "768s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0385.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "832s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕爆发力训练，提升击球瞬间的闪腕速度，同时优化转髋与下肢发力衔接"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "frames": [
+        "f_0417.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "864s",
+      "action_type": "高远球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E4-侧身不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链传导"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未充分侧身，可能影响击球角度与发力效率",
+      "frames": [
+        "f_0433.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "896s",
+      "action_type": "放网前球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升网前细腻控制"
+      ],
+      "击球选择": "有优化空间，当前动作可能为前场放网或搓球，但未明确球托翻转，击球点略低，可提升控制精度",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0449.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "928s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，同时优化转髋与下肢传导衔接"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，不利于快速衔接下一拍",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "frames": [
+        "f_0465.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "992s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位置处于中场偏后，未提前预判落点，移动略迟缓",
+      "frames": [
+        "f_0497.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1024s",
+      "action_type": "后场击球（单帧推断）",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 6,
+      "闪腕": 5,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动控制，增强击球精准度"
+      ],
+      "击球选择": "有优化空间，球员位于后场但击球动作未明确体现高远或杀球，可能为过渡性击球，缺乏战术目的性",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位置偏后，但未充分侧身或调整重心，移动略显迟滞",
+      "frames": [
+        "f_0513.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1056s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略靠后，未及时调整至最佳击球位置",
+      "frames": [
+        "f_0529.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1088s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂衔接，击球瞬间手腕需更充分爆发释放力量"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "frames": [
+        "f_0545.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1152s",
+      "action_type": "后场击球（单帧推断）",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，球员处于后场区域，但击球动作未完全展现弧度与下压，可能为高远球或吊球，需结合后续轨迹判断",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏后，但未充分侧身，移动略显迟滞",
+      "frames": [
+        "f_0577.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1184s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，增强借力意识"
+      ],
+      "击球选择": "有优化空间，球员位于中场区域，但挥拍动作略显迟缓，未充分借力，可能影响回球速度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判球路，移动略显被动",
+      "frames": [
+        "f_0593.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1280s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判球路，移动略迟缓",
+      "frames": [
+        "f_0641.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1312s",
+      "action_type": "正手抽球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "frames": [
+        "f_0657.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1344s",
+      "action_type": "放网前球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕的爆发性放松与制动，提升拍面轻触球托的精准控制"
+      ],
+      "击球选择": "有优化空间，当前动作可能为前场放网或搓球，但未明确体现球托翻转或轻触，击球意图模糊，建议更清晰控制拍面角度",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位于网前区域，但未完全贴近网前，移动略显滞后",
+      "frames": [
+        "f_0673.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1504s",
+      "action_type": "后场击球（单帧推断）",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E4-侧身不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链与击球角度"
+      ],
+      "击球选择": "有优化空间，当前动作似为后场正手击球，但未明确击球点高度与弧度，可能为高远球或吊球，需根据战术意图调整发力与拍面控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位于后场但身体略显前倾，未充分侧身，可能影响击球角度与后续还原",
+      "frames": [
+        "f_0753.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1536s",
+      "action_type": "挑球",
+      "player": "近端球员",
+      "quality_rating": 5,
+      "发力链": 6,
+      "闪腕": 5,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 5,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作偏向防守性挑球，若能提前预判并主动进攻将更有效",
+      "战术意识": "中",
+      "跑位意识": "一般，球员处于网前区域但身体重心偏后，未充分贴近网前",
+      "frames": [
+        "f_0769.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    },
+    {
+      "time": "1568s",
+      "action_type": "高远球",
+      "player": "近端球员",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与甩腕的衔接，击球瞬间手腕需更充分爆发，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判对手回球线路，移动略迟滞",
+      "frames": [
+        "f_0785.jpg"
+      ],
+      "speed_kmh": null,
+      "trajectory": "unknown",
+      "ball_detected": false
+    }
+  ],
+  "frames_results": [
+    {
+      "frame_file": "f_0001.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 39,
+      "ball_cy": 347,
+      "hitter_side": "Unknown",
+      "time": "0s"
+    },
+    {
+      "frame_file": "f_0017.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 264,
+      "ball_cy": 191,
+      "hitter_side": "Near",
+      "time": "32s"
+    },
+    {
+      "frame_file": "f_0033.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作虽完成击球，但击球点偏后，发力效率未最大化，建议更早启动击球  \n战术意识: 中，选择中前场过渡球，但未形成有效压制或调动对手  \n跑位意识: 一般，球员站位略靠后，未及时调整至最佳击球位置，影响击球角度与发力  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂, E5-闪腕不充分  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间强化手腕爆发力释放，提升击球效率",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间强化手腕爆发力释放，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作虽完成击球，但击球点偏后，发力效率未最大化，建议更早启动击球",
+      "战术意识": "中，选择中前场过渡球，但未形成有效压制或调动对手",
+      "跑位意识": "一般，球员站位略靠后，未及时调整至最佳击球位置，影响击球角度与发力",
+      "ball_detected": true,
+      "ball_cx": 44,
+      "ball_cy": 350,
+      "hitter_side": "Near",
+      "time": "64s"
+    },
+    {
+      "frame_file": "f_0049.jpg",
+      "raw_response": "[Stage1 No] All players appear to be standing or walking, with no visible racquet motion or follow-through indicating a swing to hit the shuttle.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 21,
+      "ball_cy": 352,
+      "hitter_side": "Unknown",
+      "time": "96s"
+    },
+    {
+      "frame_file": "f_0065.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球，若对手处于被动则合理，但若对手站位靠前则应选择平抽快挡更高效  \n战术意识: 中  \n跑位意识: 一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强转髋与甩腕的衔接，击球时手腕应更灵活爆发，避免僵硬发力",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与甩腕的衔接，击球时手腕应更灵活爆发，避免僵硬发力"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球，若对手处于被动则合理，但若对手站位靠前则应选择平抽快挡更高效",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位",
+      "ball_detected": true,
+      "ball_cx": 591,
+      "ball_cy": 495,
+      "hitter_side": "Near",
+      "time": "128s"
+    },
+    {
+      "frame_file": "f_0081.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 19,
+      "ball_cy": 342,
+      "hitter_side": "Unknown",
+      "time": "160s"
+    },
+    {
+      "frame_file": "f_0097.jpg",
+      "raw_response": "[Stage1 No] All players appear to be standing or walking, with no visible racquet motion or follow-through indicating a swing.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 11,
+      "ball_cy": 366,
+      "hitter_side": "Unknown",
+      "time": "192s"
+    },
+    {
+      "frame_file": "f_0113.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制  \n战术意识: 中  \n跑位意识: 一般，球员虽处于后场，但身体重心偏前，未完全侧身，影响发力效率  \n动作类型: 高远球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，同时优化引拍节奏以增强发力链传导",
+      "hitter": "",
+      "action_type": "高远球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，同时优化引拍节奏以增强发力链传导"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员虽处于后场，但身体重心偏前，未完全侧身，影响发力效率",
+      "ball_detected": true,
+      "ball_cx": 4,
+      "ball_cy": 115,
+      "hitter_side": "Near",
+      "time": "224s"
+    },
+    {
+      "frame_file": "f_0129.jpg",
+      "raw_response": "击球选择: 有优化空间，球员位于中场偏后，击球点略低，应选择更主动的进攻或过渡球，当前动作可能为防守性回球  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂, E2-手腕僵硬  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球质量",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球质量"
+      ],
+      "击球选择": "有优化空间，球员位于中场偏后，击球点略低，应选择更主动的进攻或过渡球，当前动作可能为防守性回球",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 600,
+      "ball_cy": 510,
+      "hitter_side": "Near",
+      "time": "256s"
+    },
+    {
+      "frame_file": "f_0145.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be in a ready or waiting stance with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 606,
+      "ball_cy": 510,
+      "hitter_side": "Unknown",
+      "time": "288s"
+    },
+    {
+      "frame_file": "f_0161.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or moving without racquet motion.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 27,
+      "ball_cy": 107,
+      "hitter_side": "Unknown",
+      "time": "320s"
+    },
+    {
+      "frame_file": "f_0177.jpg",
+      "raw_response": "击球选择: 有优化空间，当前击球点略低，可提升击球高度以增加控制力  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 后场击球（单帧推断）  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果",
+      "hitter": "",
+      "action_type": "后场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前击球点略低，可提升击球高度以增加控制力",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 869,
+      "ball_cy": 534,
+      "hitter_side": "Far",
+      "time": "352s"
+    },
+    {
+      "frame_file": "f_0193.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be in a ready or waiting stance with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 317,
+      "ball_cy": 158,
+      "hitter_side": "Unknown",
+      "time": "384s"
+    },
+    {
+      "frame_file": "f_0209.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作虽完成击球，但击球点偏后，发力效率不高，建议更早启动击球  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 后场击球（单帧推断）  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂, E5-闪腕不充分  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间强化手腕爆发制动，提升击球效率",
+      "hitter": "",
+      "action_type": "后场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间强化手腕爆发制动，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作虽完成击球，但击球点偏后，发力效率不高，建议更早启动击球",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 442,
+      "ball_cy": 148,
+      "hitter_side": "Far",
+      "time": "416s"
+    },
+    {
+      "frame_file": "f_0225.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 高远球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，确保拍面后仰角度与击球点匹配",
+      "hitter": "",
+      "action_type": "高远球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，确保拍面后仰角度与击球点匹配"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 303,
+      "ball_cy": 165,
+      "hitter_side": "Near",
+      "time": "448s"
+    },
+    {
+      "frame_file": "f_0241.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or moving slowly, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 188,
+      "ball_cy": 302,
+      "hitter_side": "Unknown",
+      "time": "480s"
+    },
+    {
+      "frame_file": "f_0257.jpg",
+      "raw_response": "[Stage1 No] No player is visibly swinging or in follow-through; all players appear to be standing or moving without active racquet motion.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 49,
+      "ball_cy": 302,
+      "hitter_side": "Unknown",
+      "time": "512s"
+    },
+    {
+      "frame_file": "f_0273.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or moving slowly, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 564,
+      "ball_cy": 526,
+      "hitter_side": "Unknown",
+      "time": "544s"
+    },
+    {
+      "frame_file": "f_0289.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing, walking, or preparing, with racquets at rest or in motionless positions.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 589,
+      "ball_cy": 518,
+      "hitter_side": "Unknown",
+      "time": "576s"
+    },
+    {
+      "frame_file": "f_0305.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or waiting, with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 557,
+      "ball_cy": 531,
+      "hitter_side": "Unknown",
+      "time": "608s"
+    },
+    {
+      "frame_file": "f_0321.jpg",
+      "raw_response": "[Stage1 No] All players appear to be standing or walking, with no visible racquet motion or follow-through indicating a swing to hit the shuttle.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 68,
+      "ball_cy": 207,
+      "hitter_side": "Unknown",
+      "time": "640s"
+    },
+    {
+      "frame_file": "f_0337.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 26,
+      "ball_cy": 328,
+      "hitter_side": "Unknown",
+      "time": "672s"
+    },
+    {
+      "frame_file": "f_0353.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，易被对手预判  \n战术意识: 中  \n跑位意识: 一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，易被对手预判",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动未完全到位",
+      "ball_detected": true,
+      "ball_cx": 875,
+      "ball_cy": 531,
+      "hitter_side": "Near",
+      "time": "704s"
+    },
+    {
+      "frame_file": "f_0369.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or waiting, with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 620,
+      "ball_cy": 521,
+      "hitter_side": "Unknown",
+      "time": "736s"
+    },
+    {
+      "frame_file": "f_0385.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但未充分借力，可提升击球速度与稳定性",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 610,
+      "ball_cy": 521,
+      "hitter_side": "Near",
+      "time": "768s"
+    },
+    {
+      "frame_file": "f_0401.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 602,
+      "ball_cy": 518,
+      "hitter_side": "Unknown",
+      "time": "800s"
+    },
+    {
+      "frame_file": "f_0417.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢  \n战术意识: 中  \n跑位意识: 一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强手腕爆发力训练，提升击球瞬间的闪腕速度，同时优化转髋与下肢发力衔接",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕爆发力训练，提升击球瞬间的闪腕速度，同时优化转髋与下肢发力衔接"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "ball_detected": true,
+      "ball_cx": 940,
+      "ball_cy": 232,
+      "hitter_side": "Near",
+      "time": "832s"
+    },
+    {
+      "frame_file": "f_0433.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制  \n战术意识: 中  \n跑位意识: 一般，球员站位偏中后，未充分侧身，可能影响击球角度与发力效率  \n动作类型: 高远球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E4-侧身不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链传导",
+      "hitter": "",
+      "action_type": "高远球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E4-侧身不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链传导"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未充分侧身，可能影响击球角度与发力效率",
+      "ball_detected": true,
+      "ball_cx": 930,
+      "ball_cy": 242,
+      "hitter_side": "Near",
+      "time": "864s"
+    },
+    {
+      "frame_file": "f_0449.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为前场放网或搓球，但未明确球托翻转，击球点略低，可提升控制精度  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 放网前球  \n综合评分: 6  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升网前细腻控制",
+      "hitter": "",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升网前细腻控制"
+      ],
+      "击球选择": "有优化空间，当前动作可能为前场放网或搓球，但未明确球托翻转，击球点略低，可提升控制精度",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 560,
+      "ball_cy": 492,
+      "hitter_side": "Near",
+      "time": "896s"
+    },
+    {
+      "frame_file": "f_0465.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，不利于快速衔接下一拍  \n战术意识: 中  \n跑位意识: 一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，同时优化转髋与下肢传导衔接",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，同时优化转髋与下肢传导衔接"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，不利于快速衔接下一拍",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "ball_detected": true,
+      "ball_cx": 576,
+      "ball_cy": 492,
+      "hitter_side": "Near",
+      "time": "928s"
+    },
+    {
+      "frame_file": "f_0481.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest or in a ready position.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 614,
+      "ball_cy": 497,
+      "hitter_side": "Unknown",
+      "time": "960s"
+    },
+    {
+      "frame_file": "f_0497.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量  \n战术意识: 中  \n跑位意识: 一般，球员位置处于中场偏后，未提前预判落点，移动略迟缓  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位置处于中场偏后，未提前预判落点，移动略迟缓",
+      "ball_detected": true,
+      "ball_cx": 628,
+      "ball_cy": 499,
+      "hitter_side": "Near",
+      "time": "992s"
+    },
+    {
+      "frame_file": "f_0513.jpg",
+      "raw_response": "击球选择: 有优化空间，球员位于后场但击球动作未明确体现高远或杀球，可能为过渡性击球，缺乏战术目的性  \n战术意识: 中  \n跑位意识: 一般，球员位置偏后，但未充分侧身或调整重心，移动略显迟滞  \n动作类型: 后场击球（单帧推断）  \n综合评分: 6  \n发力链: 6  \n闪腕: 5  \n步伐: 5  \n拍面控制: 6  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动控制，增强击球精准度",
+      "hitter": "",
+      "action_type": "后场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 6,
+      "闪腕": 5,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动控制，增强击球精准度"
+      ],
+      "击球选择": "有优化空间，球员位于后场但击球动作未明确体现高远或杀球，可能为过渡性击球，缺乏战术目的性",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位置偏后，但未充分侧身或调整重心，移动略显迟滞",
+      "ball_detected": true,
+      "ball_cx": 396,
+      "ball_cy": 185,
+      "hitter_side": "Near",
+      "time": "1024s"
+    },
+    {
+      "frame_file": "f_0529.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量  \n战术意识: 中  \n跑位意识: 一般，球员站位略靠后，未及时调整至最佳击球位置  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发以提升击球速度与控制力"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略靠后，未及时调整至最佳击球位置",
+      "ball_detected": true,
+      "ball_cx": 7,
+      "ball_cy": 116,
+      "hitter_side": "Near",
+      "time": "1056s"
+    },
+    {
+      "frame_file": "f_0545.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量  \n战术意识: 中  \n跑位意识: 一般  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂, E2-手腕僵硬  \n改进建议: 加强转髋与挥臂衔接，击球瞬间手腕需更充分爆发释放力量",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂, E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂衔接，击球瞬间手腕需更充分爆发释放力量"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般",
+      "ball_detected": true,
+      "ball_cx": 924,
+      "ball_cy": 246,
+      "hitter_side": "Near",
+      "time": "1088s"
+    },
+    {
+      "frame_file": "f_0561.jpg",
+      "raw_response": "[Stage1 No] No player is visibly swinging or in follow-through; all players appear to be standing or moving without active racquet motion.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 556,
+      "ball_cy": 530,
+      "hitter_side": "Unknown",
+      "time": "1120s"
+    },
+    {
+      "frame_file": "f_0577.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于后场区域，但击球动作未完全展现弧度与下压，可能为高远球或吊球，需结合后续轨迹判断  \n战术意识: 中  \n跑位意识: 一般，球员站位偏后，但未充分侧身，移动略显迟滞  \n动作类型: 后场击球（单帧推断）  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果",
+      "hitter": "",
+      "action_type": "后场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果"
+      ],
+      "击球选择": "有优化空间，球员处于后场区域，但击球动作未完全展现弧度与下压，可能为高远球或吊球，需结合后续轨迹判断",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏后，但未充分侧身，移动略显迟滞",
+      "ball_detected": true,
+      "ball_cx": 609,
+      "ball_cy": 501,
+      "hitter_side": "Near",
+      "time": "1152s"
+    },
+    {
+      "frame_file": "f_0593.jpg",
+      "raw_response": "击球选择: 有优化空间，球员位于中场区域，但挥拍动作略显迟缓，未充分借力，可能影响回球速度与落点控制  \n战术意识: 中  \n跑位意识: 一般，球员站位偏中后，未提前预判球路，移动略显被动  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 7  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，增强借力意识",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，提升闪腕速度与制动效果，增强借力意识"
+      ],
+      "击球选择": "有优化空间，球员位于中场区域，但挥拍动作略显迟缓，未充分借力，可能影响回球速度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判球路，移动略显被动",
+      "ball_detected": true,
+      "ball_cx": 647,
+      "ball_cy": 500,
+      "hitter_side": "Near",
+      "time": "1184s"
+    },
+    {
+      "frame_file": "f_0609.jpg",
+      "raw_response": "[Stage1 No] No player is visibly swinging or in follow-through; all players appear to be in a stationary or walking posture with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 647,
+      "ball_cy": 497,
+      "hitter_side": "Unknown",
+      "time": "1216s"
+    },
+    {
+      "frame_file": "f_0625.jpg",
+      "raw_response": "[Stage1 No] No player is visibly swinging or in follow-through; all players appear to be standing or moving without active racquet motion.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 563,
+      "ball_cy": 530,
+      "hitter_side": "Unknown",
+      "time": "1248s"
+    },
+    {
+      "frame_file": "f_0641.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量  \n战术意识: 中  \n跑位意识: 一般，球员站位偏中后，未提前预判球路，移动略迟缓  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发，提升击球效率",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与挥臂的衔接，击球瞬间手腕需更充分爆发，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作可能为中场正手抽球，但击球点略低，未充分借力，可提升击球质量",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判球路，移动略迟缓",
+      "ball_detected": true,
+      "ball_cx": 539,
+      "ball_cy": 506,
+      "hitter_side": "Near",
+      "time": "1280s"
+    },
+    {
+      "frame_file": "f_0657.jpg",
+      "raw_response": "击球选择: 有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢  \n战术意识: 中  \n跑位意识: 一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足  \n动作类型: 正手抽球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 7  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导",
+      "hitter": "",
+      "action_type": "正手抽球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，提升击球瞬间的闪腕爆发力，优化下肢到上肢的发力传导"
+      ],
+      "击球选择": "有优化空间，球员处于中场位置，但动作幅度较大，可能为抽球而非更高效的平抽快挡，导致节奏偏慢",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位略偏中后，未充分贴近网前或后场，移动预判不足",
+      "ball_detected": true,
+      "ball_cx": 238,
+      "ball_cy": 58,
+      "hitter_side": "Near",
+      "time": "1312s"
+    },
+    {
+      "frame_file": "f_0673.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为前场放网或搓球，但未明确体现球托翻转或轻触，击球意图模糊，建议更清晰控制拍面角度  \n战术意识: 中  \n跑位意识: 一般，球员位于网前区域，但未完全贴近网前，移动略显滞后  \n动作类型: 放网前球  \n综合评分: 6  \n发力链: 7  \n闪腕: 6  \n步伐: 5  \n拍面控制: 6  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强击球瞬间手腕的爆发性放松与制动，提升拍面轻触球托的精准控制",
+      "hitter": "",
+      "action_type": "放网前球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕的爆发性放松与制动，提升拍面轻触球托的精准控制"
+      ],
+      "击球选择": "有优化空间，当前动作可能为前场放网或搓球，但未明确体现球托翻转或轻触，击球意图模糊，建议更清晰控制拍面角度",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位于网前区域，但未完全贴近网前，移动略显滞后",
+      "ball_detected": true,
+      "ball_cx": 219,
+      "ball_cy": 66,
+      "hitter_side": "Near",
+      "time": "1344s"
+    },
+    {
+      "frame_file": "f_0689.jpg",
+      "raw_response": "[Stage1 No] The players in the frame are either walking or standing still with no visible racquet motion or follow-through, indicating no active swing is occurring.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 529,
+      "ball_cy": 531,
+      "hitter_side": "Unknown",
+      "time": "1376s"
+    },
+    {
+      "frame_file": "f_0705.jpg",
+      "raw_response": "[Stage1 No] No player is visibly swinging or in follow-through; all players appear to be in stationary or walking positions with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 580,
+      "ball_cy": 490,
+      "hitter_side": "Unknown",
+      "time": "1408s"
+    },
+    {
+      "frame_file": "f_0721.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be in a ready or waiting stance with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 829,
+      "ball_cy": 529,
+      "hitter_side": "Unknown",
+      "time": "1440s"
+    },
+    {
+      "frame_file": "f_0737.jpg",
+      "raw_response": "[Stage1 No] All visible players appear to be standing or walking, with no racquet in motion or in follow-through; no active swing is detected.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": -2,
+      "ball_cy": 291,
+      "hitter_side": "Unknown",
+      "time": "1472s"
+    },
+    {
+      "frame_file": "f_0753.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作似为后场正手击球，但未明确击球点高度与弧度，可能为高远球或吊球，需根据战术意图调整发力与拍面控制  \n战术意识: 中  \n跑位意识: 一般，球员位于后场但身体略显前倾，未充分侧身，可能影响击球角度与后续还原  \n动作类型: 后场击球（单帧推断）  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 6  \n主要问题: E2-手腕僵硬, E4-侧身不充分  \n改进建议: 加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链与击球角度",
+      "hitter": "",
+      "action_type": "后场击球（单帧推断）",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 6,
+      "errors": [
+        "E2-手腕僵硬, E4-侧身不充分"
+      ],
+      "suggestions": [
+        "加强击球瞬间手腕爆发力训练，同时提升侧身转体幅度以优化发力链与击球角度"
+      ],
+      "击球选择": "有优化空间，当前动作似为后场正手击球，但未明确击球点高度与弧度，可能为高远球或吊球，需根据战术意图调整发力与拍面控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员位于后场但身体略显前倾，未充分侧身，可能影响击球角度与后续还原",
+      "ball_detected": true,
+      "ball_cx": 122,
+      "ball_cy": 227,
+      "hitter_side": "Near",
+      "time": "1504s"
+    },
+    {
+      "frame_file": "f_0769.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作偏向防守性挑球，若能提前预判并主动进攻将更有效  \n战术意识: 中  \n跑位意识: 一般，球员处于网前区域但身体重心偏后，未充分贴近网前  \n动作类型: 挑球  \n综合评分: 5  \n发力链: 6  \n闪腕: 5  \n步伐: 5  \n拍面控制: 6  \n整体协调: 5  \n主要问题: E2-手腕僵硬, E5-闪腕不充分  \n改进建议: 加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升击球效率",
+      "hitter": "",
+      "action_type": "挑球",
+      "quality_rating": 5,
+      "发力链": 6,
+      "闪腕": 5,
+      "步伐": 5,
+      "拍面控制": 6,
+      "整体协调": 5,
+      "errors": [
+        "E2-手腕僵硬, E5-闪腕不充分"
+      ],
+      "suggestions": [
+        "加强手腕灵活性训练，击球瞬间主动闪腕释放爆发力，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作偏向防守性挑球，若能提前预判并主动进攻将更有效",
+      "战术意识": "中",
+      "跑位意识": "一般，球员处于网前区域但身体重心偏后，未充分贴近网前",
+      "ball_detected": true,
+      "ball_cx": 579,
+      "ball_cy": 489,
+      "hitter_side": "Near",
+      "time": "1536s"
+    },
+    {
+      "frame_file": "f_0785.jpg",
+      "raw_response": "击球选择: 有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制  \n战术意识: 中  \n跑位意识: 一般，球员站位偏中后，未提前预判对手回球线路，移动略迟滞  \n动作类型: 高远球  \n综合评分: 6.5  \n发力链: 7  \n闪腕: 6  \n步伐: 6  \n拍面控制: 7  \n整体协调: 7  \n主要问题: E1-发力链断裂，E2-手腕僵硬  \n改进建议: 加强转髋与甩腕的衔接，击球瞬间手腕需更充分爆发，提升击球效率",
+      "hitter": "",
+      "action_type": "高远球",
+      "quality_rating": 6,
+      "发力链": 7,
+      "闪腕": 6,
+      "步伐": 6,
+      "拍面控制": 7,
+      "整体协调": 7,
+      "errors": [
+        "E1-发力链断裂，E2-手腕僵硬"
+      ],
+      "suggestions": [
+        "加强转髋与甩腕的衔接，击球瞬间手腕需更充分爆发，提升击球效率"
+      ],
+      "击球选择": "有优化空间，当前动作可能为后场高远球，但击球点略低，未充分利用头顶高度，影响球路弧度与落点控制",
+      "战术意识": "中",
+      "跑位意识": "一般，球员站位偏中后，未提前预判对手回球线路，移动略迟滞",
+      "ball_detected": true,
+      "ball_cx": 827,
+      "ball_cy": 534,
+      "hitter_side": "Near",
+      "time": "1568s"
+    },
+    {
+      "frame_file": "f_0787.jpg",
+      "raw_response": "[Stage1 No] No player is actively swinging or in follow-through; all players appear to be standing or walking, with racquets at rest.",
+      "action_type": "non-rally (filtered by Stage1)",
+      "quality_rating": 0,
+      "发力链": 0,
+      "闪腕": 0,
+      "步伐": 0,
+      "拍面控制": 0,
+      "整体协调": 0,
+      "errors": [],
+      "suggestions": [],
+      "ball_detected": true,
+      "ball_cx": 287,
+      "ball_cy": 122,
+      "hitter_side": "Unknown",
+      "time": "1572s"
+    }
+  ],
+  "video_key": "a90cff8c2a46"
+}

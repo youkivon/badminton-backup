@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-05-12_215849",
+  "player": "W2D1二次修复",
+  "shots_count": 27,
+  "checks": [
+    {
+      "item": "C1-未知action_type",
+      "passed": true,
+      "detail": "0帧含未知标记",
+      "severity": "ok"
+    },
+    {
+      "item": "C2-过渡帧",
+      "passed": true,
+      "detail": "0帧过渡动作已清空",
+      "severity": "ok"
+    },
+    {
+      "item": "C3-评分动作矛盾",
+      "passed": true,
+      "detail": "0帧存在矛盾",
+      "severity": "ok"
+    },
+    {
+      "item": "C4-VLM版本",
+      "passed": true,
+      "detail": "V2已启用",
+      "severity": "ok"
+    },
+    {
+      "item": "C5-字体预提取",
+      "passed": true,
+      "detail": "stheiti.ttf 存在",
+      "severity": "ok"
+    },
+    {
+      "item": "C6-战术技术分离",
+      "passed": true,
+      "detail": "0帧非击球帧",
+      "severity": "ok"
+    },
+    {
+      "item": "C7-极值评分复核",
+      "passed": true,
+      "detail": "无极值帧",
+      "severity": "ok"
+    },
+    {
+      "item": "C8-归档帧图",
+      "passed": true,
+      "detail": "27张标注帧已归档",
+      "severity": "ok"
+    },
+    {
+      "item": "C9-audit日志",
+      "passed": true,
+      "detail": "本次写入 2026-05-12_215849.json",
+      "severity": "ok"
+    },
+    {
+      "item": "C10-图文不变形",
+      "passed": true,
+      "detail": "代码审查：IMG_H_MM宽度固定，高度按比例",
+      "severity": "info"
+    },
+    {
+      "item": "C11-图文不重叠",
+      "passed": true,
+      "detail": "代码审查：shot卡片高度BODY_H_MM固定",
+      "severity": "info"
+    },
+    {
+      "item": "C12-球速追踪",
+      "passed": true,
+      "detail": "Step3已执行",
+      "severity": "info"
+    },
+    {
+      "item": "C13-球员档案写入",
+      "passed": true,
+      "detail": "Step4已执行",
+      "severity": "info"
+    },
+    {
+      "item": "C14-微信推送",
+      "passed": true,
+      "detail": "Step5已执行（频率限制属外部）",
+      "severity": "info"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "warnings": 0,
+    "errors": 0
+  }
+}
