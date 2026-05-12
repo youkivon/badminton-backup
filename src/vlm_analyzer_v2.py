@@ -35,56 +35,172 @@ STAGE1_PROMPT = (
     'HitterSide: [Near/Far/Uncertain]\n'
     'Reason: [one sentence]\n\n'
     'Definitions:\n'
-    '- Yes = actively swinging, racquet in motion, follow-through\n'
-    '- No = standing, walking, talking, picking up shuttle, pre-serve toss, waiting\n'
+    '- Yes = actively swinging, racquet in motion, OR just completed swing and is in follow-through/recovery phase\n'
+    '- No = standing, walking, talking, picking up shuttle, pre-serve toss, waiting, racquet fully at rest\n'
     '- Near = hitter on near side (bottom half of image, large in frame)\n'
     '- Far = hitter on far side (top half of image, small in frame)\n'
     '- If uncertain, answer No'
 )
 
 # ============================================================
-# Stage2 Prompt V4：严格动作分类 + 位置约束 + 发球识别
+# Stage2 Prompt：使用 V1 分类体系式 prompt（VLM 能正常分类）
+# V2 的 OpenCV 球检测 context 逻辑保留，但换掉导致 SKIP 的排除式 prompt
 # ============================================================
-STAGE2_PROMPT_V2 = r"""你是一位专业的羽毛球教练。请分析图片中球员的击球动作。
+STAGE2_PROMPT = r"""你是一位专业的羽毛球 AI 教练。请严格按"位置优先"策略分析视频帧：
 
-【核心原则：宁可漏判，不能误判】
-如果图片中球不可见、挥拍轨迹不清晰、或动作存在明显疑义无法判断，必须直接输出 SKIP，不得擅自编造动作类型。
-严禁在没有足够视觉证据的情况下输出任何击球动作描述。
-【重要：判断前先排除法】
-在输出动作类型之前，必须依次问自己：
-1. 发球？→ 击球手在端线后，拍头向上或向后倾斜，双脚在地面，球刚离手或即将离手
-2. 杀球？→ 拍面明显朝下（朝地面），挥拍轨迹从上往下，身体有蹬地/跳跃发力感
-3. 高远球？→ 拍面朝后（背对球网方向），球在击球手身后或头顶上方
-4. 吊球？→ 挥拍向下但柔和，拍面有切动，力量轻
-5. 平抽？→ 挥拍基本水平，拍面正对球网，身体站直
-6. 挑球？→ 拍面从下往上挥，力量轻
-7. 放网/搓球？→ 挥拍轻柔，身体弯腰前倾，拍面接近球网
-8. 推球？→ 挥拍短促向前，力量轻
+【核心原则：位置决定动作，不允许矛盾判断】
+Step 1→ 先看球员站在哪里（前场/中场/后场）
+Step 2→ 再根据位置约束确定动作类型
+违反以上原则的判断视为错误。
 
-【发球识别标准——必须同时满足以下全部条件才判发球】：
-① 击球手位于端线附近或发球线后
-② 球刚离手或仍在手上（可见手持羽毛球）
-③ 拍头向上或明显朝后
-④ 双脚都在地面上（无跳跃）
-若有任何一条不满足，即使其他条件符合也不判为发球。
+已知信息：Stage1 已确认画面中有球员正在挥拍或准备击球。
 
-【位置约束——违反以下任一条，动作类型必须重新判断】：
-- 近端球员（画面底部/大尺寸）不可能打出杀球（除非他明显跳起且拍面朝下）
-- 球员身体弯腰前倾、大臂抬起举拍 → 不可能是杀球/高远球
-- 拍面明显朝上 → 可能是挑球/高远球/放网，不是杀球
-- 击球手在网前（画面下半部分且靠近球网）→ 不可能是杀球/高远球，最可能是放网/搓球/扑球
+⚠️ 【重要提醒】：
+- 球员没有真实的挥拍动作（拍子静止、仅手持拍站立、正在走路/拣球/闲聊）→ 直接输出"non-rally (unable to analyze)"
+- 位置判断是所有动作判断的前提，位置和动作类型必须匹配
 
-【输出格式】（严格按此顺序，中文输出）
-Hitter: [Near/Far] [颜色+性别]
-ActionType: [动作类型]
-OverallScore: [0-10整数]
-PowerChain: [0-10整数]
-WristSnap: [0-10整数]
-Footwork: [0-10整数]
-RacquetFace: [0-10整数]
-Coordination: [0-10整数]
-MainErrors: [错误代码，无则写：无明显错误]
-Suggestions: [中文改进建议]"""
+以下为分析知识库：
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第一步：发球识别——严格的四项同时满足】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+必须同时满足以下全部四项，才判定为发球（任一不满足→进入第二步）：
+① 球员在端线/近端线位置
+② 羽毛球在球员手中/刚离手/球在抛物线上升段（未到达高点）
+③ 拍子正在向上挥动（手腕/前臂向上刷），拍头高于手腕
+④ 球员双脚在地面上（无明显蹬地起跳）
+
+【第一步补充：无效帧一票否决】
+在完成任何动作判断之前，先检查以下否决条件（满足则直接输出"non-rally (unable to analyze)"，不继续往下判断）：
+❌ 球员没有真实的挥拍动作（拍子静止、仅手持拍站立、正在走路/拣球/闲聊）
+
+注意：若图像模糊、部分身体被遮挡或判断困难，应尽力推断动作类型，不得直接输出 non-rally。
+
+【发球子类型】
+- 正手发高远球：拍子从身体侧后向上挥至最高点，手腕爆发力击打球底
+- 反手发网前球：拇指/手腕向前轻推，拍面横切，球弧度平
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第二步：击球分类——先定位球员位置，再判断动作】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ 【最关键的约束：位置决定动作范围】
+
+在判断动作类型之前，必须先看球员站在哪里：
+
+判断方法（视觉线索）：
+- 球员在画面**下半部、占画面比例大**、四肢较粗 → **前场/网前**
+- 球员在画面**上半部、占画面比例小**、背景有完整广告牌/墙壁 → **后场/底线**
+- 介于两者之间 → **中场**
+
+重要约束（违反则判断必错）：
+- 球员在前场（靠近球网）→ 不可能是：高远球、杀球、吊球、点杀、劈杀
+- 球员在后场（靠近底线）→ 不可能是：放网前球、搓球、勾对角、扑球
+- 如果你判断的位置和动作类型矛盾 → 立即重新检查！
+
+■ 前场技术（球员在**网前/靠近球网**，画面下半部）
+- 放网前球：击球点略高于网顶，拍面极轻触球托，无明显摩擦
+- 搓球：手指/手腕有前后捻动，球过网后翻滚或不转
+- 滑拍：触球瞬间拍面横向滑动，球产生侧旋
+- 勾对角：手腕外展，球斜线飞向对角网边
+- 推球：手腕前推，拍面微下压，球速快弧线平
+- 扑球：身体前倾压网，腕部爆发下压，力量最大
+- 拦吊：网前借力轻挡，手腕弹击
+- 挑球：击球点低（膝以下），拍面明显朝上，从下往上发力
+
+【前场区分：放网 vs 搓球——看相邻帧；球托朝向无翻转=放网，有翻转=搓球】
+
+■ 中场技术（球在中场区域，高度在肩以下/腰以上）
+- 正手抽球：击球点平或偏低，拍面正对球网，手腕弹击向前平推
+- 反手抽球：同正手抽球但用反手，大拇指顶拍
+- 平抽快挡：中场近身球，拍面快速平挡，借力卸力
+
+【中场区分：身体有蹬地转髋协调发力=抽球；身体基本静止仅手腕弹击=平抽快挡】
+
+■ 后场技术（球员在**后场/底线**，靠近画面背景上半部）
+- 正手高远球：击球点在头顶上方，手臂伸直向上挥，拍面后仰
+- 反手高远球：同正手高远球但用反手
+- 正手杀球：全身协调发力，蹬腿+转髋+挥臂+甩腕，拍面下压角度大
+- 反手杀球：同正手杀球但用反手
+- 点杀：突然起跳，快速闪腕
+- 劈吊：挥拍斜线，击球侧部
+- 吊球：杀球挥拍轨迹，但击球瞬间手腕减速轻触
+
+【后场区分：
+① 球弧度：直线/小抛物线下坠=杀球；大抛物线=吊球；更高更深=高远球
+② 若无法区分，输出"后场击球（单帧推断）"】
+
+■ 防守技术
+- 挑球：击球点低（膝以下），拍面明显朝上，从下往上发力
+- 接杀球：低重心，手腕在胸前/身侧向上或向前弹挡
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第三步：技术评分】（0-10分）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 发力链：下肢蹬地→转髋→送肩→挥臂→甩腕，力量传导顺畅无断层
+2. 闪腕：击球瞬间手腕甩鞭制动充分，爆发力集中
+3. 步伐：移动到位及时，最后一步前脚掌先着地
+4. 拍面控制：击球拍面角度合理，甜区击球率高
+5. 整体协调：身体平衡、动作流畅、发力时机准确、还原快
+
+综合评分：五维度加权平均，0-10分。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第四步：错误诊断】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【杀球/正手杀球/反手杀球】
+E1-杀球发力链断层：蹬腿→转髋→送肩→挥臂→甩腕五环节中断
+E3-杀球架肘：引拍时肘关节高于肩关节
+E5-点杀闪腕不充分：手腕爆发力未释放
+
+【高远球】
+E1-高远球发力不充分：仅用手臂发力，下肢力量未上传
+E4-侧身引拍不充分：身体正对球网
+
+【吊球】
+E1-吊球击球瞬间减速不够：动作接近杀球
+
+【平抽快挡/抽球】
+E1-平抽大臂发力：仅大臂抡拍
+E5-反手抽球大拇指顶拍不足
+
+【放网前球】
+E1-放网手腕僵硬
+E2-放网拍面上仰
+E3-放网击球点过低
+
+【搓球】
+E1-搓球旋转不够
+E2-搓球击球点偏后
+
+【扑球】
+E1-扑球击球点偏后
+E2-扑球过于用力
+
+【挑球】
+E1-挑球仅手臂发力
+E2-挑球击球点太低
+
+【接杀球】
+E1-接杀全身发力：借力不足
+
+【发球】
+E1-发球挥拍轨迹不完整
+E2-发球击球点偏低
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【输出格式】（严格按此顺序）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+动作类型: [从以上列表选择]
+综合评分: [0-10]
+发力链: [0-10]
+闪腕: [0-10]
+步伐: [0-10]
+拍面控制: [0-10]
+整体协调: [0-10]
+主要问题: [1-2个，格式：E编号+错误名称]
+改进建议: [针对每个问题的具体改进方法]"""
 
 
 def _image_to_data_uri(path):
@@ -144,7 +260,7 @@ def is_swinging(image_path: str):
     return (answer.strip(), side.strip(), reason.strip())
 
 
-def stage2_analyze_v2(image_path: str, ball_info: dict, prev_frame_path: str = ""):
+def stage2_analyze_v2(image_path: str, ball_info: dict):
     """Stage2 V2: 结合球位置上下文判断动作"""
     img = cv2.imread(image_path)
     if img is None:
@@ -173,22 +289,16 @@ def stage2_analyze_v2(image_path: str, ball_info: dict, prev_frame_path: str = "
     else:
         ball_context = "OpenCV未检测到羽毛球，请根据画面自行判断。"
 
-    prompt = f"{ball_context}\n\n{STAGE2_PROMPT_V2}"
+    prompt = f"{ball_context}\n\n{STAGE2_PROMPT}"
 
-    if prev_frame_path and os.path.exists(prev_frame_path):
-        prev_uri = _image_to_data_uri(prev_frame_path)
-        content = [
-            {"type": "image_url", "image_url": {"url": prev_uri}},
-            {"type": "image_url", "image_url": {"url": data_uri}},
-            {"type": "text", "text": prompt}
-        ]
-    else:
-        content = [
-            {"type": "image_url", "image_url": {"url": data_uri}},
-            {"type": "text", "text": prompt}
-        ]
+    # 禁用 prev_frame：双图模式导致 VLM 看到非挥拍帧后认为整组是 non-rally
+    # 改用纯单图模式，避免前一帧干扰当前帧判断
+    content = [
+        {"type": "image_url", "image_url": {"url": data_uri}},
+        {"type": "text", "text": prompt}
+    ]
 
-    text = _call_vlm(content, max_tokens=1200, temperature=0.6)
+    text = _call_vlm(content, max_tokens=1200, temperature=0.1)
     if text is None:
         return _error_result(image_path, "VLM call failed")
 
@@ -390,11 +500,10 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
 
     if swing_indices:
         print(f"  [V2] Step2: Action classification...")
-        prev_map = {i: frame_paths[i - 1] if i > 0 else "" for i in swing_indices}
 
         with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as ex:
             futures = {
-                ex.submit(stage2_analyze_v2, frame_paths[i], ball_results[i], prev_map[i]): i
+                ex.submit(stage2_analyze_v2, frame_paths[i], ball_results[i]): i
                 for i in swing_indices
             }
             done = 0
