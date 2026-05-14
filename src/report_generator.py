@@ -3,7 +3,9 @@
 羽毛球视频分析小程序 - PDF 报告生成模块
 基于 fpdf2，支持球员历史进步对比
 """
-import os, sys, json, datetime, re
+import os
+import datetime
+import re
 from collections import Counter
 
 # ── 全局风格配置（字体/颜色/间距全部统一定义，禁止散落数值）────────────
@@ -37,9 +39,10 @@ STYLE = dict(
     F_LABEL        = 10,
     F_BODY         =  9,
     F_SMALL        =  8.5,
-    F_MINI         =  8,
+    F_MINI         =  9,
     F_TINY         =  7.5,
     F_CHART_SCORE  = 11,
+    F_ACTION       =  9,
 
     # ── 间距 ───────────────────────────────────────
     LN_BODY  =  4.5,
@@ -95,8 +98,8 @@ ERROR_CODE_TRANSLATION = {
     "E10-over执拍":                   "E10-握拍方式不当",
 }
 
-from fpdf import FPDF
-import sys as _sys
+from fpdf import FPDF  # noqa: E402
+import sys as _sys  # noqa: E402
 _sys.path.insert(0, '/tmp')
 
 # 知识库：文件不存在时优雅降级（不阻塞报告生成）
@@ -257,11 +260,12 @@ def _translate_suggestion_impl(text):
     """把英文改进建议翻译成中文"""
     if not text:
         return text
-    translated = text
     # 按长度从长到短排序，确保优先匹配更长短语
     sorted_items = sorted(_TRANSLATION_DICT.items(), key=lambda x: len(x[0]), reverse=True)
+    translated = text
     for en, zh in sorted_items:
-        translated = translated.replace(en, zh)
+        # 使用 word-boundary aware 替换，避免部分匹配和级联替换
+        translated = re.sub(r'\b' + re.escape(en) + r'\b', zh, translated)
     return translated
 
 
@@ -271,7 +275,6 @@ def _infer_action_types(shots):
     通过 error_codes 关键词反向推断具体动作类型。
     同时将 generic "后场击球（单帧推断）" 替换为推断结果。
     """
-    from collections import Counter
     import re
 
     def _clean_err(text):
@@ -309,15 +312,21 @@ def _infer_action_types(shots):
         hits = sum([smash_hit, clear_hit, drop_hit])
 
         if hits == 1:
-            if   smash_hit: shot["action_type"] = "正手杀球"
-            elif clear_hit: shot["action_type"] = "正手高远球"
-            elif drop_hit:  shot["action_type"] = "正手吊球"
+            if smash_hit:
+                shot["action_type"] = "正手杀球"
+            elif clear_hit:
+                shot["action_type"] = "正手高远球"
+            elif drop_hit:
+                shot["action_type"] = "正手吊球"
         elif hits > 1:
             # 多个命中：取最高权重
             # 下压/重扣/杀球 → 杀球；高远球/弧度 → 高远球；其他 → 吊球
-            if smash_hit:  shot["action_type"] = "正手杀球"
-            elif clear_hit: shot["action_type"] = "正手高远球"
-            else:           shot["action_type"] = "正手吊球"
+            if smash_hit:
+                shot["action_type"] = "正手杀球"
+            elif clear_hit:
+                shot["action_type"] = "正手高远球"
+            else:
+                shot["action_type"] = "正手吊球"
         # hits == 0：保持 generic，不处理
 
     for shot in shots:
@@ -356,7 +365,10 @@ def make_report(data: dict, output_path: str):
     """
     pdf = Report()
     pdf.set_auto_page_break(auto=True, margin=10)
-    pdf.add_font("STHeiti", "", ASSETS_FONT)
+    try:
+        pdf.add_font("STHeiti", fname=ASSETS_FONT, uni=True)
+    except Exception as e:
+        print(f"[WARN] 字体加载失败: {e}，使用内置字体")
     pdf.add_page()
 
     LM = pdf.l_margin
@@ -403,7 +415,7 @@ def make_report(data: dict, output_path: str):
         delta = progress["delta"]
         sign = "+" if delta > 0 else ""
         trend = trend_icon(session.get("quality_trend", ""))
-        trend_c = trend_color(session.get("quality_trend", ""))
+        trend_color(session.get("quality_trend", ""))
 
         banner = (f"进步跟踪  |  第{progress['total_sessions']}次分析  |  "
                   f"总分：{progress['first_avg']} → {progress['latest_avg']}（{sign}{delta}）  {trend}")
@@ -480,7 +492,7 @@ def make_report(data: dict, output_path: str):
         pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
         pdf.set_text_color(*C_GREY)
         pdf.multi_cell(BW, 5.5, f"球速数据（{len(speeds)}个有效样本）：最高 {max_s:.0f} km/h，平均 {avg_s:.0f} km/h。")
-        pdf.ln(1)
+        pdf.ln(4)
 
         # 速度分布条（简化横向柱状图，文本绘制）
         speed_bins = [
@@ -500,8 +512,10 @@ def make_report(data: dict, output_path: str):
             bar_w = bar_max_w * cnt / max_bin
             pdf.set_font("STHeiti", size=STYLE["F_MINI"])
             pdf.set_text_color(*C_GREY)
-            pdf.cell(BW * 0.25, 5, label, align="L")
-            # 彩色条：慢=绿，中=黄，快=橙，极=红
+            # 固定行高 8mm，用 get_x() 记录行起点，避免 pdf.x 被 cell 游走带偏
+            row_y = pdf.get_y() + 1
+            bar_y = row_y + 1
+            bar_x = LM + 40   # 条左端固定在页内，避免 pdf.x 状态污染
             if "慢速" in label:
                 bar_c = C_GREEN
             elif "中速" in label:
@@ -510,23 +524,28 @@ def make_report(data: dict, output_path: str):
                 bar_c = C_ORG
             else:
                 bar_c = C_RED
+            # 标签在左，条在右，不重叠
+            pdf.set_xy(LM, row_y)
+            pdf.cell(38, 7, label, align="L")        # 左固定 38mm 放标签
             pdf.set_fill_color(*bar_c)
-            pdf.rect(pdf.x, pdf.y - 4, bar_w, 5, "F")
-            pdf.set_text_color(*C_GREY)
-            pdf.cell(BW * 0.1, 5, f" {cnt}")
-            pdf.ln(5)
-        pdf.ln(2)
+            pdf.rect(bar_x, bar_y, bar_w, 5, "F")    # 条从固定位置延伸
+            pdf.set_xy(bar_x + bar_w + 2, row_y)
+            pdf.cell(15, 7, f" {cnt}次", align="L")  # 数量在条右
+            pdf.set_y(row_y + 8)
 
     pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
     pdf.cell(0, 6, "主要技术问题分布：", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
 
     err_cnt = Counter()
+    e_code_first_seen = {}  # E-code → 第一个出现的完整文本
     for s in shots:
         for e in s.get("errors", []):
-            k = clean_err(e, 40)
+            k = _error_key(e)  # 提取 E1/E2/... 作为聚合key，同一E-code合并
             if len(k) > 2:
                 err_cnt[k] += 1
+                if k not in e_code_first_seen:
+                    e_code_first_seen[k] = clean_err(e, 50)  # 保留完整文本用于显示
 
     # ── 问题分布表（2列：问题类型 + 出现次数）──────────────
     ew = [BW * 0.70, BW * 0.30]
@@ -541,9 +560,10 @@ def make_report(data: dict, output_path: str):
     pdf.y += 8
 
     for i, (err, cnt) in enumerate(err_cnt.most_common(8)):
+        err_disp = e_code_first_seen.get(err, err)  # 显示完整描述，不是E-code本身
         fill = (i % 2 == 0)
         err_fc = (255, 245, 245) if fill else (255, 255, 255)
-        row_h = max(9, (len(err) // 24 + 1) * 9)
+        row_h = max(9, (len(err_disp) // 24 + 1) * 9)
 
         cur_y = pdf.y
         pdf.set_fill_color(*err_fc)
@@ -553,7 +573,7 @@ def make_report(data: dict, output_path: str):
         pdf.set_xy(ex[0], cur_y)
         pdf.set_font("STHeiti", size=STYLE["F_BODY"])
         pdf.set_text_color(*C_GREY)
-        pdf.multi_cell(ew[0], 4.5, err, border=0)
+        pdf.multi_cell(ew[0], 4.5, err_disp, border=0)
 
         pdf.set_xy(ex[1], cur_y)
         pdf.set_font("STHeiti", size=STYLE["F_BODY"])
@@ -563,15 +583,164 @@ def make_report(data: dict, output_path: str):
         pdf.y = cur_y + row_h
     pdf.ln(5)
 
-    # ─── Section 3: 详细动作分析 ───
+    # ── Section 2.5: 技术问题诊断汇总（新增：视频级聚合展示）──
+    tech_summary = data.get("tech_summary", {})
+    top_errors = tech_summary.get("top_errors", [])
+    zone_breakdown = tech_summary.get("zone_breakdown", {})
+    frames_dir = data.get("frames_dir", "")
+
+    if top_errors:
+        # 确保足够空间
+        card_rows = (len(top_errors) + 1) // 2
+        estimated_h = card_rows * 28 + 20  # 每卡片约28mm + 标题区20mm
+        if pdf.y + estimated_h > pdf.page_break_trigger - 10:
+            pdf.add_page()
+
+        pdf.set_fill_color(*C_RED)
+        pdf.rect(LM, pdf.y - 1, 3, 10, "F")
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+        pdf.set_text_color(*C_MID)
+        pdf.set_x(LM + 6)
+        pdf.cell(0, 8, "三、技术问题诊断汇总", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
+
+        # ── 彩色问题卡片（2列布局）──────────────────────────────
+        CARD_COLORS = [
+            (198, 40,  40),   # 红
+            (239, 108,  0),   # 橙
+            (255, 180,  0),   # 金
+            ( 39, 174, 96),   # 绿
+            (  0,  90, 180),  # 蓝
+            (100, 50,  180),  # 紫
+            (  0, 150, 136),   # 青
+            (180,  80,  40),   # 棕
+        ]
+        img_w = 45   # 缩略图宽度（mm）
+        img_h = 25   # 缩略图高度
+        card_w = (BW - 5) / 2   # 两列卡片
+        card_h = img_h + 10
+
+        for idx, te in enumerate(top_errors):
+            col = idx % 2
+            row = idx // 2
+            x = LM + col * (card_w + 5)
+            y = pdf.y + row * card_h
+
+            # 卡片背景
+            c = CARD_COLORS[idx % len(CARD_COLORS)]
+            pdf.set_fill_color(*c)
+            pdf.set_draw_color(*c)
+            pdf.set_line_width(0.3)
+            pdf.rect(x, y, card_w, card_h, "FD")
+
+            # 顶部色条
+            pdf.set_fill_color(*c)
+            pdf.rect(x, y, card_w, 4, "F")
+
+            # E-code 标签
+            pdf.set_xy(x + 2, y + 4.5)
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(255, 255, 255)
+            pdf.cell(card_w - 4, 5, f"{te['code']} {te['name']}", align="L")
+
+            # 次数
+            pdf.set_xy(x + card_w - 18, y + 4.5)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+            pdf.set_text_color(255, 255, 255)
+            pdf.cell(16, 5, f"×{te['count']}", align="R")
+
+            # 代表性帧缩略图
+            frame_file = te.get("frame_file", "")
+            if frame_file and frames_dir:
+                rep_path = ""
+                ann_name = frame_file.replace("f_", "ann_f_")
+                for fname in [ann_name, frame_file]:
+                    candidate = f"{frames_dir}/{fname}" if frames_dir else fname
+                    if os.path.isfile(candidate):
+                        rep_path = candidate
+                        break
+                if rep_path:
+                    try:
+                        from PIL import Image as PILImage
+                        im = PILImage.open(rep_path)
+                        iw, ih = im.size
+                        ratio = ih / iw
+                        dh = img_w * ratio
+                        pdf.image(rep_path, x=x + 1, y=y + 9.5, w=img_w, h=dh)
+                    except Exception:
+                        pdf.set_fill_color(240, 240, 240)
+                        pdf.rect(x + 1, y + 9.5, img_w, img_h, "D")
+                else:
+                    pdf.set_fill_color(240, 240, 240)
+                    pdf.rect(x + 1, y + 9.5, img_w, img_h, "D")
+            else:
+                pdf.set_fill_color(240, 240, 240)
+                pdf.rect(x + 1, y + 9.5, img_w, img_h, "D")
+
+            # 时间戳
+            pdf.set_xy(x + 1, y + card_h - 4)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
+            pdf.set_text_color(200, 200, 200)
+            time_str = te.get("time", "")
+            pdf.cell(img_w, 4, f"@{time_str}" if time_str else "", align="L")
+
+        pdf.ln(card_rows * card_h - pdf.y + pdf.y)
+        pdf.ln(4)
+
+        # ── 区域分布表 ──────────────────────────────────────
+        if zone_breakdown:
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(*C_GREY)
+            pdf.cell(0, 6, "区域错误分布：", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+
+            # 表头
+            zone_cols = ["区域", "TOP1", "TOP2", "TOP3", "TOP4", "TOP5"]
+            zone_xs = [LM]
+            zone_ws = [30]
+            for i in range(1, len(zone_cols)):
+                zone_xs.append(zone_xs[-1] + zone_ws[-1])
+                zone_ws.append((BW - 30) / (len(zone_cols) - 1))
+
+            pdf.set_fill_color(*C_MID)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+            for h, cx, w in zip(zone_cols, zone_xs, zone_ws):
+                pdf.set_xy(cx, pdf.y)
+                pdf.cell(w, 7, h, border=1, fill=True, align="C")
+            pdf.y += 7
+
+            zones = ["前场", "中场", "后场"]
+            zones_with_data = [z for z in zones if zone_breakdown.get(z)]
+            if not zones_with_data:
+                zones_with_data = zones  # fallback: show all zones if no data
+            for zi, zone in enumerate(zones_with_data):
+                zone_data = zone_breakdown.get(zone, [])
+                fill = (zi % 2 == 0)
+                fc = (245, 247, 252) if fill else (255, 255, 255)
+                row_h = 8
+
+                pdf.set_fill_color(*fc)
+                # 区域列
+                pdf.set_xy(zone_xs[0], pdf.y)
+                pdf.cell(zone_ws[0], row_h, zone, border=1, fill=True, align="C")
+                # 各TOP列
+                for ci in range(1, len(zone_cols)):
+                    pdf.set_xy(zone_xs[ci], pdf.y)
+                    val = zone_data[ci - 1] if ci - 1 < len(zone_data) else {}
+                    cell_txt = f"{val.get('code','')}{val.get('name','')[-4:]}" if val else "-"
+                    pdf.cell(zone_ws[ci], row_h, cell_txt, border=1, fill=True, align="C")
+                pdf.y += row_h
+            pdf.ln(5)
+
+    # ─── Section 4: 详细动作分析 ───
     pdf.set_fill_color(*C_BLUE)
     pdf.rect(LM, pdf.y - 1, 3, 10, "F")
     pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
-    pdf.cell(0, 8, "三、详细技术分析", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, "四、详细技术分析", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
-    stars_map = {0:"☆☆☆☆☆☆☆☆☆☆", 1:"★☆☆☆☆☆☆☆☆☆", 2:"★★☆☆☆☆☆☆☆☆", 3:"★★★☆☆☆☆☆☆☆", 4:"★★★★☆☆☆☆☆☆", 5:"★★★★★☆☆☆☆☆", 6:"★★★★★★☆☆☆☆", 7:"★★★★★★★☆☆☆", 8:"★★★★★★★★☆☆", 9:"★★★★★★★★★☆", 10:"★★★★★★★★★★"}
 
     IMG_W_MM = 65
     IMG_H_MM = 36
@@ -594,6 +763,22 @@ def make_report(data: dict, output_path: str):
                 break
         shot_img_error[i] = chosen
 
+    # ── 全局去重：同类错误只配第一张图（预扫描+NO_IMG标记）──────────
+    shown_error_keys = set()   # 已配图的错误类型
+    NO_IMG = object()          # 标记"此卡不配图"
+    shot_img_final = {}         # shot_idx → error文本 or NO_IMG
+    for i, shot in enumerate(shots):
+        chosen = shot_img_error.get(i)
+        if chosen:
+            key = _error_key(chosen)
+            if key and key not in shown_error_keys and len(key) >= 2:
+                shown_error_keys.add(key)
+                shot_img_final[i] = chosen   # 有图
+            else:
+                shot_img_final[i] = NO_IMG  # 跳过图片但保留卡片
+        else:
+            shot_img_final[i] = None         # 无error
+
     for i, shot in enumerate(shots):
         q = shot.get("quality_rating", 3)
         ql = qlabel(q)
@@ -603,6 +788,11 @@ def make_report(data: dict, output_path: str):
 
         # 分析失败且无实质内容：跳过此帧，不绘制卡片
         if action_type == "分析失败" and not shot.get("errors") and not shot.get("suggestions"):
+            continue
+
+        # R3兜底过滤：只渲染目标球员的shots
+        target_player = data.get("target_player", "")
+        if target_player and shot.get("player", "") != target_player:
             continue
 
         q = shot.get("quality_rating", 3)
@@ -633,14 +823,15 @@ def make_report(data: dict, output_path: str):
         pdf.ln(4)
 
         body_y = pdf.y
+        body_y + IMG_H_MM   # 图片区域结束Y（用于分隔线）
         # shots 数据源有两个版本：frames_results 用 frame_file，analyze_shots 用 frames[0]
         _frames = shot.get("frames", [])
-        frame_file = shot.get("frame_file", _frames[0] if _frames else "")
+        frame_file = shot.get("frame_file") or (_frames[0] if _frames else "")
         frames_dir = data.get("frames_dir", "")
         # frames_dir 必须指向有效目录；拒绝 /tmp/bad_shots/target_frames 等污染路径
-        _FORBIDDEN = ("/tmp/bad_shots", "/tmp/session_frames")
+        arc_dir = os.path.dirname(os.path.dirname(frames_dir)) if frames_dir else ""
         if not frames_dir or not os.path.isdir(frames_dir) \
-           or any(frames_dir.startswith(f) for f in _FORBIDDEN):
+           or (arc_dir not in ("", "/tmp") and frames_dir == arc_dir):
             frames_dir = ""
         # 优先使用 annotated 文件（ann_f_xxx.jpg），不存在则 fallback 到原始帧
         img_path = ""
@@ -655,17 +846,79 @@ def make_report(data: dict, output_path: str):
         txt_x = LM + IMG_W_MM + 5
         txt_w = pdf.w - LM - pdf.r_margin - IMG_W_MM - 5
 
-        # 图片（带球员标注）
-        this_img_err = shot_img_error.get(i)        # None/具体error文本
+        # 图片（带球员标注）— 使用全局去重后的 shot_img_final
+        this_img_err = shot_img_final.get(i)        # None/NO_IMG/具体error文本
+        # 铁律（2026-05-14）：无图不上点评
+        # - 无 error 且无高质量帧 → 整卡不渲染
+        # - render_img=False（无图/同类重复）→ 跳过图片区域，不留灰框，文字撑满行宽
+        has_error = shot.get("errors") and len(shot.get("errors", [])) > 0
+        # render_img：this_img_err 有具体error文本 且 img_path 存在 → 配图
         render_img = (this_img_err is not None
-                      and frame_file and os.path.isfile(img_path))
+                      and this_img_err is not NO_IMG
+                      and bool(img_path))
+        if not render_img and not has_error:
+            # 无图也无error → 整卡跳过，文字撑满行宽
+            pdf.set_font("STHeiti", size=STYLE["F_ACTION"])
+            pdf.set_text_color(80, 80, 80)
+            pdf.set_fill_color(250, 250, 250)
+            pdf.rect(LM, body_y, BW, 12, "F")
+            action_label = f"{shot.get('action_type', '未知动作')}  {shot.get('quality_rating', 0)}/10"
+            pdf.set_xy(LM + 3, body_y + 3)
+            pdf.cell(BW - 6, 6, action_label, align="L")
+            pdf.set_y(body_y + 14)
+            # 下方文字渲染：跨全宽
+            text_start_y = pdf.get_y() + 2
+            txt_x_full = LM
+            txt_w_full = BW
+            pdf.set_xy(txt_x_full, text_start_y)
+            # ── 内联渲染文字（替代不存在的 _render_shot_text）──
+            findings     = shot.get("key_findings", [])
+            errors       = shot.get("errors", [])
+            suggestions  = shot.get("suggestions", [])
+            end_y = text_start_y
+            if findings:
+                pdf.set_x(txt_x_full)
+                pdf.set_text_color(40, 40, 40)
+                pdf.cell(txt_w_full, 5, "技术诊断：")
+                end_y = pdf.get_y() + 5
+                for f in findings[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"• {f[:120]}")
+                end_y = pdf.get_y() + 1
+            if errors:
+                pdf.set_x(txt_x_full)
+                pdf.ln(1)
+                pdf.set_text_color(180, 40, 40)
+                pdf.cell(txt_w_full, 5, "常见错误：")
+                end_y = pdf.get_y() + 5
+                for e in errors[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"x {e[:100]}")
+                end_y = pdf.get_y() + 1
+            if suggestions:
+                pdf.set_x(txt_x_full)
+                pdf.ln(1)
+                pdf.set_text_color(30, 120, 80)
+                pdf.cell(txt_w_full, 5, "改进建议：")
+                end_y = pdf.get_y() + 5
+                for s in suggestions[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"→ {s[:120]}")
+                end_y = pdf.get_y() + 1
+            # ── 结束内联渲染 ───
+            pdf.set_y(end_y + 4)
+            continue
 
+        img_bottom_y = body_y
         if render_img:
             try:
-                from PIL import Image as PILImage, ImageDraw, ImageFont
+                from PIL import Image as PILImage, ImageDraw
                 im = PILImage.open(img_path)
                 iw, ih = im.size
-                draw = ImageDraw.Draw(im)
+                ImageDraw.Draw(im)
 
                 # 根据球员位置确定标注区域
                 player_str = shot.get("player", "")
@@ -715,32 +968,86 @@ def make_report(data: dict, output_path: str):
                 if draw_h > IMG_H_MM:
                     # 高度超标时按高度限制，反算宽度（保持比例不变形）
                     draw_w = IMG_H_MM / ratio
-                    pdf.image(img_path_ann, x=LM, y=body_y, w=draw_w, h=IMG_H_MM)
+                    actual_img_h = IMG_H_MM
                 else:
-                    pdf.image(img_path_ann, x=LM, y=body_y, w=IMG_W_MM, h=draw_h)
+                    actual_img_h = draw_h
+                img_bottom_y = body_y + actual_img_h
+                pdf.image(img_path_ann, x=LM, y=body_y, w=draw_w if draw_h > IMG_H_MM else IMG_W_MM, h=actual_img_h)
             except Exception as e:
                 print(f"  [!] 标注失败: {e}")
                 pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "D")
+                img_bottom_y = body_y + IMG_H_MM
         else:
-            # 无图：留空线框，浅灰背景
-            pdf.set_fill_color(248, 248, 248)
-            pdf.set_draw_color(210, 210, 210)
-            pdf.set_line_width(0.3)
-            pdf.rect(LM, body_y, IMG_W_MM, IMG_H_MM, "FD")
-            # 中间显示简短说明
-            pdf.set_font("STHeiti", size=7)
-            pdf.set_text_color(180, 180, 180)
-            note = ""
-            if this_img_err:
-                note = f"等问题：{clean_err(this_img_err, 14)}"
-            if note:
-                pdf.set_xy(LM, body_y + IMG_H_MM/2 - 3)
-                pdf.cell(IMG_W_MM, 6, note, align="C")
+            # 同类问题重复（同类已配图）：不画灰框，文字跨全宽
+            txt_x_full = txt_x
+            txt_w_full = txt_w
+            text_start_y = body_y + 2
+            pdf.set_xy(txt_x_full, text_start_y)
+            pdf.set_font("STHeiti", size=8.5)
+            end_y = text_start_y
+            findings  = shot.get("key_findings", [])
+            errors    = shot.get("errors", [])
+            suggestions = shot.get("suggestions", [])
+            if action_type in ("准备发球", "死球", "捡球", "无效帧", "分析失败", "无法判断"):
+                hit_kw = ("击球", "闪腕", "球速", "发力", "挥拍", "击球点", "击球瞬间")
+                errors     = [e for e in errors     if not any(k in e for k in hit_kw)]
+                suggestions = [s for s in suggestions if not any(k in s for k in hit_kw)]
+                findings   = [f for f in findings   if not any(k in f for k in hit_kw)]
+            if findings:
+                pdf.set_xy(txt_x_full, end_y)
+                pdf.set_text_color(40, 40, 40)
+                pdf.cell(txt_w_full, 5, "技术诊断：")
+                end_y = pdf.get_y() + 5
+                for f in findings[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"• {clean_err(f, 120)}")
+                end_y = pdf.get_y() + 1
+            if errors:
+                pdf.set_x(txt_x_full)
+                pdf.ln(1)
+                pdf.set_text_color(180, 40, 40)
+                pdf.cell(txt_w_full, 5, "常见错误：")
+                end_y = pdf.get_y() + 5
+                for e in errors[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"x {clean_err(e, 100)}")
+                end_y = pdf.get_y() + 1
+            if suggestions:
+                pdf.set_x(txt_x_full)
+                pdf.ln(1)
+                pdf.set_text_color(30, 120, 80)
+                pdf.cell(txt_w_full, 5, "改进建议：")
+                end_y = pdf.get_y() + 5
+                for s in suggestions[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"→ {_translate_suggestion_impl(s)}")
+                end_y = pdf.get_y()
+            击球选择 = shot.get("击球选择", "")
+            战术意识 = shot.get("战术意识", "")
+            跑位意识 = shot.get("跑位意识", "")
+            tactic_items = [(k, v) for k, v in [("击球选择", 击球选择), ("战术意识", 战术意识), ("跑位意识", 跑位意识)] if v]
+            if tactic_items:
+                pdf.set_x(txt_x_full)
+                pdf.ln(1)
+                pdf.set_text_color(60, 60, 160)
+                pdf.cell(txt_w_full, 5, "战术意识：")
+                end_y = pdf.get_y() + 5
+                for k, v in tactic_items[:2]:
+                    pdf.set_x(txt_x_full)
+                    pdf.set_text_color(*C_GREY)
+                    pdf.multi_cell(txt_w_full, 4.5, f"· {k}：{v}")
+                end_y = pdf.get_y()
+            pdf.set_y(end_y + 4)
+            continue
 
-        # 文字
-        pdf.set_xy(txt_x, body_y)
+        # 文字（从图片区域底部下方开始，与图片右对齐）
+        text_start_y = img_bottom_y + 3
+        pdf.set_xy(txt_x, text_start_y)
         pdf.set_font("STHeiti", size=8.5)
-        end_y = body_y
+        end_y = text_start_y
 
         # 过滤：未触球/分析失败状态，不应有击球类错误
         findings  = shot.get("key_findings", [])
@@ -833,8 +1140,8 @@ def make_report(data: dict, output_path: str):
             pdf.cell(tag_w, tag_h - 1, f" 球速 {spd:.0f}km/h", align="L")
             end_y += tag_h + 2
 
-        # 卡片底部 = 图片底部 和 文字底部 的较大者
-        card_bottom = max(body_y + IMG_H_MM, end_y) + 4
+        # 卡片底部 = 图片底部 和 文字底部 的较大者 + 足够padding
+        card_bottom = max(img_bottom_y, end_y) + 4
         pdf.set_fill_color(*tc)
         pdf.rect(LM, card_bottom, pdf.w - LM - pdf.r_margin, 0.8, "F")
         pdf.y = card_bottom + 3
@@ -847,17 +1154,18 @@ def make_report(data: dict, output_path: str):
     pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
-    pdf.cell(0, 8, "四、教练总结与建议", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, "五、教练总结与建议", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
     top_errors = err_cnt.most_common(3)
     summary = [f"本次分析共 {len(shots)} 个有效动作样本，整体技术评分 {avg_q:.1f}/10。"]
     if top_errors:
-        summary.append(f"最突出问题：「{top_errors[0][0]}」（出现 {top_errors[0][1]} 次），建议重点练习。")
+        err_name = e_code_first_seen.get(top_errors[0][0], top_errors[0][0])
+        summary.append(f"最突出问题：「{err_name}」（出现 {top_errors[0][1]} 次），建议重点练习。")
     if session.get("quality_trend"):
         t = session["quality_trend"]
         t_icon = trend_icon(t)
-        t_c = trend_color(t)
+        trend_color(t)
         summary.append(f"进步趋势：{t_icon}（较上次{'上升' if t=='up' else '下降' if t=='down' else '持平'}）")
 
     pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
@@ -1029,7 +1337,7 @@ def make_report(data: dict, output_path: str):
     pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
     pdf.set_text_color(*C_MID)
     pdf.set_x(LM + 6)
-    pdf.cell(0, 8, "五、五维技术评分", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, "六、五维技术评分", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(3)
 
     DIMENSIONS = ["发力链", "闪腕", "步伐", "拍面控制", "整体协调"]
@@ -1046,88 +1354,171 @@ def make_report(data: dict, output_path: str):
     for dim, ddata in dim_progress.items():
         hist_avgs[dim] = ddata.get("first")
 
-    # 评分条最大宽度（mm）
-    BAR_MAX_W = BW * 0.52
-    LABEL_W = BW * 0.22
-    SCORE_W = BW * 0.10
-    DELTA_W = BW * 0.16
+    # ─── 五维雷达图（fpdf2 手绘） ───────────────────────────────────────────
+    def _render_radar_chart(pdf, cx, cy, radius, scores, labels):
+        """
+        手动绘制5边形雷达图（fpdf2无内置雷达图）
+        cx, cy: 中心点坐标（mm）
+        radius: 主轴半径（mm），满分10分对应此半径
+        scores: dict {维度名: 分数}，分数范围 0-10
+        labels: 维度名称列表
+        """
+        import math
 
-    row_h = 13
-    for dim in DIMENSIONS:
-        if pdf.y + row_h > pdf.page_break_trigger:
-            pdf.add_page()
-        cur_y = pdf.y
+        n = 5  # 5个维度
+        angle_step = 2 * math.pi / n  # 每72°一个顶点
 
+        # 顶点相对于圆心的坐标（角度从顶点0（顶部）开始，逆时针分布）
+        # 顶点0在顶部，即 -π/2（或 3π/2）
+        def vertex_pos(i, r):
+            ang = -math.pi / 2 + i * angle_step
+            return (cx + r * math.cos(ang), cy + r * math.sin(ang))
+
+        # ── 1. 画参考比例尺（灰色虚线多边形） ──────────────────────────────
+        for scale in [0.25, 0.5, 0.75, 1.0]:
+            pts = [vertex_pos(i, radius * scale) for i in range(n)]
+            # 只画线，不填充
+            pdf.set_draw_color(200, 200, 200)
+            pdf.set_line_width(0.3)
+            for i in range(n):
+                x1, y1 = pts[i]
+                x2, y2 = pts[(i + 1) % n]
+                pdf.line(x1, y1, x2, y2)
+
+        # ── 2. 画5条轴线（圆心→顶点） ─────────────────────────────────────
+        pdf.set_draw_color(180, 180, 180)
+        pdf.set_line_width(0.4)
+        for i in range(n):
+            x1, y1 = cx, cy
+            x2, y2 = vertex_pos(i, radius)
+            pdf.line(x1, y1, x2, y2)
+
+        # ── 3. 画数据多边形（半透明绿色填充 + 深绿边框） ──────────────────
+        # 收集数据顶点
+        data_pts = []
+        for i, label in enumerate(labels):
+            score = scores.get(label, 0)
+            r = radius * min(score / 10.0, 1.0)  # 限制最大为radius
+            data_pts.append(vertex_pos(i, r))
+
+        # 填充多边形
+        pdf.set_fill_color(39, 174, 96)  # C_GREEN
+        pdf.set_draw_color(27, 130, 60)  # 深绿边框
+        pdf.set_line_width(0.6)
+
+        # 用 polygon 方法绘制填充多边形（stroke=True, fill=True）
+        pdf.polygon(data_pts, style="DF")
+
+        # 边框
+        for i in range(n):
+            x1, y1 = data_pts[i]
+            x2, y2 = data_pts[(i + 1) % n]
+            pdf.line(x1, y1, x2, y2)
+
+        # ── 4. 各维度分数标注在轴线上（内侧） ──────────────────────────────
+        pdf.set_font("STHeiti", size=8)
+        pdf.set_text_color(60, 60, 60)
+        for i, label in enumerate(labels):
+            score = scores.get(label, 0)
+            r_label = radius * min(score / 10.0, 1.0)
+            ang = -math.pi / 2 + i * angle_step
+            # 标注位置：半径的65%处，顺着轴线方向偏移一点
+            lx = cx + r_label * math.cos(ang) * 0.65
+            ly = cy + r_label * math.sin(ang) * 0.65
+            pdf.set_xy(lx - 4, ly - 2)
+            pdf.cell(8, 4, f"{score:.1f}", align="C")
+
+        # ── 5. 维度标签挂在顶点外侧（避免重叠的偏移策略） ─────────────────
+        pdf.set_font("STHeiti", size=9)
+        pdf.set_text_color(*C_DARK)
+        label_offsets = [
+            (0, -8),      # 顶部 → 向上偏移
+            (6, -5),      # 右上 → 右上
+            (6, 6),       # 右下 → 右下
+            (-14, 6),     # 左下 → 左下（向左多移避免压图）
+            (-14, -5),    # 左上 → 左上
+        ]
+        for i, label in enumerate(labels):
+            # 标签位置：顶点外侧 10mm
+            ang = -math.pi / 2 + i * angle_step
+            lx_off, ly_off = label_offsets[i]
+            lx = cx + (radius + 10) * math.cos(ang) + lx_off
+            ly = cy + (radius + 10) * math.sin(ang) + ly_off
+            pdf.set_xy(lx, ly)
+            pdf.cell(14, 4, label + "+10分", align="C")
+
+        # ── 6. 中心圆点 ──────────────────────────────────────────────────
+        pdf.set_fill_color(39, 174, 96)
+        pdf.set_draw_color(27, 130, 60)
+        pdf.set_line_width(0.3)
+        pdf.ellipse(cx - 1.5, cy - 1.5, 3, 3, style="FD")
+
+        # ── 7. 参考满分10分标注 ──────────────────────────────────────────
+        pdf.set_font("STHeiti", size=6.5)
+        pdf.set_text_color(160, 160, 160)
+        pdf.set_xy(cx + radius * 0.98 - 6, cy + 1)
+        pdf.cell(12, 3, "10分", align="R")
+        pdf.set_xy(cx - 6, cy - radius * 0.98 - 2)
+        pdf.cell(12, 3, "满分", align="C")
+
+    # 页面宽度内绘制雷达图
+    LM + 10
+    chart_cx = LM + BW / 2
+    chart_cy = pdf.y + 45  # 预留足够空间
+    chart_radius = min(BW * 0.38, 60)  # 半径自适应页面宽度
+
+    # 确保有足够空间
+    if pdf.y + chart_radius * 2.5 + 20 > pdf.page_break_trigger:
+        pdf.add_page()
+
+    chart_cy = pdf.y + chart_radius + 15  # 重新定位
+
+    # 画雷达图
+    _render_radar_chart(pdf, chart_cx, chart_cy, chart_radius, dim_avgs, DIMENSIONS)
+
+    # 雷达图下方输出各维度分项数值
+    pdf.ln(2)
+    score_card_w = BW / 5 - 2
+    score_start_x = LM
+    pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+
+    for i, dim in enumerate(DIMENSIONS):
+        x = score_start_x + i * (score_card_w + 2)
+        pdf.set_xy(x, chart_cy + chart_radius + 8)
         avg = dim_avgs[dim]
         prev = hist_avgs.get(dim)
         delta = round(avg - prev, 1) if prev is not None else None
 
-        # 背景行
-        fill_c = (245, 247, 252) if True else (255, 255, 255)
-        pdf.set_fill_color(*fill_c)
-        pdf.rect(LM, cur_y, BW, row_h - 2, "F")
-
-        # 左侧色条
         bar_color = TAG_C.get(int(round(avg)), C_GREY)
+
+        # 分数色块
         pdf.set_fill_color(*bar_color)
-        pdf.rect(LM, cur_y, 2, row_h - 2, "F")
-
-        # 维度名称
-        pdf.set_xy(LM + 4, cur_y + 2)
-        pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
-        pdf.set_text_color(*C_DARK)
-        pdf.cell(LABEL_W, 6, dim)
-
-        # 分数
+        pdf.set_text_color(255, 255, 255)
         pdf.set_font("STHeiti", size=STYLE["F_CHART_SCORE"])
-        pdf.set_text_color(*bar_color)
-        score_x = LM + LABEL_W
-        pdf.set_xy(score_x, cur_y + 1)
-        pdf.cell(SCORE_W, 8, f"{avg:.1f}", align="C")
+        pdf.cell(score_card_w, 8, f"{avg:.1f}", fill=True, align="C")
 
-        # 评分条背景
-        bar_x = score_x + SCORE_W + 2
-        bar_y = cur_y + 2.5
-        bar_h = 7
-        pdf.set_fill_color(230, 230, 230)
-        pdf.rect(bar_x, bar_y, BAR_MAX_W, bar_h, "F")
-
-        # 评分条填充
-        fill_w = BAR_MAX_W * (avg / 10.0)
-        if fill_w > 0:
-            pdf.set_fill_color(*bar_color)
-            pdf.rect(bar_x, bar_y, fill_w, bar_h, "F")
-
-        # 分数标签在条上方
+        # 维度名
+        pdf.set_xy(x, chart_cy + chart_radius + 16)
         pdf.set_font("STHeiti", size=STYLE["F_TINY"])
-        pdf.set_text_color(120, 120, 120)
-        pdf.set_xy(bar_x + fill_w - 8 if fill_w > 8 else bar_x + fill_w + 1, bar_y - 0.5)
-        if fill_w > 8:
-            pdf.set_text_color(255, 255, 255)
-        pdf.cell(8, 4, f"{avg:.1f}/10")
+        pdf.set_text_color(*C_GREY)
+        pdf.cell(score_card_w, 4, dim, align="C")
 
-        # 进步标签
+        # 进步值
         if delta is not None:
-            delta_x = bar_x + BAR_MAX_W + 4
-            sign = "+" if delta > 0 else ""
             d_color = C_GREEN if delta > 0 else (C_RED if delta < 0 else C_ORG)
+            sign = "+" if delta > 0 else ""
             d_icon = "↑" if delta > 0 else ("↓" if delta < 0 else "→")
-            pdf.set_font("STHeiti", size=STYLE["F_BODY"])
-            pdf.set_text_color(*d_color)
-            pdf.set_xy(delta_x, cur_y + 2)
-            pdf.cell(DELTA_W, 6, f"{d_icon} {sign}{delta:.1f}分")
+            pdf.set_xy(x, chart_cy + chart_radius + 20)
             pdf.set_font("STHeiti", size=STYLE["F_TINY"])
-            pdf.set_text_color(140, 140, 140)
-            pdf.set_xy(delta_x, cur_y + 8)
-            pdf.cell(DELTA_W, 4, f"上次{prev:.1f}分")
+            pdf.set_text_color(*d_color)
+            pdf.cell(score_card_w, 4, f"{d_icon}{sign}{delta:.1f}", align="C")
         elif prev is None and progress.get("enough_data"):
-            pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+            pdf.set_xy(x, chart_cy + chart_radius + 20)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
             pdf.set_text_color(180, 180, 180)
-            pdf.set_xy(bar_x + BAR_MAX_W + 4, cur_y + 4)
-            pdf.cell(DELTA_W, 5, "首次分析")
+            pdf.cell(score_card_w, 4, "首次", align="C")
 
-        pdf.y = cur_y + row_h - 2
-    pdf.ln(3)
+    pdf.ln(chart_radius * 2 + 30)
 
     # ─── Section 6: 历史进步对比 ───
     if progress.get("enough_data") and progress.get("total_sessions", 0) >= 2:
@@ -1156,7 +1547,7 @@ def make_report(data: dict, output_path: str):
         # 改善项目
         improved = progress.get("improved_errors", [])
         worsened = progress.get("worsened_errors", [])
-        new_errs = progress.get("new_errors", [])
+        progress.get("new_errors", [])
 
         imp_w = [BW * 0.45, BW * 0.18, BW * 0.18, BW * 0.19]
         imp_x = [LM, LM + imp_w[0], LM + imp_w[0] + imp_w[1], LM + imp_w[0] + imp_w[1] + imp_w[2]]
@@ -1209,7 +1600,6 @@ def make_report(data: dict, output_path: str):
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        import numpy as np
         from PIL import Image as PILImage  # ← 加这行
 
         plt.rcParams["font.family"] = ["STHeiti", "Arial Unicode MS"]
@@ -1295,10 +1685,38 @@ def make_report(data: dict, output_path: str):
         pdf.cell(0, 8, badge_title, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
 
-        earned = [b for b in all_badges if b["earned"]]
+        # ── 徽章颜色配置（按稀有度） ─────────────────────────────────────────
+        BADGE_COLOR_MAP = {
+            # 铜色：首次 / ×3
+            "first_analysis": (205, 127, 50),    # #CD7F32
+            "streak_3":      (205, 127, 50),
+            # 银色：×7
+            "streak_7":      (192, 192, 192),    # #C0C0C0
+            # 金色：×30 / 8+ / 9+
+            "streak_30":     (255, 215, 0),      # #FFD700
+            "score_break_8": (255, 215, 0),
+            "score_break_9": (255, 215, 0),
+            # 默认：铜色
+        }
+        # 备用铜色（当 id 不在 map 中时）
+        DEFAULT_COLOR = (205, 127, 50)
+
+        # ── 图标 Unicode 映射 ─────────────────────────────────────────────────
+        BADGE_ICON_MAP = {
+            "first_analysis": "⚡",
+            "streak_3":      "🔥",
+            "streak_7":      "💎",
+            "streak_30":     "👑",
+            "score_break_8": "🎯",
+            "score_break_9": "🏆",
+        }
+
+        [b for b in all_badges if b["earned"]]
         cols = 4
         cell_w = BW / cols
-        row_h = 16
+        row_h = 18   # 稍微增高以容纳圆形徽章
+        badge_r = 6  # 徽章圆形半径（mm）
+
         for idx, b in enumerate(all_badges):
             col = idx % cols
             row = idx // cols
@@ -1309,25 +1727,97 @@ def make_report(data: dict, output_path: str):
                 by = pdf.y
                 pdf.y += row * row_h
 
-            fc = (240, 248, 255) if b["earned"] else (245, 245, 245)
-            pdf.set_fill_color(*fc)
-            pdf.rect(bx + 1, by, cell_w - 2, row_h - 2, "FD")
+            # 徽章圆心
+            bcx = bx + cell_w / 2
+            bcy = by + badge_r + 1
 
-            pdf.set_xy(bx + 1, by + 1)
-            pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
-            tc = C_GOLD if b["earned"] else (180, 180, 180)
-            pdf.set_text_color(*tc)
-            pdf.cell(cell_w - 2, 8, b["icon"], align="C")
+            is_earned = b["earned"]
+            badge_id = b["id"]
+            base_color = BADGE_COLOR_MAP.get(badge_id, DEFAULT_COLOR)
 
-            pdf.set_xy(bx + 1, by + 8)
-            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
-            pdf.set_text_color(C_DARK if b["earned"] else (160, 160, 160))
-            pdf.cell(cell_w - 2, 4, b["name"], align="C")
+            if is_earned:
+                # ── 已解锁：实心圆 + 渐变光泽效果 ──────────────────────────────
+                # 外圈金属质感（稍大的暗色圈）
+                pdf.set_fill_color(max(0, base_color[0] - 60),
+                                   max(0, base_color[1] - 60),
+                                   max(0, base_color[2] - 60))
+                pdf.ellipse(bcx - badge_r - 1, bcy - badge_r - 1,
+                            (badge_r + 1) * 2, (badge_r + 1) * 2, "F")
 
-            pdf.set_xy(bx + 1, by + 12)
-            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
-            pdf.set_text_color(*C_LIGHT)
-            pdf.multi_cell(cell_w - 2, 3.5, b["desc"], align="C")
+                # 主体渐变（从中心向外颜色渐浅，模拟金属光泽）
+                # 最外层：深色边框
+                pdf.set_fill_color(max(0, base_color[0] - 40),
+                                   max(0, base_color[1] - 40),
+                                   max(0, base_color[2] - 40))
+                pdf.ellipse(bcx - badge_r - 0.5, bcy - badge_r - 0.5,
+                            (badge_r + 0.5) * 2, (badge_r + 0.5) * 2, "F")
+
+                # 第二层：主体色
+                pdf.set_fill_color(*base_color)
+                pdf.ellipse(bcx - badge_r, bcy - badge_r,
+                            badge_r * 2, badge_r * 2, "F")
+
+                # 第三层：内层高光（颜色减淡，模拟光泽）
+                lighter = tuple(min(255, c + 60) for c in base_color)
+                pdf.set_fill_color(*lighter)
+                pdf.ellipse(bcx - badge_r + 1.5, bcy - badge_r + 1.5,
+                            (badge_r - 1.5) * 2, (badge_r - 1.5) * 2, "F")
+
+                # 中心符号
+                icon_char = BADGE_ICON_MAP.get(badge_id, b["icon"])
+                pdf.set_font("STHeiti", size=11)
+                pdf.set_text_color(255, 255, 255)
+                pdf.set_xy(bcx - 5, bcy - 4)
+                pdf.cell(10, 8, icon_char, align="C")
+
+                # 徽章名称（底部）
+                pdf.set_xy(bx + 1, bcy + badge_r + 0.5)
+                pdf.set_font("STHeiti", size=STYLE["F_TINY"])
+                pdf.set_text_color(*C_DARK)
+                pdf.cell(cell_w - 2, 4, b["name"], align="C")
+
+                # 解锁条件（小字，灰色）
+                pdf.set_xy(bx + 1, bcy + badge_r + 4)
+                pdf.set_font("STHeiti", size=6.5)
+                pdf.set_text_color(*C_LIGHT)
+                pdf.cell(cell_w - 2, 3.5, b["desc"], align="C")
+
+            else:
+                # ── 未解锁：半透明灰色描边 + 虚线 ──────────────────────────────
+                # 底色（暗灰）
+                pdf.set_fill_color(230, 230, 230)
+                pdf.ellipse(bcx - badge_r, bcy - badge_r,
+                            badge_r * 2, badge_r * 2, "F")
+
+                # 灰色描边圆
+                pdf.set_draw_color(180, 180, 180)
+                pdf.set_line_width(0.8)
+                pdf.ellipse(bcx - badge_r, bcy - badge_r,
+                            badge_r * 2, badge_r * 2, style="D")
+
+                # 内部加一条虚线（模拟未解锁状态）
+                pdf.set_draw_color(200, 200, 200)
+                pdf.set_line_width(0.4)
+                pdf.ellipse(bcx - badge_r + 2, bcy - badge_r + 2,
+                            (badge_r - 2) * 2, (badge_r - 2) * 2, style="D")
+
+                # 问号占位符
+                pdf.set_font("STHeiti", size=10)
+                pdf.set_text_color(180, 180, 180)
+                pdf.set_xy(bcx - 5, bcy - 4)
+                pdf.cell(10, 8, "?", align="C")
+
+                # 徽章名称（底部，灰色）
+                pdf.set_xy(bx + 1, bcy + badge_r + 0.5)
+                pdf.set_font("STHeiti", size=STYLE["F_TINY"])
+                pdf.set_text_color(160, 160, 160)
+                pdf.cell(cell_w - 2, 4, b["name"], align="C")
+
+                # 解锁条件（小字，浅灰）
+                pdf.set_xy(bx + 1, bcy + badge_r + 4)
+                pdf.set_font("STHeiti", size=6.5)
+                pdf.set_text_color(180, 180, 180)
+                pdf.cell(cell_w - 2, 3.5, b["desc"], align="C")
 
         pdf.y += (len(all_badges) // cols + 1) * row_h + 4
 
@@ -1339,3 +1829,352 @@ def make_report(data: dict, output_path: str):
 
 if __name__ == "__main__":
     print("报告生成模块加载正常")
+
+
+# ── 每月进步报告生成 ─────────────────────────────────────────────────────────
+
+def generate_monthly_report(name: str, year: int, month: int, output_dir: str = None) -> str:
+    """
+    生成球员月度进步报告 PDF。
+    布局：
+      - 顶部标题："{name} 的 {year}年{month}月 进步报告"
+      - 概览卡片：本月分析N次、本月均分、上月均分、分数变化（↑/↓/+0）
+      - 进步项目：列出当月改善的错误
+      - 关键帧对比：本月最早 vs 本月最晚同动作帧图并排（最多3组）
+      - 成就徽章：本月新解锁的徽章
+      - 底部："分享到朋友圈"占位
+
+    返回 PDF 文件路径，无数据时返回空字符串。
+    """
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from player_db import get_monthly_report, get_player_dir
+
+    report_data = get_monthly_report(name, year, month)
+    if not report_data:
+        return ""
+
+    if output_dir is None:
+        reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        output_dir = reports_dir
+
+    import datetime as _dt
+    ts = _dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_path = os.path.join(output_dir, f"月度报告_{year}年{month:02d}月_{name}_{ts}.pdf")
+
+    pdf = Report()
+    pdf.set_auto_page_break(auto=True, margin=10)
+    pdf.add_font("STHeiti", fname=ASSETS_FONT, uni=True)
+    pdf.add_page()
+
+    LM = pdf.l_margin
+    RM = pdf.r_margin
+    BW = pdf.w - LM - RM
+
+    # ─── 标题栏 ───────────────────────────────────────────
+    pdf.set_fill_color(*C_MID)
+    pdf.rect(LM, pdf.y - 4, 3, 30, "F")
+    pdf.set_font("STHeiti", size=STYLE["F_TITLE"])
+    pdf.set_text_color(*C_DARK)
+    pdf.set_x(LM + 8)
+    pdf.cell(BW - 8, 13, f"{name} 的 {year}年{month}月 进步报告", align="L", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(1)
+    pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+    pdf.set_text_color(*C_LIGHT)
+    pdf.set_x(LM + 8)
+    generated = _dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+    pdf.cell(BW - 8, 6, f"生成时间：{generated}", align="L", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
+    pdf.set_fill_color(*C_MID)
+    pdf.rect(LM, pdf.y, BW, 1.5, "F")
+    pdf.ln(4)
+
+    # ─── 概览卡片 ─────────────────────────────────────────
+    session_count = report_data.get("session_count", 0)
+    avg_quality = report_data.get("avg_quality", 0)
+    prev_avg = report_data.get("prev_avg_quality")
+    delta = report_data.get("delta")
+
+    # 卡片尺寸
+    card_h = 18
+    card_colors = [
+        (C_MID, "本月分析次数", str(session_count), "次"),
+        (C_BLUE, "本月均分", f"{avg_quality:.1f}", "分"),
+    ]
+    if prev_avg is not None:
+        if delta is not None:
+            if delta > 0:
+                delta_icon = "↑"
+                delta_color = C_GREEN
+                delta_str = f"+{delta:.1f}"
+            elif delta < 0:
+                delta_icon = "↓"
+                delta_color = C_RED
+                delta_str = f"{delta:.1f}"
+            else:
+                delta_icon = "→"
+                delta_color = C_ORG
+                delta_str = "+0"
+        else:
+            delta_icon = ""
+            delta_color = C_GREY
+            delta_str = "-"
+
+        card_colors.append((delta_color, "分数变化", f"{delta_icon}{delta_str}" if delta_icon else delta_str, ""))
+        card_colors.append((C_ORG, "上月均分", f"{prev_avg:.1f}", "分"))
+    else:
+        card_colors.append((C_GREY, "上月均分", "无数据", ""))
+
+    card_w = BW / len(card_colors)
+    card_xs = [LM + i * card_w for i in range(len(card_colors))]
+
+    for i, (color, label, value, unit) in enumerate(card_colors):
+        cx = card_xs[i]
+        cy = pdf.y
+        pdf.set_fill_color(*color)
+        pdf.set_draw_color(*color)
+        pdf.set_line_width(0.3)
+        pdf.rect(cx, cy, card_w - 2, card_h, "FD")
+
+        # 顶部色条
+        pdf.set_fill_color(*color)
+        pdf.rect(cx, cy, card_w - 2, 3, "F")
+
+        # 标签
+        pdf.set_xy(cx, cy + 3)
+        pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(card_w - 2, 5, label, align="C")
+
+        # 数值
+        pdf.set_xy(cx, cy + 8)
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(card_w - 2, 8, f"{value}", align="C")
+        if unit:
+            pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+            pdf.cell(card_w - 2, 5, unit, align="C")
+
+    pdf.y += card_h + 5
+
+    # ─── 进步/退步项目 ─────────────────────────────────────
+    improved = report_data.get("improved_errors", [])
+    worsened = report_data.get("worsened_errors", [])
+
+    if improved or worsened:
+        pdf.set_fill_color(*C_GREEN)
+        pdf.rect(LM, pdf.y - 1, 3, 10, "F")
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+        pdf.set_text_color(*C_MID)
+        pdf.set_x(LM + 6)
+        pdf.cell(0, 8, "本月技术进步", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+
+        if improved:
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(*C_GREEN)
+            pdf.cell(BW, 5, f"改善了 {len(improved)} 项错误 ↓", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+            for item in improved[:5]:  # 最多显示5项
+                err_text = item.get("error", "")[:40]
+                pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+                pdf.set_text_color(*C_GREY)
+                from_c = item.get("from", 0)
+                to_c = item.get("to", 0)
+                pdf.cell(BW, 5, f"  • {err_text}（{from_c} → {to_c}）", new_x="LMARGIN", new_y="NEXT")
+        else:
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(*C_LIGHT)
+            pdf.cell(BW, 5, "  本月无新增改善项", new_x="LMARGIN", new_y="NEXT")
+
+        if worsened:
+            pdf.ln(2)
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(*C_RED)
+            pdf.cell(BW, 5, f"需要注意 {len(worsened)} 项错误 ↑", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+            for item in worsened[:3]:  # 最多显示3项
+                err_text = item.get("error", "")[:40]
+                pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+                pdf.set_text_color(*C_GREY)
+                from_c = item.get("from", 0)
+                to_c = item.get("to", 0)
+                pdf.cell(BW, 5, f"  • {err_text}（{from_c} → {to_c}）", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(4)
+
+    # ─── 关键帧对比 ────────────────────────────────────────
+    sessions = report_data.get("sessions", [])
+    if len(sessions) >= 2:
+        # 获取 frame_archive 路径
+        player_dir = get_player_dir(name)
+        frame_archive_dir = os.path.join(player_dir, "frame_archive")
+
+        # 按日期排序sessions
+        sorted_sessions = sorted(sessions, key=lambda s: s.get("date", ""))
+
+        # 找到最早和最晚的 session
+        first_session = sorted_sessions[0]
+        last_session = sorted_sessions[-1]
+
+        # 按动作类型匹配帧图
+        first_shots = {s.get("action_type", ""): s.get("frame_file", "") for s in first_session.get("shots", [])}
+        last_shots = {s.get("action_type", ""): s.get("frame_file", "") for s in last_session.get("shots", [])}
+
+        # 找到共同的 action_type
+        common_actions = set(first_shots.keys()) & set(last_shots.keys())
+        common_actions = [a for a in common_actions if a and a not in ("分析失败",)]
+
+        if common_actions:
+            pdf.set_fill_color(*C_BLUE)
+            pdf.rect(LM, pdf.y - 1, 3, 10, "F")
+            pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+            pdf.set_text_color(*C_MID)
+            pdf.set_x(LM + 6)
+            pdf.cell(0, 8, "关键帧对比", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
+
+            # 子标题
+            pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+            pdf.set_text_color(*C_LIGHT)
+            pdf.cell(BW, 5, f"最早（{first_session.get('date', '')}）→ 最晚（{last_session.get('date', '')}）", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
+
+            # 最多3组对比
+            compare_count = min(3, len(common_actions))
+            compare_actions = common_actions[:compare_count]
+
+            for action in compare_actions:
+                # 检查是否需要换页
+                if pdf.y > pdf.page_break_trigger - 50:
+                    pdf.add_page()
+
+                frame_first = first_shots.get(action, "")
+                frame_last = last_shots.get(action, "")
+
+                # 日期标签
+                pdf.set_font("STHeiti", size=STYLE["F_BODY"])
+                pdf.set_text_color(*C_GREY)
+                pdf.cell(BW / 2 - 5, 5, f"早期: {first_session.get('date', '')}", align="L")
+                pdf.cell(BW / 2 - 5, 5, f"近期: {last_session.get('date', '')}", align="L", new_x="LMARGIN", new_y="NEXT")
+                pdf.ln(1)
+
+                # 两张图并排
+                half_w = (BW - 10) / 2
+                img_h = 30
+
+                # 左图（早期）
+                if frame_first:
+                    img_path_first = os.path.join(frame_archive_dir, first_session.get("date", ""), frame_first)
+                    if os.path.exists(img_path_first):
+                        try:
+                            from PIL import Image as PILImage
+                            im = PILImage.open(img_path_first)
+                            iw, ih = im.size
+                            ratio = ih / iw
+                            dh = min(half_w * ratio, img_h)
+                            pdf.image(img_path_first, x=LM, y=pdf.y, w=half_w, h=dh)
+                        except Exception:
+                            pdf.set_fill_color(240, 240, 240)
+                            pdf.rect(LM, pdf.y, half_w, img_h, "D")
+                    else:
+                        pdf.set_fill_color(240, 240, 240)
+                        pdf.rect(LM, pdf.y, half_w, img_h, "D")
+                else:
+                    pdf.set_fill_color(240, 240, 240)
+                    pdf.rect(LM, pdf.y, half_w, img_h, "D")
+
+                # 右图（近期）
+                if frame_last:
+                    img_path_last = os.path.join(frame_archive_dir, last_session.get("date", ""), frame_last)
+                    if os.path.exists(img_path_last):
+                        try:
+                            from PIL import Image as PILImage
+                            im = PILImage.open(img_path_last)
+                            iw, ih = im.size
+                            ratio = ih / iw
+                            dh = min(half_w * ratio, img_h)
+                            pdf.image(img_path_last, x=LM + half_w + 5, y=pdf.y, w=half_w, h=dh)
+                        except Exception:
+                            pdf.set_fill_color(240, 240, 240)
+                            pdf.rect(LM + half_w + 5, pdf.y, half_w, img_h, "D")
+                    else:
+                        pdf.set_fill_color(240, 240, 240)
+                        pdf.rect(LM + half_w + 5, pdf.y, half_w, img_h, "D")
+                else:
+                    pdf.set_fill_color(240, 240, 240)
+                    pdf.rect(LM + half_w + 5, pdf.y, half_w, img_h, "D")
+
+                pdf.y += img_h + 2
+
+                # 动作类型标签
+                pdf.set_font("STHeiti", size=STYLE["F_MINI"])
+                pdf.set_text_color(*C_LIGHT)
+                pdf.cell(half_w, 4, action, align="C")
+                pdf.cell(half_w + 5, 4, action, align="C", new_x="LMARGIN", new_y="NEXT")
+                pdf.ln(3)
+
+    # ─── 成就徽章 ─────────────────────────────────────────
+    new_badges = report_data.get("new_badges", [])
+    if new_badges:
+        if pdf.y > pdf.page_break_trigger - 40:
+            pdf.add_page()
+
+        pdf.set_fill_color(*C_GOLD)
+        pdf.rect(LM, pdf.y - 1, 3, 10, "F")
+        pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+        pdf.set_text_color(*C_MID)
+        pdf.set_x(LM + 6)
+        pdf.cell(0, 8, "本月新解锁徽章", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
+
+        badge_cols = 4
+        badge_cell_w = BW / badge_cols
+        badge_row_h = 14
+
+        for idx, badge in enumerate(new_badges):
+            col = idx % badge_cols
+            row = idx // badge_cols
+            bx = LM + col * badge_cell_w
+            by = pdf.y + row * badge_row_h
+
+            if by + badge_row_h > pdf.page_break_trigger:
+                pdf.add_page()
+                by = pdf.y
+
+            pdf.set_fill_color(*C_GOLD)
+            pdf.rect(bx + 1, by, badge_cell_w - 2, badge_row_h - 2, "FD")
+
+            pdf.set_xy(bx + 1, by + 1)
+            pdf.set_font("STHeiti", size=STYLE["F_SECTION"])
+            pdf.set_text_color(255, 255, 255)
+            pdf.cell(badge_cell_w - 2, 8, badge.get("icon", "?"), align="C")
+
+            pdf.set_xy(bx + 1, by + 9)
+            pdf.set_font("STHeiti", size=STYLE["F_TINY"])
+            pdf.set_text_color(*C_DARK)
+            pdf.cell(badge_cell_w - 2, 4, badge.get("name", ""), align="C")
+
+        pdf.y += (len(new_badges) // badge_cols + 1) * badge_row_h + 4
+
+    # ─── 分享占位 ──────────────────────────────────────────
+    if pdf.y > pdf.page_break_trigger - 30:
+        pdf.add_page()
+
+    pdf.ln(5)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.rect(LM, pdf.y, BW, 20, "F")
+
+    pdf.set_xy(LM, pdf.y + 3)
+    pdf.set_font("STHeiti", size=STYLE["F_LABEL"])
+    pdf.set_text_color(*C_LIGHT)
+    pdf.cell(BW, 6, "分享到朋友圈", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_xy(LM, pdf.y + 1)
+    pdf.set_font("STHeiti", size=STYLE["F_TINY"])
+    pdf.set_text_color(200, 200, 200)
+    pdf.cell(BW, 5, "— 月度进步报告 · 羽毛球视频分析小程序 —", align="C", new_x="LMARGIN", new_y="NEXT")
+
+    pdf.output(output_path)
+    sz = os.path.getsize(output_path)
+    print(f"月度报告生成: {output_path} ({sz // 1024}KB)")
+    return output_path

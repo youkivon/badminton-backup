@@ -3,7 +3,9 @@
 三次修复prompt测试：验证8分100%集中问题是否解决
 只改prompt，不改代码逻辑
 """
-import sys, os, json
+import sys
+import os
+import json
 sys.path.insert(0, os.path.dirname(__file__))
 
 from vlm_analyzer_v2 import batch_analyze_with_ball
@@ -46,7 +48,7 @@ def main():
     # 统计评分分布
     ratings = [r['quality_rating'] for r in valid]
     rating_dist = Counter(ratings)
-    print(f"\n综合评分分布:")
+    print("\n综合评分分布:")
     for score in sorted(rating_dist.keys()):
         print(f"  {score}分: {rating_dist[score]}帧 ({rating_dist[score]*100//len(valid)}%)")
     
@@ -55,7 +57,7 @@ def main():
     
     # 统计各维度
     dims = ['发力链', '闪腕', '步伐', '拍面控制', '整体协调']
-    print(f"\n各维度评分:")
+    print("\n各维度评分:")
     for dim in dims:
         vals = [r[dim] for r in valid if r.get(dim, 0) > 0]
         if vals:
@@ -70,7 +72,7 @@ def main():
             if e and e.lower() not in ('none', '无', 'n/a', 'n/a-'):
                 all_errors.append(e)
     error_dist = Counter(all_errors)
-    print(f"\n主要问题分布(前5):")
+    print("\n主要问题分布(前5):")
     for err, cnt in error_dist.most_common(5):
         print(f"  {err[:60]}: {cnt}")
     

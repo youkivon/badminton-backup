@@ -3,7 +3,8 @@
 羽毛球视频分析小程序 - 球员档案数据库
 管理球员 profile.json 和历史分析记录
 """
-import os, json
+import os
+import json
 from datetime import datetime
 
 PLAYERS_DIR = os.environ.get("BADMINTON_PLAYERS_DIR",
@@ -68,6 +69,20 @@ BADGE_DEFS = [
         "icon": "[OK3]",
         "condition": lambda p: _improved_count(p) >= 3,
     },
+    {
+        "id": "improved_5pct",
+        "name": "复测进步",
+        "desc": "复测后综合评分相比上次提升",
+        "icon": "[↑]",
+        "condition": lambda p: _single_session_up(p) > 0,
+    },
+    {
+        "id": "improved_10_errors",
+        "name": "改善10项错误",
+        "desc": "单次分析中消除≥10项历史错误",
+        "icon": "[OK10]",
+        "condition": lambda p: _improved_count(p) >= 10,
+    },
 ]
 
 
@@ -111,6 +126,16 @@ def _improved_count(profile) -> int:
     return count
 
 
+def _single_session_up(profile) -> float:
+    """返回最新一次相比上一次的分数差值，无历史时返回 0"""
+    sessions = profile.get("sessions", [])
+    if len(sessions) < 2:
+        return 0.0
+    prev = sessions[-2].get("avg_quality", 0)
+    curr = sessions[-1].get("avg_quality", 0)
+    return round(curr - prev, 1)
+
+
 def check_badges(profile: dict) -> list:
     """检查并返回本次新解锁的徽章 ID 列表"""
     current = set(profile.get("badges", []))
@@ -151,7 +176,20 @@ def load_profile(name: str) -> dict:
     path = os.path.join(get_player_dir(name), "profile.json")
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            profile = json.load(f)
+        # Backward compat: ensure streak fields exist
+        if "streak_current" not in profile:
+            profile["streak_current"] = 0
+        if "streak_longest" not in profile:
+            profile["streak_longest"] = 0
+        if "last_analysis_date" not in profile:
+            # Try to infer from last session
+            sessions = profile.get("sessions", [])
+            if sessions:
+                profile["last_analysis_date"] = sessions[-1].get("date", "")
+            else:
+                profile["last_analysis_date"] = ""
+        return profile
     return {
         "name": name,
         "created_at": datetime.now().strftime("%Y-%m-%d"),
@@ -161,7 +199,10 @@ def load_profile(name: str) -> dict:
         "tags": [],
         "wechat_id": "",  # 客户微信账号，分析完成后推送到此微信
         "badges": [],      # 已解锁的徽章ID列表
-        "sessions": []
+        "sessions": [],
+        "streak_current": 0,    # 当前连续打卡天数
+        "streak_longest": 0,     # 历史最长连续天数
+        "last_analysis_date": "",  # 最近一次分析日期 (YYYY-MM-DD)
     }
 
 
@@ -172,6 +213,105 @@ def save_profile(name: str, profile: dict):
     profile["total_sessions"] = len(profile["sessions"])
     with open(path, "w", encoding="utf-8") as f:
         json.dump(profile, f, ensure_ascii=False, indent=2)
+
+
+def update_streak(name: str) -> dict:
+    """
+    每次 add_session 后调用，更新连续打卡天数。
+    从 sessions[-1].date 获取本次日期，与 last_analysis_date 比较：
+    - 相同日期：不更新 streak
+    - 昨天 → 连续+1
+    - 超过1天 → 断开归1
+    同时更新 last_analysis_date。
+    返回更新后的 streak 信息。
+    """
+    profile = load_profile(name)
+    sessions = profile.get("sessions", [])
+    if not sessions:
+        return {"current": 0, "longest": 0, "status": "new"}
+
+    last_session = sessions[-1]
+    today_date = last_session.get("date", "")
+    if not today_date:
+        return {"current": 0, "longest": 0, "status": "new"}
+
+    last_analysis_date = profile.get("last_analysis_date", "")
+
+    # 解析日期用于计算
+    from datetime import datetime as dt
+    try:
+        curr_dt = dt.strptime(today_date, "%Y-%m-%d")
+    except ValueError:
+        # 日期格式不对，无法计算 streak
+        profile["last_analysis_date"] = today_date
+        save_profile(name, profile)
+        return {"current": profile.get("streak_current", 0),
+                "longest": profile.get("streak_longest", 0), "status": "unknown"}
+
+    if last_analysis_date:
+        try:
+            prev_dt = dt.strptime(last_analysis_date, "%Y-%m-%d")
+            delta_days = (curr_dt - prev_dt).days
+        except ValueError:
+            delta_days = -999  # 无效日期视为断开
+    else:
+        delta_days = -999  # 首次分析
+
+    current = profile.get("streak_current", 0)
+    longest = profile.get("streak_longest", 0)
+
+    if delta_days == 0:
+        # 同一天，不更新 streak
+        status = "active"
+    elif delta_days == 1:
+        # 连续第二天
+        current += 1
+        status = "active"
+    else:
+        # 断开（首次、超过1天、或日期倒退）
+        current = 1
+        status = "broken" if last_analysis_date else "new"
+
+    if current > longest:
+        longest = current
+
+    profile["streak_current"] = current
+    profile["streak_longest"] = longest
+    profile["last_analysis_date"] = today_date
+    save_profile(name, profile)
+
+    return {"current": current, "longest": longest, "status": status}
+
+
+def get_streak(name: str) -> dict:
+    """
+    获取球员的连续打卡状态。
+    返回: {"current": int, "longest": int, "status": "active"|"broken"|"new"}
+    """
+    profile = load_profile(name)
+    current = profile.get("streak_current", 0)
+    longest = profile.get("streak_longest", 0)
+    last_date = profile.get("last_analysis_date", "")
+
+    if not last_date:
+        status = "new"
+    elif current == 0:
+        status = "new"
+    else:
+        # 检查是否仍在连续（今天或昨天）
+        from datetime import datetime as dt
+        try:
+            last_dt = dt.strptime(last_date, "%Y-%m-%d")
+            today = dt.now()
+            delta = (today - last_dt).days
+            if delta <= 1:
+                status = "active"
+            else:
+                status = "broken"
+        except ValueError:
+            status = "unknown"
+
+    return {"current": current, "longest": longest, "status": status}
 
 
 def add_session(name: str, session_data: dict, frames_dir: str = None):
@@ -197,17 +337,23 @@ def add_session(name: str, session_data: dict, frames_dir: str = None):
     """
     profile = load_profile(name)
 
-    # 计算进步状态
+    # 计算进步状态（样本少时加保护：双方 shots 均 >= 3 才计算 trend，避免单帧极端值误导）
     if profile["sessions"]:
         prev = profile["sessions"][-1]
         prev_avg = prev.get("avg_quality", 0)
         curr_avg = session_data.get("avg_quality", 0)
-        if curr_avg > prev_avg + 0.1:
-            session_data["quality_trend"] = "up"
-        elif curr_avg < prev_avg - 0.1:
-            session_data["quality_trend"] = "down"
+        prev_shots = len(prev.get("shots", []))
+        curr_shots = len(session_data.get("shots", []))
+        # 样本不足时 trend 置空，不输出误导性升降趋势
+        if prev_shots >= 3 and curr_shots >= 3:
+            if curr_avg > prev_avg + 0.5:
+                session_data["quality_trend"] = "up"
+            elif curr_avg < prev_avg - 0.5:
+                session_data["quality_trend"] = "down"
+            else:
+                session_data["quality_trend"] = "same"
         else:
-            session_data["quality_trend"] = "same"
+            session_data["quality_trend"] = None
         session_data["prev_avg_quality"] = prev_avg
     else:
         session_data["quality_trend"] = None
@@ -224,6 +370,9 @@ def add_session(name: str, session_data: dict, frames_dir: str = None):
         session_data["new_badges"] = new_badge_ids
 
     save_profile(name, profile)
+
+    # 更新连续打卡 streak
+    update_streak(name)
 
     # 同时保存详细历史 JSON（用时间戳避免同一天多次分析互相覆盖）
     from datetime import datetime as _dt
@@ -313,6 +462,137 @@ def compute_progress(name: str) -> dict:
         "first_date": first.get("date", ""),
         "latest_date": latest.get("date", ""),
         "dim_progress": dim_progress,
+    }
+
+
+def get_monthly_report(name: str, year: int, month: int) -> dict:
+    """
+    聚合指定月份内的所有 sessions，返回月度进步报告数据。
+    若该月无数据则返回空字典 {}。
+
+    返回格式:
+    {
+        "year": int, "month": int,
+        "session_count": int,
+        "avg_quality": float,          # 本月均分
+        "prev_avg_quality": float | None,  # 上月均分
+        "delta": float,                # 本月 vs 上月 分数差
+        "improved_errors": [...],      # 本月改善的错误
+        "worsened_errors": [...],      # 本月退步的错误
+        "new_badges": [...],           # 本月新解锁的徽章
+        "sessions": [...],              # 本月所有 session 详情
+    }
+    """
+    sessions = get_history(name)
+    if not sessions:
+        return {}
+
+    # 筛选当月 sessions
+    month_sessions = []
+    for s in sessions:
+        date_str = s.get("date", "")
+        if len(date_str) >= 7:
+            try:
+                y = int(date_str[0:4])
+                m = int(date_str[5:7])
+                if y == year and m == month:
+                    month_sessions.append(s)
+            except ValueError:
+                pass
+
+    if not month_sessions:
+        return {}
+
+    # 本月数据
+    session_count = len(month_sessions)
+    avg_quality = sum(s.get("avg_quality", 0) for s in month_sessions) / session_count if session_count > 0 else 0
+    avg_quality = round(avg_quality, 1)
+
+    # 上月数据
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    prev_sessions = []
+    for s in sessions:
+        date_str = s.get("date", "")
+        if len(date_str) >= 7:
+            try:
+                y = int(date_str[0:4])
+                m = int(date_str[5:7])
+                if y == prev_year and m == prev_month:
+                    prev_sessions.append(s)
+            except ValueError:
+                pass
+
+    prev_avg = None
+    if prev_sessions:
+        prev_avg = sum(s.get("avg_quality", 0) for s in prev_sessions) / len(prev_sessions)
+        prev_avg = round(prev_avg, 1)
+
+    delta = None
+    if prev_avg is not None:
+        delta = round(avg_quality - prev_avg, 1)
+
+    # 进步/退步错误：对比当月第一次 vs 最后一次 session
+    improved = []
+    worsened = []
+    if len(month_sessions) >= 2:
+        first = month_sessions[0]
+        last = month_sessions[-1]
+        first_errs = first.get("error_history", {})
+        last_errs = last.get("error_history", {})
+        all_errs = set(first_errs.keys()) | set(last_errs.keys())
+        for err in all_errs:
+            fc = first_errs.get(err, {}).get("count", 0)
+            lc = last_errs.get(err, {}).get("count", 0)
+            if lc < fc:
+                improved.append({"error": err, "from": fc, "to": lc})
+            elif lc > fc:
+                worsened.append({"error": err, "from": fc, "to": lc})
+
+    # 本月新解锁的徽章：对比月初 vs 月末的徽章列表
+    profile = load_profile(name)
+    badges_at_start = set()
+    badges_at_end = set(profile.get("badges", []))
+    # 根据 session 数推断月初徽章状态（找到第一个 <= 月末日期的 session 徽章状态）
+    # 简化处理：以 month_sessions[0] 之前一个 session 的徽章状态为基准
+    for s in sessions:
+        date_str = s.get("date", "")
+        if len(date_str) >= 7:
+            try:
+                y = int(date_str[0:4])
+                m = int(date_str[5:7])
+                if y == year and m == month:
+                    break  # 到达本月第一个 session，之前的徽章即为月初徽章
+            except ValueError:
+                pass
+        # 收集本月之前的徽章
+        badges_at_start = set(s.get("badges", profile.get("badges", [])))
+
+    new_badges = [b for b in badges_at_end if b not in badges_at_start]
+
+    # 获取新徽章详情
+    new_badge_details = []
+    for bid in new_badges:
+        for bdef in BADGE_DEFS:
+            if bdef["id"] == bid:
+                new_badge_details.append({
+                    "id": bdef["id"],
+                    "name": bdef["name"],
+                    "icon": bdef["icon"],
+                })
+                break
+
+    return {
+        "year": year,
+        "month": month,
+        "session_count": session_count,
+        "avg_quality": avg_quality,
+        "prev_avg_quality": prev_avg,
+        "delta": delta,
+        "improved_errors": improved,
+        "worsened_errors": worsened,
+        "new_badges": new_badge_details,
+        "sessions": month_sessions,
     }
 
 

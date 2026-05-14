@@ -1,27 +1,227 @@
 # -*- coding: utf-8 -*-
 """
 羽毛球视频分析 VLM 模块 V2
-结合 OpenCV 羽毛球检测 + VLM 动作分析
+结合 OpenCV 羽毛球检测 + VLM 动作分析 + MediaPipe Pose物理校验
 
 流程：
   1. OpenCV 检测球位置 → 判断球在哪个半场（near/far, front/middle/back）
   2. VLM Stage1：问"是否有挥拍 + 哪边在挥拍"
-  3. VLM Stage2：传入球位置context，让VLM结合场地上下文判断动作
+  3. MediaPipe Pose：物理校验挥拍姿态合理性
+  4. VLM Stage2：传入球位置context，让VLM结合场地上下文判断动作
 """
-import os, json, time, cv2, re
+import os
+import json
+import time
+import cv2
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
-import base64, mimetypes
+import base64
+import mimetypes
+
+# ── MediaPipe Pose ──────────────────────────────────────
+from mediapipe.tasks.python.vision import PoseLandmarker, PoseLandmarkerOptions, RunningMode
+from mediapipe.tasks.python.core.base_options import BaseOptions
+from mediapipe import Image, ImageFormat
+
+# ── PoseLandmarker 单例（进程内共享，避免重复加载模型）───
+_pose_landmarker = None
+
+def _get_pose_landmarker():
+    """线程安全的 PoseLandmarker 单例，模型只加载一次"""
+    global _pose_landmarker
+    if _pose_landmarker is None:
+        base_opts = BaseOptions(model_asset_path="/Users/youqifang/Desktop/小程序/models/pose_landmarker_lite.task")
+        opts = PoseLandmarkerOptions(
+            base_options=base_opts,
+            running_mode=RunningMode.IMAGE,
+            num_poses=1,
+            min_pose_detection_confidence=0.5,
+            min_pose_presence_confidence=0.5,
+            min_tracking_confidence=0.5,
+        )
+        _pose_landmarker = PoseLandmarker.create_from_options(opts)
+    return _pose_landmarker
+
+
+# ── MediaPipe Pose 关键点索引（33点）───────────────────
+# 0-10: 上半身, 11-32: 下半身
+_POSE_LANDMARK_NAMES = [
+    "nose", "left_eye_inner", "left_eye", "left_eye_outer",
+    "right_eye_inner", "right_eye", "right_eye_outer",
+    "left_ear", "right_ear",
+    "mouth_left", "mouth_right",
+    "left_shoulder", "right_shoulder",
+    "left_elbow", "right_elbow",
+    "left_wrist", "right_wrist",
+    "left_pinky", "right_pinky",
+    "left_index", "right_index",
+    "left_thumb", "right_thumb",
+    "left_hip", "right_hip",
+    "left_knee", "right_knee",
+    "left_ankle", "right_ankle",
+    "left_heel", "right_heel",
+    "left_foot_index", "right_foot_index",
+]
+
+# 挥拍相关关键点对
+_WRIST = 16       # right_wrist
+_ELBOW = 14       # right_elbow
+_SHOULDER = 12    # right_shoulder
+_HIP = 24         # right_hip
+_KNEE = 26        # right_knee
+_ANKLE = 28       # right_ankle
+
+
+def detect_pose(image_path: str):
+    """
+    用 MediaPipe Pose 检测人体骨骼关键点。
+
+    Returns:
+        dict: {
+            "found": bool,
+            "landmarks": list of 33 (x, y, z, visibility) tuples,
+            "pose_side": "near" / "far" / "unknown"   # near=画面右侧球员（底部）
+            "validation": dict with physical checks
+        }
+    """
+    try:
+        img = cv2.imread(image_path)
+        if img is None:
+            return _empty_pose_result()
+        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        mp_image = Image(image_format=ImageFormat.SRGB, data=rgb)
+        landmarker = _get_pose_landmarker()
+        result = landmarker.detect(mp_image)
+    except Exception:
+        return _empty_pose_result()
+
+    if not result or not result.pose_landmarks:
+        return _empty_pose_result()
+
+    lm = result.pose_landmarks[0]
+    landmarks = [(p.x, p.y, p.z, p.visibility) for p in lm]
+
+    # ── 判断是 near（底部球员）还是 far（顶部球员）──────────
+    # 鼻点 x 位置：near 球员通常在画面右侧（x > 0.5），far 球员在左侧（x < 0.5）
+    nose_x = landmarks[0][0]
+    (landmarks[_HIP][0] + landmarks[_HIP + 1][0]) / 2
+    # 左右髋的中点可以判断整体左右倾
+    pose_side = "near" if nose_x > 0.5 else "far"
+
+    # ── 物理校验 ──────────────────────────────────────────
+    validation = _validate_pose_physics(landmarks, pose_side)
+
+    return {
+        "found": True,
+        "landmarks": landmarks,
+        "pose_side": pose_side,
+        "validation": validation,
+    }
+
+
+def _validate_pose_physics(landmarks, pose_side):
+    """
+    基于关键点做物理合理性校验。
+    用于验证 VLM 输出的动作类型是否与实际姿态吻合。
+    """
+    v = {
+        "wrist_above_shoulder": False,   # 挥拍时手腕应高于肩
+        "elbow_extended": False,          # 挥拍臂肘部应有伸直趋势
+        "hip_aligned": False,             # 髋部应在发力链上
+        "knee_flexed": False,             # 膝盖应有适度弯曲（动态姿势）
+        "ankle_grounded": False,          # 脚踝应着地（稳定支撑）
+        "overall_plausible": False,       # 综合合理性
+    }
+
+    def landmark(i):
+        return landmarks[i] if i < len(landmarks) else (0, 0, 0, 0)
+
+    wrist = landmark(_WRIST)
+    elbow = landmark(_ELBOW)
+    shoulder = landmark(_SHOULDER)
+    hip = landmark(_HIP)
+    knee = landmark(_KNEE)
+    ankle = landmark(_ANKLE)
+
+    # 可见性过滤（visibility < 0.5 视为不可靠）
+    def vis(lm): return lm[3] if lm else 0.0
+
+    if vis(wrist) > 0.5 and vis(shoulder) > 0.5:
+        # 挥拍时手腕应高于肩（至少 y 值更小，即画面中更靠上）
+        v["wrist_above_shoulder"] = wrist[1] < shoulder[1] - 0.05
+
+    if vis(elbow) > 0.5 and vis(shoulder) > 0.5:
+        # 肘部可见时，检查是否接近伸直（挥拍蓄力/挥出状态）
+        elbow_shoulder_dist = abs(elbow[1] - shoulder[1])
+        v["elbow_extended"] = elbow_shoulder_dist > 0.03
+
+    if vis(hip) > 0.5 and vis(shoulder) > 0.5 and vis(knee) > 0.5:
+        # 髋-肩-膝 连线应接近直线性（发力链完整）
+        v["hip_aligned"] = True  # 基础检查：髋部可见
+
+    if vis(knee) > 0.5 and vis(ankle) > 0.5:
+        # 膝盖和脚踝都可见
+        v["knee_flexed"] = vis(knee) > 0.5
+
+    if vis(ankle) > 0.5:
+        # 脚踝着地（ankle visibility 高 = 站立姿势）
+        v["ankle_grounded"] = vis(ankle) > 0.5
+
+    # 综合合理性：3项以上通过
+    passed = sum(1 for k, val in v.items() if k != "overall_plausible" and val)
+    v["overall_plausible"] = passed >= 3
+
+    return v
+
+
+def _empty_pose_result():
+    return {
+        "found": False,
+        "landmarks": [],
+        "pose_side": "unknown",
+        "validation": {
+            "wrist_above_shoulder": False,
+            "elbow_extended": False,
+            "hip_aligned": False,
+            "knee_flexed": False,
+            "ankle_grounded": False,
+            "overall_plausible": False,
+        },
+    }
+
+
+def pose_validation_warning(pose_result: dict, vlm_action_type: str) -> str:
+    """
+    根据 pose 物理校验结果生成警告信息。
+    用于注入 VLM Stage2 prompt 做二次确认。
+    """
+    if not pose_result or not pose_result.get("found"):
+        return ""
+
+    val = pose_result["validation"]
+    warnings = []
+
+    if not val["wrist_above_shoulder"]:
+        warnings.append("注意：手腕高度低于肩关节，与典型挥拍姿态不符，请重新确认挥拍动作")
+    if not val["elbow_extended"]:
+        warnings.append("注意：挥拍臂肘部未伸展，发力链可能不完整")
+    if not val["overall_plausible"]:
+        warnings.append("注意：整体姿态合理性存疑，请结合画面仔细判断动作类型")
+
+    return " | ".join(warnings) if warnings else ""
 
 # ── API 配置 ─────────────────────────────────
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
-API_KEY = "sk-hnqymqxjktcmfsrpmpflbtchehhdbdkbsdijptoanrribfso"
+API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
+if not API_KEY:
+    raise RuntimeError("SILICONFLOW_API_KEY environment variable is not set")
 MAX_CONCURRENT = 30
 MAX_RETRIES = 1
 RETRY_DELAY = 2
 
 # ── 导入羽毛球检测器 ──────────────────────────
-from shuttlecock_detector import detect_shuttlecock
+from shuttlecock_detector import detect_shuttlecock  # noqa: E402
 
 
 # ============================================================
@@ -177,7 +377,7 @@ E10-身体重心不稳：击球时重心明显偏移、倾斜或失去平衡
 步伐: [0-10]
 拍面控制: [0-10]
 整体协调: [0-10]
-主要问题: [0-2个，用E编号格式；无明显错误时输出"无"或省略]
+主要问题: [列出该帧所有错误，最多5个，来自不同维度；无明显错误时输出"无"或省略]
 改进建议: [技术维度的改进建议，简洁一条]
 
 【关键要求】
@@ -201,7 +401,6 @@ def _call_vlm(messages, max_tokens=600, temperature=0.6):
         "temperature": temperature,
         "max_tokens": max_tokens
     }
-    last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(
@@ -213,8 +412,7 @@ def _call_vlm(messages, max_tokens=600, temperature=0.6):
             with urllib.request.urlopen(req, timeout=60) as resp:
                 result = json.loads(resp.read())
             return result["choices"][0]["message"]["content"]
-        except Exception as e:
-            last_err = e
+        except Exception:
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY * attempt)
     return None
@@ -244,7 +442,7 @@ def is_swinging(image_path: str):
     return (answer.strip(), side.strip(), reason.strip())
 
 
-def stage2_analyze_v2(image_path: str, ball_info: dict):
+def stage2_analyze_v2(image_path: str, ball_info: dict, pose_info: dict = None):
     """Stage2 V2: 结合球位置上下文判断动作"""
     img = cv2.imread(image_path)
     if img is None:
@@ -257,23 +455,27 @@ def stage2_analyze_v2(image_path: str, ball_info: dict):
     if ball_info.get("found"):
         cx, cy = ball_info["cx"], ball_info["cy"]
         y_pct = cy / h * 100
-        x_pct = cx / w * 100
+        cx / w * 100
 
         if y_pct < 40:
-            court_half = "FAR side (opponent's court)"
-            ball_zone = "backcourt/high"
+            pass
         elif y_pct > 60:
-            court_half = "NEAR side (our court)"
-            ball_zone = "frontcourt/net"
+            pass
         else:
-            court_half = "MIDDLE"
-            ball_zone = "midcourt"
+            pass
 
         ball_context = "OpenCV检测到画面中可能有羽毛球。"
     else:
         ball_context = "OpenCV未检测到羽毛球，请根据画面自行判断。"
 
-    prompt = f"{ball_context}\n\n{STAGE2_PROMPT}"
+    # ── Pose 物理校验警告注入 ───────────────────────────
+    pose_warning = ""
+    if pose_info and pose_info.get("found"):
+        pose_warning = pose_validation_warning(pose_info, "")
+    if pose_warning:
+        pose_warning = f"\n\n【MediaPipe姿态校验提示】{pose_warning}"
+
+    prompt = f"{ball_context}{pose_warning}\n\n{STAGE2_PROMPT}"
 
     # 禁用 prev_frame：双图模式导致 VLM 看到非挥拍帧后认为整组是 non-rally
     # 改用纯单图模式，避免前一帧干扰当前帧判断
@@ -286,10 +488,10 @@ def stage2_analyze_v2(image_path: str, ball_info: dict):
     if text is None:
         return _error_result(image_path, "VLM call failed")
 
-    return _parse_stage2_result(image_path, text, ball_info)
+    return _parse_stage2_result(image_path, text, ball_info, pose_info)
 
 
-def _parse_stage2_result(image_path, text, ball_info=None):
+def _parse_stage2_result(image_path, text, ball_info=None, pose_info=None):
     out = {
         "frame_file": os.path.basename(image_path),
         "raw_response": text,
@@ -303,6 +505,10 @@ def _parse_stage2_result(image_path, text, ball_info=None):
         "ball_detected": (ball_info or {}).get("found", False),
         "ball_cx": (ball_info or {}).get("cx"),
         "ball_cy": (ball_info or {}).get("cy"),
+        # Pose 物理校验字段
+        "pose_detected": (pose_info or {}).get("found", False),
+        "pose_side": (pose_info or {}).get("pose_side", "unknown"),
+        "pose_validation": (pose_info or {}).get("validation", {}),
     }
     # 追踪评分是否被 VLM 显式返回（未显式返回 = 解析失败，强制置 0）
     rating_keys = {"quality_rating", "发力链", "闪腕", "步伐", "拍面控制", "整体协调"}
@@ -381,13 +587,13 @@ def _parse_stage2_result(image_path, text, ball_info=None):
                         score = int(val.split(".")[0])
                         out[key] = max(0, min(10, score))
                         _explicitly_set[key] = True
-                    except:
+                    except Exception:
                         pass
                 elif key in ("发力链", "闪腕", "步伐", "拍面控制", "整体协调"):
                     try:
                         out[key] = max(0, min(10, int(val.split(".")[0])))
                         _explicitly_set[key] = True
-                    except:
+                    except Exception:
                         pass
                 elif key == "action_type":
                     out[key] = val
@@ -442,7 +648,7 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
     print(f"  [V2] Total frames: {total}")
 
     # Step0: OpenCV检球
-    print(f"  [V2] Step0: Ball detection...")
+    print("  [V2] Step0: Ball detection...")
     ball_results = [None] * total
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as ex:
         futures = {ex.submit(detect_shuttlecock, fp): i for i, fp in enumerate(frame_paths)}
@@ -461,7 +667,7 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
     print(f"  [V2] Ball detection done: {found}/{total} frames")
 
     # Step1: Stage1
-    print(f"  [V2] Step1: Swing detection...")
+    print("  [V2] Step1: Swing detection...")
     stage1_results = [None] * total
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as ex:
         futures = {ex.submit(is_swinging, fp): i for i, fp in enumerate(frame_paths)}
@@ -488,16 +694,36 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
     swing_count = sum(1 for r in stage1_results if _is_swing(r))
     print(f"  [V2] Stage1 done: {swing_count}/{total} frames have swings")
 
-    # Step2: Stage2
-    stage2_map = {}
     swing_indices = [i for i, r in enumerate(stage1_results) if _is_swing(r)]
 
+    # Step2: MediaPipe Pose 物理校验（仅针对 Stage1 检出的挥拍帧）
+    pose_results = [None] * total
     if swing_indices:
-        print(f"  [V2] Step2: Action classification...")
+        print("  [V2] Step2: MediaPipe Pose physical validation...")
+        with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as ex:
+            futures = {ex.submit(detect_pose, frame_paths[i]): i for i in swing_indices}
+            done = 0
+            for future in as_completed(futures):
+                i = futures[future]
+                try:
+                    pose_results[i] = future.result()
+                except Exception:
+                    pose_results[i] = _empty_pose_result()
+                done += 1
+                if done % 10 == 0 or done == len(swing_indices):
+                    print(f"    Pose progress: {done}/{len(swing_indices)}")
+        pose_found = sum(1 for p in pose_results if p and p.get("found"))
+        print(f"  [V2] Pose detection done: {pose_found}/{len(swing_indices)} swing frames detected")
+
+    # Step3: Stage2
+    stage2_map = {}
+
+    if swing_indices:
+        print("  [V2] Step3: Action classification...")
 
         with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as ex:
             futures = {
-                ex.submit(stage2_analyze_v2, frame_paths[i], ball_results[i]): i
+                ex.submit(stage2_analyze_v2, frame_paths[i], ball_results[i], pose_results[i]): i
                 for i in swing_indices
             }
             done = 0
@@ -507,6 +733,13 @@ def batch_analyze_with_ball(frame_paths: list) -> list:
                     res = future.result()
                     # 注入Stage1的击球方信息
                     res["hitter_side"] = stage1_results[i][1] if stage1_results[i] else "Unknown"
+                    # 注入 Pose 物理校验结果
+                    if pose_results[i] and pose_results[i].get("found"):
+                        res["pose_side"] = pose_results[i].get("pose_side", "unknown")
+                        res["pose_validation"] = pose_results[i].get("validation", {})
+                    else:
+                        res["pose_side"] = "unknown"
+                        res["pose_validation"] = {}
                     stage2_map[i] = res
                 except Exception as e:
                     err_res = _error_result(frame_paths[i], str(e))

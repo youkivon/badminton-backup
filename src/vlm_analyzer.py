@@ -7,13 +7,17 @@
   Stage1 - 二元判断：是否有挥拍？（快速过滤）
   Stage2 - 动作分类：击球类型+评分+诊断（只对 Stage1=是 的帧运行）
 """
-import os, json, time
+import os
+import json
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
 
 # VLM 分析用硅基流动 API
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
-API_KEY = "sk-hnqymqxjktcmfsrpmpflbtchehhdbdkbsdijptoanrribfso"
+API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
+if not API_KEY:
+    raise RuntimeError("SILICONFLOW_API_KEY environment variable is not set")
 
 MAX_CONCURRENT = 5
 MAX_RETRIES = 1
@@ -212,7 +216,8 @@ def is_swinging(image_path: str) -> tuple:
     极简二元判断：是否有球员在挥拍？
     返回 (is_swinging: bool, reason: str, raw_response: str)
     """
-    import base64, mimetypes
+    import base64
+    import mimetypes
 
     with open(image_path, "rb") as f:
         img_data = base64.b64encode(f.read()).decode()
@@ -269,7 +274,8 @@ def stage2_analyze(image_path: str, prev_frame_path: str = "") -> dict:
     动作分类：只对 Stage1 确认有挥拍的帧运行
     prev_frame_path: 可选，前一帧图片路径，用于搓球 vs 放网 的区分
     """
-    import base64, mimetypes
+    import base64
+    import mimetypes
 
     with open(image_path, "rb") as f:
         img_data = base64.b64encode(f.read()).decode()
@@ -358,38 +364,38 @@ def _parse_stage2_result(image_path: str, text: str) -> dict:
                 score = int(line.split(":")[1].strip().split(".")[0])
                 out["quality_rating"] = max(0, min(10, score))
                 _explicitly_set["quality_rating"] = True
-            except:
+            except Exception:
                 pass
 
         elif line.startswith("发力链:"):
             try:
                 out["发力链"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
                 _explicitly_set["发力链"] = True
-            except:
+            except Exception:
                 pass
         elif line.startswith("闪腕:"):
             try:
                 out["闪腕"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
                 _explicitly_set["闪腕"] = True
-            except:
+            except Exception:
                 pass
         elif line.startswith("步伐:"):
             try:
                 out["步伐"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
                 _explicitly_set["步伐"] = True
-            except:
+            except Exception:
                 pass
         elif line.startswith("拍面控制:"):
             try:
                 out["拍面控制"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
                 _explicitly_set["拍面控制"] = True
-            except:
+            except Exception:
                 pass
         elif line.startswith("整体协调:"):
             try:
                 out["整体协调"] = max(0, min(10, int(line.split(":")[1].strip().split(".")[0])))
                 _explicitly_set["整体协调"] = True
-            except:
+            except Exception:
                 pass
         elif line.startswith("主要问题:"):
             problems = line.split(":", 1)[1].strip()
@@ -422,6 +428,63 @@ def _error_result(image_path: str, err_msg: str) -> dict:
 # ============================================================
 # 旧接口（保留，调用方无需改动）
 # ============================================================
+def analyze_frame_quick(image_path: str) -> dict:
+    """
+    前置质检用：快速判断场地可见性和球员数量。
+    只做描述，不做动作分析，轻量级调用。
+    """
+    if not os.path.exists(image_path):
+        return {"court_visible": False, "player_count": 0, "error": "file not found"}
+
+    import base64
+    with open(image_path, "rb") as f:
+        img_b64 = base64.b64encode(f.read()).decode()
+
+    prompt = """描述这张图片：
+1. 是否能看到羽毛球场地线（边线/端线/中线）？回答"可见"或"不可见"。
+2. 图中有几个人？直接说数字。
+3. 简要说明场地情况（俯拍/侧拍/斜拍/看不清）。
+
+格式：
+场地：可见/不可见
+球员：N人
+角度：XXX"""
+
+    payload = {
+        "model": "Qwen/Qwen3-VL-32B-Instruct",
+        "messages": [{"role": "user", "content": [
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}},
+            {"type": "text", "text": prompt}
+        ]}],
+        "max_tokens": 100,
+        "temperature": 0.1,
+    }
+
+    try:
+        req = urllib.request.Request(
+            API_URL,
+            data=json.dumps(payload).encode(),
+            headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read())
+        text = result["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        return {"court_visible": False, "player_count": 0, "error": str(e)}
+
+    court_visible = "场地：可见" in text or "场地可见" in text
+    player_count = 0
+    for line in text.split("\n"):
+        if "球员：" in line or "球员：" in line:
+            import re
+            m = re.search(r"(\d+)人", line)
+            if m:
+                player_count = int(m.group(1))
+
+    return {"court_visible": court_visible, "player_count": player_count, "raw": text}
+
+
 def analyze_frame_image(image_path: str, player_hint: str = "", prev_frame_path: str = "") -> dict:
     """旧接口：先 Stage1 再 Stage2，等同于 batch_analyze_two_stage 的单帧版"""
     swinging, reason, raw = is_swinging(image_path)

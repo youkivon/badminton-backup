@@ -46,6 +46,9 @@ def create_player():
         "name": name,
         "created_at": datetime.now().strftime("%Y-%m-%d"),
         "last_analysis": "",
+        "play_style": body.get("play_style", ""),
+        "level": body.get("level", ""),
+        "wechat_id": body.get("wechat_id", ""),
         "profile": {
             "play_style": body.get("play_style", ""),
             "level": body.get("level", ""),
@@ -82,6 +85,21 @@ def delete_player(name):
         return jsonify({"error": "球员不存在"}), 404
     shutil.rmtree(pdb.get_player_dir(name))
     return "", 204
+
+
+@bp.route("/api/players/<name>", methods=["PATCH"])
+def update_player(name):
+    """更新球员基本信息（wechat_id / play_style / level）"""
+    if not _player_exists(name):
+        return jsonify({"error": "球员不存在"}), 404
+    body = request.get_json() or {}
+    profile = pdb.load_profile(name)
+    # 只允许更新这几个字段
+    for field in ("wechat_id", "play_style", "level"):
+        if field in body:
+            profile[field] = body[field]
+    pdb.save_profile(name, profile)
+    return jsonify(profile)
 
 
 @bp.route("/api/players/<name>/history", methods=["GET"])
@@ -122,10 +140,43 @@ def download_report(name, session_id):
     return jsonify({"error": "记录不存在"}), 404
 
 
+@bp.route("/api/players/<name>/badges", methods=["GET"])
+def list_badges(name):
+    """获取球员已解锁徽章列表及全部徽章状态"""
+    if not _player_exists(name):
+        return jsonify({"error": "球员不存在"}), 404
+    profile = pdb.load_profile(name)
+    from src.player_db import get_all_badges
+    badges = get_all_badges(profile)
+    return jsonify({"badges": badges, "earned": profile.get("badges", [])})
+
+
 @bp.route("/api/players/<name>/progress", methods=["GET"])
 def get_progress(name):
-    """进步曲线数据。"""
+    """进步曲线数据（含跨session error_history对比）"""
     if not _player_exists(name):
         return jsonify({"error": "球员不存在"}), 404
     progress = pdb.compute_progress(name)
     return jsonify(progress)
+
+
+@bp.route("/api/players/<name>/streak", methods=["GET"])
+def get_streak(name):
+    """获取球员连续打卡数据"""
+    if not _player_exists(name):
+        return jsonify({"error": "球员不存在"}), 404
+    streak = pdb.get_streak(name)
+    return jsonify(streak)
+
+
+@bp.route("/api/players/<name>/monthly_report/<int:year>/<int:month>", methods=["GET"])
+def get_monthly_report(name, year, month):
+    """获取指定月份的进步报告数据"""
+    if not _player_exists(name):
+        return jsonify({"error": "球员不存在"}), 404
+    if month < 1 or month > 12:
+        return jsonify({"error": "月份无效"}), 400
+    report = pdb.get_monthly_report(name, year, month)
+    if not report:
+        return jsonify({"error": "该月份无数据"}), 404
+    return jsonify(report)

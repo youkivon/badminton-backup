@@ -15,20 +15,14 @@
 try:
     from .court_calibration import (
         COURT_LENGTH,
-        COURT_WIDTH,
         NET_Y,
-        CourtZone,
         get_zone,
-        get_near_far_side,
     )
 except ImportError:
     from court_calibration import (
         COURT_LENGTH,
-        COURT_WIDTH,
         NET_Y,
-        CourtZone,
         get_zone,
-        get_near_far_side,
     )
 
 

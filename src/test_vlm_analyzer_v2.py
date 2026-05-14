@@ -3,7 +3,8 @@
 VLM V2 解析器健壮性测试
 覆盖：SKIP帧、低质量占位、异常格式、VLM超时、球坐标空值
 """
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from vlm_analyzer_v2 import _parse_stage2_result
@@ -71,7 +72,7 @@ def test_missing_ratings():
 # ─────────────────────────────────────────
 def test_ball_info_none():
     r = _parse_stage2_result(IMG, "动作类型: 杀球\n综合评分: 6", ball_info=None)
-    assert r["ball_detected"] == False
+    assert not r["ball_detected"]
     assert r["ball_cx"] is None
     assert r["ball_cy"] is None
     print("  ✅ Case5: ball_info=None → 空值保护不抛异常")
@@ -81,7 +82,7 @@ def test_ball_info_none():
 # ─────────────────────────────────────────
 def test_ball_info_partial():
     r = _parse_stage2_result(IMG, "动作类型: 杀球\n综合评分: 6", ball_info={"found": True})
-    assert r["ball_detected"] == True
+    assert r["ball_detected"]
     assert r["ball_cx"] is None  # 缺失字段
     assert r["ball_cy"] is None
     print("  ✅ Case6: ball_info 缺字段 → 用 {} .get() 不抛异常")

@@ -11,7 +11,10 @@
   from annotate_frames import annotate_session_frames
   annotate_session_frames(history_data, arc_dir, output_dir=None)
 """
-import os, json, sys, argparse
+import os
+import json
+import sys
+import argparse
 from PIL import Image, ImageDraw, ImageFont
 
 FONT_PATH = "/System/Library/Fonts/STHeiti Medium.ttc"
@@ -26,7 +29,7 @@ def annotate_frame(src_path, dst_path, label, score):
     font_size = max(14, int(H * 0.035))
     try:
         font = ImageFont.truetype(FONT_PATH, font_size)
-    except:
+    except Exception:
         font = ImageFont.load_default()
 
     tag = f"{label}  {score}/10"

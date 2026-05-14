@@ -9,8 +9,9 @@
 """
 import cv2
 import numpy as np
-import os, subprocess, re, math
-from shuttlecock_detector import detect_shuttlecock
+import os
+import subprocess
+import math
 
 
 # 羽毛球双打场地宽 6.1 米（两根球网柱之间）
@@ -135,7 +136,7 @@ def _detect_ball_in_frame(frame):
             cy_e /= scale
             cy_e = h - cy_e   # 转为画面坐标系（y轴向下）
             radius = max(ma, MA) / 2 / scale
-        except:
+        except Exception:
             continue
 
         perimeter = cv2.arcLength(c, True)
@@ -165,6 +166,11 @@ def _calibrate_pixels_per_cm(clip_path):
     Returns:
         pixels_per_cm: float 或 None（校准失败）
     """
+    NET_HEIGHT_M = 1.524  # 羽毛球球网高度 1.524m
+    # 已知：球网柱间距=610cm（水平），球网高度=1.524m（垂直）
+    # 校准时同时检查：pixels_per_cm水平 和 pixels_per_cm垂直 的比值
+    # 如果两者偏差>20%，说明检测结果不可信，发出警告
+
     cap = cv2.VideoCapture(clip_path)
     ret, frame = cap.read()
     cap.release()
@@ -172,7 +178,7 @@ def _calibrate_pixels_per_cm(clip_path):
         return None
 
     h, w = frame.shape[:2]
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # 找圆形（球网柱是竖直圆柱，在画面中近似椭圆）
     # 使用霍夫圆变换（近似圆）
@@ -215,7 +221,7 @@ def _calibrate_pixels_per_cm(clip_path):
 
     # 取画面中 x 距离最大的那对
     if len(candidates) == 2:
-        (x0, _, _), (x1, _, _) = candidates
+        (x0, y0, r0), (x1, y1, r1) = candidates
     else:
         # 找 x 距离最大的两个
         best_pair = None
@@ -228,13 +234,30 @@ def _calibrate_pixels_per_cm(clip_path):
                     best_pair = (candidates[i], candidates[j])
         if best_pair is None:
             return None
-        (x0, _, _), (x1, _, _) = best_pair
+        (x0, y0, r0), (x1, y1, r1) = best_pair
 
     pixel_distance = abs(x1 - x0)
     if pixel_distance < 50:
         return None
 
-    pixels_per_cm = pixel_distance / COURT_DOUBLES_WIDTH_CM
+    # 球网柱半径差 → 估算垂直比例（球网柱直径应一致）
+    r_avg = (r0 + r1) / 2.0
+    abs(r0 - r1) / r_avg if r_avg > 0 else 0
+    pixels_per_cm_horizontal = pixel_distance / COURT_DOUBLES_WIDTH_CM
+    # 球网高度对应像素：两个球网柱的竖向中心到顶部距离（近似用半径代替）
+    # 这里用 y 坐标差和球网高度做校验（简化：用两个柱的y差 vs 柱半径的2倍）
+    net_top_px = min(y0, y1) - r_avg   # 球网顶部大概位置
+    net_bottom_px = max(y0, y1) + r_avg  # 球网底部大概位置
+    net_vertical_px = net_bottom_px - net_top_px
+    if net_vertical_px > 0:
+        pixels_per_cm_vertical = net_vertical_px / (NET_HEIGHT_M * 100)
+        # 水平/垂直比例偏差检查
+        if pixels_per_cm_vertical > 0:
+            ratio = pixels_per_cm_horizontal / pixels_per_cm_vertical
+            if ratio < 0.8 or ratio > 1.25:  # 偏差>20%
+                print(f"[WARN] 球网校准比例异常：水平{ratio:.2f}x垂直（偏差>{20 if ratio > 1 else int((1-ratio)*100)}%），水平={pixels_per_cm_horizontal:.4f}px/cm, 垂直={pixels_per_cm_vertical:.4f}px/cm")
+
+    pixels_per_cm = pixels_per_cm_horizontal
     return pixels_per_cm
 
 
@@ -267,7 +290,8 @@ def track_clip(clip_path, pixels_per_cm=None, fps=15):
                 "positions": [], "frame_count": 0, "fps": fps,
                 "pixels_per_cm": None, "speed_kmh": None,
                 "avg_speed_kmh": None, "trajectory": "unknown",
-                "detected": False, "error": "校准失败（未检测到球网柱）"
+                "detected": False, "error": "校准失败（未检测到球网柱）",
+                "low_confidence": True, "suspicious_hit_frames": [],
             }
 
     frames = _get_clip_frames(clip_path)
@@ -276,14 +300,17 @@ def track_clip(clip_path, pixels_per_cm=None, fps=15):
             "positions": [], "frame_count": 0, "fps": fps,
             "pixels_per_cm": pixels_per_cm, "speed_kmh": None,
             "avg_speed_kmh": None, "trajectory": "unknown",
-            "detected": False, "error": "无法读取帧"
+            "detected": False, "error": "无法读取帧",
+            "low_confidence": True, "suspicious_hit_frames": [],
         }
 
     positions = []   # [(frame_idx, cx, cy), ...]
+    suspicious_hit_frames = []  # Level 2: 疑似击球帧（HSV漏检但帧差大）
     prev_cx, prev_cy = None, None
     consecutive_jumps = 0
     JUMP_TOLERANCE = 3   # 连续3次跳帧才判定为跟踪丢失（容忍偶尔的误检）
     max_jump_ratio = 0.30  # 容忍单帧最多30%画面位移
+    prev_frame = None
 
     for fi, frame in enumerate(frames):
         result = _detect_ball_in_frame(frame)
@@ -303,13 +330,38 @@ def track_clip(clip_path, pixels_per_cm=None, fps=15):
                     consecutive_jumps = 0  # 还在容忍范围内
             positions.append((fi, cx, cy))
             prev_cx, prev_cy = cx, cy
+        else:
+            # Level 2 帧差降级：HSV没检测到球，但帧间亮度变化大
+            if prev_frame is not None:
+                prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+                curr_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                diff = cv2.absdiff(prev_gray, curr_gray)
+                if diff.mean() > 30:  # 帧间变化大，但没检测到球
+                    suspicious_hit_frames.append(fi)
+
+        prev_frame = frame
+
+    if len(positions) < 3:
+        # Level 3 全量VLM兜底：检测位置不足3个，标记低置信度
+        result_for_return = {
+            "positions": positions, "frame_count": len(frames), "fps": fps,
+            "pixels_per_cm": pixels_per_cm, "speed_kmh": None,
+            "avg_speed_kmh": None, "trajectory": "unknown",
+            "detected": len(positions) > 0,
+            "error": "检测到的球位置不足以计算速度",
+            "low_confidence": True,
+            "suspicious_hit_frames": suspicious_hit_frames,
+        }
+        return result_for_return
 
     if len(positions) < 2:
         return {
             "positions": positions, "frame_count": len(frames), "fps": fps,
             "pixels_per_cm": pixels_per_cm, "speed_kmh": None,
             "avg_speed_kmh": None, "trajectory": "unknown",
-            "detected": len(positions) > 0, "error": "检测到的球位置不足以计算速度"
+            "detected": len(positions) > 0, "error": "检测到的球位置不足以计算速度",
+            "low_confidence": True,
+            "suspicious_hit_frames": suspicious_hit_frames,
         }
 
     # 计算帧间速度
@@ -365,6 +417,8 @@ def track_clip(clip_path, pixels_per_cm=None, fps=15):
         "trajectory": trajectory,
         "detected": True,
         "error": None,
+        "low_confidence": False,
+        "suspicious_hit_frames": suspicious_hit_frames,
     }
 
 

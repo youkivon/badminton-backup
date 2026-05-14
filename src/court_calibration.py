@@ -178,13 +178,6 @@ def court_to_pixel(court_point: tuple, M: np.ndarray) -> tuple:
     return (round(float(x), 1), round(float(y), 1))
 
 
-class CourtZone:
-    """场地区域常量（用于类型标注）"""
-    NET = "net"
-    MID = "mid"
-    BACK = "back"
-
-
 NET_Y = 670  # 球网 Y 坐标（场地坐标系）
 
 

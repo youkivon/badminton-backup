@@ -32,6 +32,10 @@ def analyze(name):
     if report_type not in ("tactical", "technical", "full"):
         return jsonify({"error": "report_type 必须是 tactical / technical / full"}), 400
 
+    customer_side = request.form.get("customer_side", "")  # near / far
+    if customer_side and customer_side not in ("near", "far"):
+        return jsonify({"error": "customer_side 必须是 near / far"}), 400
+
     # 保存临时视频文件
     job_id = submit_job.__code__.co_freevars and video.filename or "_"
     import uuid
@@ -50,7 +54,7 @@ def analyze(name):
 
     # 提交任务
     from src.api.services.analysis_runner import submit_job as _submit
-    actual_job_id = _submit(name, video_path, report_type)
+    actual_job_id = _submit(name, video_path, report_type, customer_side)
 
     return jsonify({
         "job_id": actual_job_id,

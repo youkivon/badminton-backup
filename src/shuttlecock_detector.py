@@ -92,7 +92,7 @@ def detect_shuttlecock(img_or_path, court_corners=None):
                 cx_e /= scale
                 cy_e /= scale
                 radius = max(ma, MA) / 2 / scale
-            except:
+            except Exception:
                 continue
         else:
             continue
@@ -127,7 +127,7 @@ def detect_shuttlecock(img_or_path, court_corners=None):
             if len(corners) == 4:
                 # 用透视变换判断球在近端还是远端
                 # 计算球相对于球网（上下边线中点连线）的位置
-                cx, cy = best_cx, best_cy
+                _cx, cy = best_cx, best_cy
                 # 网中心 y 坐标约为 (br_y + tr_y) / 2
                 net_y = (corners[2][1] + corners[3][1] + corners[0][1] + corners[1][1]) / 4
                 court_side = "near" if cy < net_y else "far"
@@ -142,10 +142,10 @@ def detect_shuttlecock(img_or_path, court_corners=None):
                     court_zone = "middle"
                 else:
                     court_zone = "back"
-        except:
+        except Exception:
             pass
 
-    # ── 标注球位置 ─────────────────────────────
+    found = best_score
     if found:
         # 放大半径（因为缩小了图像）
         r_ann = max(best_radius + 3, 6)
@@ -199,7 +199,7 @@ def annotate_frame_with_ball(frame_path, court_corners=None, output_path=None):
     result = detect_shuttlecock(frame_path, court_corners=court_corners)
     if result["frame_annotated"] is not None:
         if output_path is None:
-            import os, hashlib
+            import os
             dir_name = os.path.dirname(frame_path)
             base = os.path.splitext(os.path.basename(frame_path))[0]
             output_path = os.path.join(dir_name, base + "_ball.jpg")

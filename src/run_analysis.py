@@ -9,7 +9,13 @@
   python run_analysis.py ~/Desktop/VID_xxx.mp4
   python run_analysis.py ~/Desktop/VID_xxx.mp4 --player 张三
 """
-import os, sys, json, re, argparse, hashlib, importlib
+import os
+import sys
+import json
+import re
+import argparse
+import hashlib
+import importlib
 
 # 动态导入本地模块
 sys.path.insert(0, os.path.dirname(__file__))
@@ -26,6 +32,16 @@ parser.add_argument("--session_only", action="store_true",
                     help="仅保存记录，不生成PDF")
 parser.add_argument("--skip_analysis", action="store_true",
                     help="跳过VLM分析，直接用已有缓存生成报告")
+parser.add_argument("--target-side", choices=["near", "far"], default="",
+                    help="目标球员所在侧：near=近端(发球侧)，far=远端(对侧)")
+parser.add_argument("--target-player", default="",
+                    help="目标球员身份标签（如：近端球员/远端球员），用于报告层过滤")
+parser.add_argument("--customer-side", choices=["near", "far"], default="",
+                    help="客户所在侧：near=近端球员，far=远端球员。设置后该侧显示客户姓名，另一侧显示'对方球员'")
+parser.add_argument("--no-preflight", action="store_true",
+                    help="跳过前置质检，直接开始分析")
+parser.add_argument("--skip-confirm", action="store_true",
+                    help="质检通过后不等待确认，直接继续（自动化用）")
 
 
 def _video_key(path):
@@ -47,8 +63,120 @@ def get_video_duration(path):
         mins = int(secs // 60)
         s = int(secs % 60)
         return f"{mins}分{s}秒"
-    except:
+    except Exception:
         return "未知"
+
+
+# ── 前置质检 ─────────────────────────────────────────────
+def preflight_check(video_path, frames_dir, skip_confirm=False):
+    """
+    视频接单前质检，返回 (ok, report_dict)。
+    不 ok → 打印原因，直接退出。
+    ok → 打印摘要，继续。
+    """
+    import subprocess
+
+    print("\n[PreFlight] 视频质检中...")
+
+    # 1. 时长检查
+    cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration,size",
+           "-of", "default=noprint_wrappers=1:nokey=1", video_path]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+    try:
+        lines = r.stdout.strip().split("\n")
+        duration = None
+        for line in lines:
+            if "duration=" in line:
+                duration = float(line.split("=")[1])
+            elif "size=" in line:
+                int(line.split("=")[1])
+        dur_min = duration / 60 if duration else None
+    except Exception:
+        dur_min = None
+
+    issues = []
+    warnings = []
+
+    if dur_min and (dur_min < 0.5 or dur_min > 15):
+        issues.append(f"视频时长 {dur_min:.1f}分钟，理想范围 0.5~15分钟")
+
+    # 2. 分辨率检查
+    cmd2 = ["ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=width,height",
+            "-of", "csv=p=0", video_path]
+    r2 = subprocess.run(cmd2, capture_output=True, text=True, timeout=10)
+    try:
+        w, h = [int(x) for x in r2.stdout.strip().split(",")]
+        if h < 480:
+            issues.append(f"视频分辨率 {w}x{h} 过低（最低要求480p）")
+        elif h < 720:
+            warnings.append(f"视频分辨率 {w}x{h}，低于720p，分析质量可能受限")
+    except Exception:
+        pass
+
+    # 3. 抽3个样本帧，用VLM判断场地和球员
+    os.makedirs(frames_dir, exist_ok=True)
+    sample_dir = f"{frames_dir}_preflight"
+    os.makedirs(sample_dir, exist_ok=True)
+    cmd3 = ["ffmpeg", "-i", video_path, "-vf", "fps=0.5,scale=640:-1",
+            "-q:v", "3", f"{sample_dir}/p_%03d.jpg", "-y"]
+    subprocess.run(cmd3, capture_output=True, timeout=60)
+    samples = sorted([f for f in os.listdir(sample_dir) if f.endswith(".jpg")])
+    if len(samples) < 3:
+        samples = sorted([f for f in os.listdir(sample_dir) if f.endswith(".jpg")])
+
+    # 取头3帧
+    samples = samples[:3]
+
+    if not samples:
+        issues.append("无法提取样本帧检查场地，请确认视频可正常播放")
+    else:
+        # 用VLM快速判断
+        try:
+            from vlm_analyzer import VLMAnalyzer
+            analyzer = VLMAnalyzer()
+            court_ok = 0
+            player_count = 0
+            for sf in samples:
+                frame_path = os.path.join(sample_dir, sf)
+                result = analyzer.analyze_frame_quick(frame_path)
+                if result.get("court_visible", False):
+                    court_ok += 1
+                cnt = result.get("player_count", 0)
+                if cnt > player_count:
+                    player_count = cnt
+            if court_ok == 0:
+                issues.append("场地线不可见，可能不是羽毛球视频或拍摄角度不标准")
+            elif court_ok < len(samples):
+                warnings.append(f"仅 {court_ok}/{len(samples)} 帧场地清晰，建议检查拍摄角度")
+            if player_count < 2:
+                warnings.append(f"仅检测到 {player_count} 名球员，请确认是否双人比赛")
+        except Exception as e:
+            warnings.append(f"VLM场地检查失败: {e}，继续分析")
+
+    # 打印报告
+    print("\n[PreFlight] 质检结果")
+    print(f"{'='*44}")
+    if warnings:
+        for w in warnings:
+            print(f"  ⚠ {w}")
+    if issues:
+        for i in issues:
+            print(f"  ✗ {i}")
+        print("  → 不建议继续分析，修复视频后重试")
+        print(f"{'='*44}")
+        return False, {"issues": issues, "warnings": warnings, "court_ok": 0}
+    else:
+        print("  ✓ 视频通过质检")
+        print("  → 可继续分析（建议使用 --target-side 指定分析侧）")
+        print(f"{'='*44}")
+        if not skip_confirm:
+            print("  继续分析请按 Enter，Ctrl+C 退出...")
+            try:
+                input()
+            except EOFError:
+                pass
+        return True, {"warnings": warnings, "court_ok": court_ok or len(samples)}
 
 
 def detect_shuttlecock(image_path):
@@ -67,30 +195,34 @@ def detect_shuttlecock(image_path):
         img = cv2.resize(img, (320, int(h * 320 / w)))
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
-        # 白色球头检测：面积 200-1500，弧长比>10（更接近圆）
-        lower_white = np.array([0, 0, 200])
-        upper_white = np.array([180, 30, 255])
+        # 白色球头检测：面积 80-3000（原 200-1500 太严格），弧长比>0.4（原 0.5 过严）
+        lower_white = np.array([0, 0, 160])
+        upper_white = np.array([40, 50, 255])
         mask_white = cv2.inRange(hsv, lower_white, upper_white)
         cnts_w = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         for c in cnts_w:
             area = cv2.contourArea(c)
-            if 200 < area < 1500:
-                approx = cv2.approxPolyDP(c, 0.05 * cv2.arcLength(c, True), True)
-                # 羽毛球球头近似圆（6-12边），弧长比>10（更严格）
-                if 6 <= len(approx) <= 12 and area / (cv2.arcLength(c, True) ** 2 / (4 * np.pi)) > 0.5:
-                    return True
+            if 80 < area < 3000:
+                perimeter = cv2.arcLength(c, True)
+                if perimeter > 0:
+                    circularity = 4 * np.pi * area / (perimeter ** 2)
+                    if circularity > 0.3:
+                        return True
         
-        # 橙色球裙检测：面积 300-3000，多边形 7-16边
-        lower_orange = np.array([0, 60, 120])
-        upper_orange = np.array([25, 255, 255])
+        # 橙色/黄色球裙检测：扩大范围（白色球头颜色多变，扩大白区覆盖）
+        # 球裙：橙色到黄色，亮度中等，面积 100-6000（原 300-3000 过严）
+        lower_orange = np.array([0, 40, 80])
+        upper_orange = np.array([40, 255, 255])
         mask_orange = cv2.inRange(hsv, lower_orange, upper_orange)
         cnts_o = cv2.findContours(mask_orange, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         for c in cnts_o:
             area = cv2.contourArea(c)
-            if 300 < area < 3000:
-                approx = cv2.approxPolyDP(c, 0.05 * cv2.arcLength(c, True), True)
-                if 7 <= len(approx) <= 16:
-                    return True
+            if 100 < area < 6000:
+                perimeter = cv2.arcLength(c, True)
+                if perimeter > 0:
+                    circularity = 4 * np.pi * area / (perimeter ** 2)
+                    if circularity > 0.25:
+                        return True
         return False
     except Exception:
         return False
@@ -108,7 +240,7 @@ def extract_smart_frames(video_path, frames_dir, min_gap_sec=1):
     os.makedirs(frames_dir, exist_ok=True)
     import subprocess
 
-    print(f"[Step 1] 智能抽帧（2fps 高频采样）...")
+    print("[Step 1] 智能抽帧（2fps 高频采样）...")
     import hashlib
     st = os.stat(video_path)
     sig = f"{os.path.basename(video_path)}|{st.st_size}|{int(st.st_mtime)}"
@@ -124,7 +256,7 @@ def extract_smart_frames(video_path, frames_dir, min_gap_sec=1):
         print(f"  [!] ffmpeg警告: {r.stderr[:200]}")
     all_frames = sorted([f for f in os.listdir(tmp_all) if f.endswith('.jpg')])
     if not all_frames:
-        print(f"  [!] 抽帧失败，改用备用方法")
+        print("  [!] 抽帧失败，改用备用方法")
         subprocess.run(['ffmpeg', '-i', video_path, '-vf', 'fps=1', '-q:v', '2',
                        f'{frames_dir}/f_%04d.jpg', '-y'],
                       capture_output=True, timeout=300)
@@ -236,8 +368,9 @@ def _run_ball_tracking(shots, video_path, frames_dir, video_key):
     print(f"[Ball Tracking] 完成: 追踪到球 {tracked} / {tracked+no_ball}，失败 {err_count}")
 
 
-def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_frames, video_key):
-    """加载已有分析数据，或重新分析"""
+def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_frames, video_key,
+                          player_name="", customer_side=""):
+    """加载已有分析数据，或重新分析。player_name/customer_side 用于客户身份映射。"""
     if skip_analysis:
         if not os.path.exists(analysis_cache):
             print(f"[错误] --skip_analysis 但缓存不存在: {analysis_cache}")
@@ -246,19 +379,32 @@ def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_fra
         print(f"[Step 2] 加载已有分析数据: {analysis_cache}")
         with open(analysis_cache, encoding="utf-8") as f:
             data = json.load(f)
-        return data.get("shots", [])
+        shots = data.get("shots", [])
+        for s in shots:
+            if not s.get("frame_file"):
+                frames = s.get("frames", [])
+                if frames:
+                    s["frame_file"] = frames[0]
+        return shots
 
     if os.path.exists(analysis_cache):
         print(f"[Step 2] 加载已有分析数据: {analysis_cache}")
         with open(analysis_cache, encoding="utf-8") as f:
             data = json.load(f)
-        return data.get("shots", [])
+        shots = data.get("shots", [])
+        # 补充 frame_file 字段（缓存中 shots 可能只有 frames 而无 frame_file）
+        for s in shots:
+            if not s.get("frame_file"):
+                frames = s.get("frames", [])
+                if frames:
+                    s["frame_file"] = frames[0]
+        return shots
 
     try:
         vlm_v2 = importlib.import_module("vlm_analyzer_v2")
         importlib.reload(vlm_v2)
         use_v2 = True
-        print(f"[Step 2] 使用 VLM V2 模块（OpenCV球检测 + 双阶段分析）")
+        print("[Step 2] 使用 VLM V2 模块（OpenCV球检测 + 双阶段分析）")
     except Exception as e:
         print(f"[Step 2] V2加载失败 ({e})，降级到V1")
         try:
@@ -304,11 +450,12 @@ def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_fra
             if fname not in seen:
                 seen.add(fname)
                 side = r.get("hitter_side", "Unknown")
-                player = f"{'近端' if side == 'Near' else '远端' if side == 'Far' else ''}球员" if side != "Unknown" else ""
+                spatial = f"{'近端' if side == 'Near' else '远端' if side == 'Far' else ''}球员" if side != "Unknown" else ""
                 shots.append({
                     "time": r.get("time", ""),
                     "action_type": r.get("action_type", ""),
-                    "player": player,
+                    "player": spatial,   # 暂存空间标签（近端球员/远端球员）
+                    "_spatial": spatial,  # 保留原始空间标签（后面重命名会用到）
                     "quality_rating": r.get("quality_rating", 5),
                     "发力链": r.get("发力链", 0),
                     "闪腕": r.get("闪腕", 0),
@@ -325,6 +472,25 @@ def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_fra
     else:
         shots = vlm_v1.analyze_shots(valid_shots).get("shots", [])
 
+    # Layer 1过滤：按目标球员侧过滤（near=近端球员，far=远端球员）
+    if TARGET_SIDE == "near":
+        shots = [s for s in shots if s.get("player") == "近端球员"]
+        print(f"  → 过滤近端球员shots: {len(shots)} 个")
+    elif TARGET_SIDE == "far":
+        shots = [s for s in shots if s.get("player") == "远端球员"]
+        print(f"  → 过滤远端球员shots: {len(shots)} 个")
+
+    # Layer 2：客户身份确认 → 替换球员名称
+    if customer_side:
+        customer_label = "近端球员" if customer_side == "near" else "远端球员"
+        _player_name = player_name or "未知球员"
+        for s in shots:
+            if s.get("player") == customer_label:
+                s["player"] = _player_name if _player_name != "未知球员" else customer_label
+            else:
+                s["player"] = "对方球员"
+        print(f"  → 客户身份映射: {customer_label} → {_player_name}, 对方 → 对方球员")
+
     cache_data = {
         "shots": shots,
         "frames_results": results,
@@ -340,12 +506,13 @@ def load_or_run_analysis(frames_dir, skip_analysis, analysis_cache, existing_fra
 # ── Step 5 辅助函数 ──────────────────────────────────
 def send_wechat_report(pdf_path: str, player_name: str, shots_count: int,
                        avg_quality: float, db):
-    import json, asyncio
+    import json
+    import asyncio
     from pathlib import Path
 
     bot_path = Path.home() / ".hermes/weixin/accounts/7d5bce280339@im.bot.json"
     if not bot_path.exists():
-        print(f"[Step 5] 微信推送跳过: 未找到 bot 配置")
+        print("[Step 5] 微信推送跳过: 未找到 bot 配置")
         return
 
     with open(bot_path) as f:
@@ -361,7 +528,7 @@ def send_wechat_report(pdf_path: str, player_name: str, shots_count: int,
     target_label = "客户" if customer_wxid else "我们"
 
     if not customer_wxid and player_name and player_name != "未知球员":
-        print(f"[Step 5] 微信推送: 客户微信未登记，已推送给我们自己（方便转发）")
+        print("[Step 5] 微信推送: 客户微信未登记，已推送给我们自己（方便转发）")
 
     msg = (f"📋 技术分析报告\n"
            f"球员: {player_name}\n"
@@ -387,7 +554,7 @@ def send_wechat_report(pdf_path: str, player_name: str, shots_count: int,
     try:
         result = asyncio.run(_do_send())
         if result.get("success"):
-            print(f"  → 推送成功")
+            print("  → 推送成功")
         else:
             print(f"  → 推送失败: {result}")
     except Exception as e:
@@ -412,6 +579,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     PLAYER_NAME = args.player.strip() or "未知球员"
+    TARGET_SIDE = args.target_side  # "near" | "far" | ""
+    TARGET_PLAYER = args.target_player  # "近端球员" | "远端球员" | ""
+    CUSTOMER_SIDE = args.customer_side  # "near" | "far" | ""（客户确认侧）
     OUTPUT_DIR = os.path.expanduser(args.output_dir)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -436,7 +606,7 @@ if __name__ == "__main__":
     ANALYSIS_CACHE = os.path.join(CACHE_DIR, f"{VIDEO_KEY}.json")
 
     print(f"\n{'='*50}")
-    print(f"  羽毛球视频分析 - 开始")
+    print("  羽毛球视频分析 - 开始")
     print(f"{'='*50}")
     print(f"  视频: {os.path.basename(VIDEO_PATH)}")
     print(f"  球员: {PLAYER_NAME}")
@@ -444,6 +614,16 @@ if __name__ == "__main__":
     print(f"  帧图: {SESSION_FRAMES_DIR}")
     print(f"  缓存: {ANALYSIS_CACHE}")
     print()
+
+    # ── 前置质检（接单前检查）────────────────────────────────
+    if not args.no_preflight:
+        pf_ok, pf_result = preflight_check(
+            VIDEO_PATH, SESSION_FRAMES_DIR,
+            skip_confirm=args.skip_confirm
+        )
+        if not pf_ok:
+            print("[退出] 视频未通过质检，请检查视频后重试")
+            sys.exit(1)
 
     # ── 磁盘空间检查（部署防护）────────────────────────────────
     try:
@@ -476,7 +656,8 @@ if __name__ == "__main__":
 
     # ── Step 2: VLM 动作分析 ─────────────────────────
     shots = load_or_run_analysis(
-        SESSION_FRAMES_DIR, args.skip_analysis, ANALYSIS_CACHE, existing_frames, VIDEO_KEY
+        SESSION_FRAMES_DIR, args.skip_analysis, ANALYSIS_CACHE, existing_frames, VIDEO_KEY,
+        PLAYER_NAME, CUSTOMER_SIDE
     )
 
     # 过滤脏数据：无法判断/无质量帧不进报告
@@ -551,175 +732,257 @@ if __name__ == "__main__":
             "unique_errors": len(err_counter),
         }
 
-        # 生成标注图（ann_ 前缀），供报告渲染帧图
-        if arc_dir:
-            try:
-                import annotate_frames as af
-                ann_count = af.annotate_session_frames(session_data, arc_dir)
-                print(f"  → 标注图已生成: {ann_count} 张")
-            except Exception as e:
-                print(f"  [警告] 标注图生成失败: {e}")
-
         profile = db.add_session(PLAYER_NAME, session_data)
         print(f"  → 档案已保存（累计 {profile['total_sessions']} 次分析）")
     else:
         print("[Step 3] 未指定球员，跳过档案保存")
         profile = None
 
-    # ── Step 4: 生成 PDF 报告 ─────────────────────────
-    if args.session_only:
-        print("\n[完成] 仅保存记录，跳过PDF生成")
-        print(f"  球员: {PLAYER_NAME}")
-        print(f"  帧数: {len(shots)}")
-        print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
-        sys.exit(0)
+    # ── 生成标注图（ann_ 前缀），写入 SESSION_FRAMES_DIR（球员分支内外通用）──
+    if SESSION_FRAMES_DIR and os.path.isdir(SESSION_FRAMES_DIR):
+        try:
+            import annotate_frames as af
+            # 构造临时 session_data 用于标注（只含 shots 和 frames_dir）
+            ann_session_data = {
+                "shots": shots,
+                "frames_dir": SESSION_FRAMES_DIR,
+            }
+            ann_count = af.annotate_session_frames(ann_session_data, SESSION_FRAMES_DIR)
+            print(f"  → 标注图已生成: {ann_count} 张")
+        except Exception as e:
+            print(f"  [警告] 标注图生成失败: {e}")
 
-    print(f"[Step 4] 生成PDF报告...")
+# ── Step 3.5: 视频级技术问题聚合 ─────────────────────────────────
+def aggregate_technical_patterns(shots):
+    """
+    跨帧聚合 E-codes，输出视频级技术诊断汇总：
+    - Top 5-8 E-code 频率统计（含代表性帧）
+    - 区域分布：前场/中场/后场 各区域的错误类型
+    返回 dict 包含 summary 数据（供 report_generator 使用）
+    """
+    from collections import Counter, defaultdict
 
-    try:
-        rpt = importlib.import_module("report_generator")
-        importlib.reload(rpt)
-    except Exception as e:
-        print(f"[错误] report_generator模块加载失败: {e}")
-        sys.exit(1)
-
-    from collections import Counter
-    err_cnt = Counter()
-    for s in shots:
-        for e in s.get("errors", []):
-            k = e.strip()
-            if len(k) > 2:
-                err_cnt[k] += 1
-
-    report_data = {
-        "video": os.path.basename(VIDEO_PATH),
-        "duration": duration,
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "player_colors": ["近端白", "近端蓝", "远端白", "远端蓝"],
-        "player_name": PLAYER_NAME if PLAYER_NAME != "未知球员" else "",
-        "shots": shots,
-        "frames_dir": arc_dir or SESSION_FRAMES_DIR,
+    E_CODE_NAMES = {
+        "E1": "发力链断裂", "E2": "手腕僵硬", "E3": "架肘",
+        "E4": "侧身不足", "E5": "闪腕不充分", "E6": "拍面角度错误",
+        "E7": "步伐跟不上", "E8": "击球点偏低/偏前", "E9": "随挥不完整",
+        "E10": "重心不稳",
     }
 
-    if db and profile and profile.get("total_sessions", 0) > 0:
-        try:
-            prog = db.compute_progress(PLAYER_NAME)
-            session = profile["sessions"][-1] if profile["sessions"] else {}
-            report_data["session"] = session
-            report_data["sessions"] = profile.get("sessions", [])
-            report_data["progress"] = prog
-            report_data["badges"] = profile.get("badges", [])
-            report_data["new_badges"] = session.get("new_badges", [])
-            report_data["all_badges"] = db.get_all_badges(profile)
-        except:
-            pass
+    e_counter = Counter()
+    e_representative = {}   # E-code → (frame_file, time, action_type)
+    zone_e_counter = defaultdict(Counter)  # zone → {E-code: count}
 
-    # ── 质量控制校验（写入 audit 日志） ───────────────────
-    def _write_audit(shots, report_data, arc_dir):
-        import glob, json
-        PLAYER = report_data.get("player_name", "unknown")
-        audit_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                  "players", PLAYER, "audit")
-        os.makedirs(audit_dir, exist_ok=True)
-        ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        checks = []
+    for shot in shots:
+        errors = shot.get("errors", [])
+        frame_file = shot.get("frame_file", shot.get("frames", [None])[0])
+        time_str = shot.get("time", "")
+        action_type = shot.get("action_type", "")
+        # 根据球员位置或球区域判断区域
+        shot.get("player", "")
+        zone = "中场"  # 默认
+        if "网前" in action_type or "放网" in action_type or "搓球" in action_type:
+            zone = "前场"
+        elif "高远球" in action_type or "杀球" in action_type or "吊球" in action_type:
+            zone = "后场"
 
-        # C1: 未知/疑似 action_type
-        unknown = [s for s in shots if any(k in s.get("action_type","") for k in ["未知","疑似","？？","**"])]
-        checks.append({"item":"C1-未知action_type","passed":len(unknown)==0,
-                       "detail":f"{len(unknown)}帧含未知标记","severity":"error" if unknown else "ok"})
+        for err in errors:
+            # 提取 E-code
+            m = re.match(r'(E\d+)', err.upper())
+            if m:
+                code = m.group(1)
+                e_counter[code] += 1
+                # 保留第一个出现的作为代表性帧
+                if code not in e_representative:
+                    e_representative[code] = (frame_file, time_str, action_type)
+                zone_e_counter[zone][code] += 1
 
-        # C2: 过渡帧清理
-        transitions = [s for s in shots if any(k in s.get("action_type","") for k in ["准备","站位","过渡","等待","捡球","死球"])]
-        checks.append({"item":"C2-过渡帧","passed":len(transitions)==0,
-                       "detail":f"{len(transitions)}帧过渡动作已清空","severity":"warning" if transitions else "ok"})
+    top_errors = e_counter.most_common(8)
 
-        # C3: 评分与动作类型矛盾
-        conflict = [s for s in shots if s.get("quality_rating",0)>=7 and any(k in s.get("action_type","") for k in ["站位","过渡","准备"])]
-        checks.append({"item":"C3-评分动作矛盾","passed":len(conflict)==0,
-                       "detail":f"{len(conflict)}帧存在矛盾","severity":"error" if conflict else "ok"})
+    # 构造汇总数据
+    summary = {
+        "top_errors": [
+            {
+                "code": code,
+                "name": E_CODE_NAMES.get(code, code),
+                "count": cnt,
+                "frame_file": e_representative.get(code, ("", "", ""))[0],
+                "time": e_representative.get(code, ("", "", ""))[1],
+                "action_type": e_representative.get(code, ("", "", ""))[2],
+            }
+            for code, cnt in top_errors
+        ],
+        "zone_breakdown": {
+            zone: [{"code": e, "name": E_CODE_NAMES.get(e, e), "count": c}
+                   for e, c in counter.most_common(5)]
+            for zone, counter in zone_e_counter.items()
+        },
+        "total_frames": len(shots),
+    }
+    return summary
 
-        # C4: VLM版本（检查模块）
-        import importlib.util
-        v2_spec = importlib.util.find_spec("vlm_analyzer_v2")
-        checks.append({"item":"C4-VLM版本","passed":v2_spec is not None,
-                       "detail":"V2已启用" if v2_spec else "V2未找到","severity":"ok"})
 
-        # C5: 字体文件
-        font_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "stheiti.ttf")
-        checks.append({"item":"C5-字体预提取","passed":os.path.exists(font_path),
-                       "detail":f"stheiti.ttf {'存在' if os.path.exists(font_path) else '缺失'}",
-                       "severity":"error" if not os.path.exists(font_path) else "ok"})
+# ── Step 4: 生成 PDF 报告 ────────────────────────────────────────
+if args.session_only:
+    print("\n[完成] 仅保存记录，跳过PDF生成")
+    print(f"  球员: {PLAYER_NAME}")
+    print(f"  帧数: {len(shots)}")
+    print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
+    sys.exit(0)
 
-        # C6: 非击球帧不进入报告
-        non_shots = [s for s in shots if any(k in s.get("action_type","") for k in ["站位","过渡","准备","未知"])]
-        checks.append({"item":"C6-战术技术分离","passed":len(non_shots)==0,
-                       "detail":f"{len(non_shots)}帧非击球帧","severity":"warning" if non_shots else "ok"})
+print("[Step 4] 生成PDF报告...")
 
-        # C7: 极值评分复核
-        low_high = [s for s in shots if s.get("quality_rating",0)<=2 or s.get("quality_rating",0)>=9]
-        checks.append({"item":"C7-极值评分复核","passed":len(low_high)==0,
-                       "detail":f"{len(low_high)}帧极值评分需复核" if low_high else "无极值帧",
-                       "severity":"warning" if low_high else "ok"})
+try:
+    rpt = importlib.import_module("report_generator")
+    importlib.reload(rpt)
+except Exception as e:
+    print(f"[错误] report_generator模块加载失败: {e}")
+    sys.exit(1)
 
-        # C8: 归档帧图
-        arc_imgs = glob.glob(f"{arc_dir}/ann_f_*.jpg") if arc_dir else []
-        checks.append({"item":"C8-归档帧图","passed":len(arc_imgs)>0,
-                       "detail":f"{len(arc_imgs)}张标注帧已归档",
-                       "severity":"error" if not arc_imgs else "ok"})
+from collections import Counter  # noqa: E402
+err_cnt = Counter()
+for s in shots:
+    for e in s.get("errors", []):
+        k = e.strip()
+        if len(k) > 2:
+            err_cnt[k] += 1
 
-        # C9: audit日志已写入
-        audit_files = glob.glob(f"{audit_dir}/audit_*.json")
-        checks.append({"item":"C9-audit日志","passed":len(audit_files)>=0,
-                       "detail":f"本次写入 {ts}.json",
-                       "severity":"ok"})
+# ── 视频级技术问题聚合（放在这里：VLM结果之后、报告数据构建之前）──
+tech_summary = aggregate_technical_patterns(shots)
+print(f"[聚合] 发现 {len(tech_summary.get('top_errors',[]))} 种技术问题类型")
+for te in tech_summary.get("top_errors", []):
+    print(f"  → {te['code']} {te['name']}: {te['count']}次")
 
-        # C10-C14: report_generator负责（静态检查）
-        checks.append({"item":"C10-图文不变形","passed":True,"detail":"代码审查：IMG_H_MM宽度固定，高度按比例","severity":"info"})
-        checks.append({"item":"C11-图文不重叠","passed":True,"detail":"代码审查：shot卡片高度BODY_H_MM固定","severity":"info"})
-        checks.append({"item":"C12-球速追踪","passed":True,"detail":"Step3已执行","severity":"info"})
-        checks.append({"item":"C13-球员档案写入","passed":True,"detail":"Step4已执行","severity":"info"})
-        checks.append({"item":"C14-微信推送","passed":True,"detail":"Step5已执行（频率限制属外部）","severity":"info"})
+report_data = {
+    "video": os.path.basename(VIDEO_PATH),
+    "duration": duration,
+    "date": datetime.now().strftime("%Y-%m-%d"),
+    "player_colors": ["近端白", "近端蓝", "远端白", "远端蓝"],
+    "player_name": PLAYER_NAME if PLAYER_NAME != "未知球员" else "",
+    "target_player": TARGET_PLAYER,  # 兜底过滤用（近端球员/远端球员）
+    "target_side": TARGET_SIDE,        # 分析时用的侧：near/far
+    "customer_side": CUSTOMER_SIDE,    # 客户确认侧：near/far/""
+    "shots": shots,
+    "frames_dir": arc_dir or SESSION_FRAMES_DIR,
+    "tech_summary": tech_summary,   # 视频级技术问题汇总（供报告渲染）
+}
 
-        result = {
-            "timestamp": ts,
-            "player": PLAYER,
-            "shots_count": len(shots),
-            "checks": checks,
-            "summary": {"passed": sum(1 for c in checks if c["severity"]=="ok"),
-                        "warnings": sum(1 for c in checks if c["severity"]=="warning"),
-                        "errors": sum(1 for c in checks if c["severity"]=="error")}
-        }
-        audit_path = os.path.join(audit_dir, f"audit_{ts}.json")
-        with open(audit_path, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
-        return result
+if db and profile and profile.get("total_sessions", 0) > 0:
+    try:
+        prog = db.compute_progress(PLAYER_NAME)
+        session = profile["sessions"][-1] if profile["sessions"] else {}
+        report_data["session"] = session
+        report_data["sessions"] = profile.get("sessions", [])
+        report_data["progress"] = prog
+        report_data["badges"] = profile.get("badges", [])
+        report_data["new_badges"] = session.get("new_badges", [])
+        report_data["all_badges"] = db.get_all_badges(profile)
+    except Exception:
+        pass
 
-    arc_dir_val = report_data.get("frames_dir","")
-    audit_result = _write_audit(shots, report_data, arc_dir_val)
-    print(f"[QC] 校验完成: {audit_result['summary']['passed']}✓ "
-          f"{audit_result['summary']['warnings']}⚠ {audit_result['summary']['errors']}✗")
-    for c in audit_result["checks"]:
-        if c["severity"] != "ok":
-            print(f"     [{c['severity'].upper()}] {c['item']}: {c['detail']}")
+# ── 质量控制校验（写入 audit 日志） ───────────────────
+def _write_audit(shots, report_data, arc_dir):
+    import glob
+    import json
+    PLAYER = report_data.get("player_name", "unknown")
+    audit_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                              "players", PLAYER, "audit")
+    os.makedirs(audit_dir, exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    checks = []
 
-    out_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.pdf"
-    out_path = os.path.join(OUTPUT_DIR, out_name)
-    rpt.make_report(report_data, out_path)
+    # C1: 未知/疑似 action_type
+    unknown = [s for s in shots if any(k in s.get("action_type","") for k in ["未知","疑似","？？","**"])]
+    checks.append({"item":"C1-未知action_type","passed":len(unknown)==0,
+                   "detail":f"{len(unknown)}帧含未知标记","severity":"error" if unknown else "ok"})
 
-    desktop = os.path.expanduser("~/Desktop")
-    desktop_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
-    desktop_path = os.path.join(desktop, desktop_name)
-    shutil.copy(out_path, desktop_path)
+    # C2: 过渡帧清理
+    transitions = [s for s in shots if any(k in s.get("action_type","") for k in ["准备","站位","过渡","等待","捡球","死球"])]
+    checks.append({"item":"C2-过渡帧","passed":len(transitions)==0,
+                   "detail":f"{len(transitions)}帧过渡动作已清空","severity":"warning" if transitions else "ok"})
 
-    print(f"\n{'='*50}")
-    print(f"  完成！")
-    print(f"{'='*50}")
-    print(f"  报告: {out_path}")
-    print(f"  桌面: {desktop_path}")
-    if PLAYER_NAME != "未知球员":
-        print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
-    print()
+    # C3: 评分与动作类型矛盾
+    conflict = [s for s in shots if s.get("quality_rating",0)>=7 and any(k in s.get("action_type","") for k in ["站位","过渡","准备"])]
+    checks.append({"item":"C3-评分动作矛盾","passed":len(conflict)==0,
+                   "detail":f"{len(conflict)}帧存在矛盾","severity":"error" if conflict else "ok"})
 
-    avg_q = round(sum(s.get("quality_rating", 0) for s in shots) / len(shots), 1) if shots else 0
-    send_wechat_report(desktop_path, PLAYER_NAME, len(shots), avg_q, db)
+    # C4: VLM版本（检查模块）
+    import importlib.util
+    v2_spec = importlib.util.find_spec("vlm_analyzer_v2")
+    checks.append({"item":"C4-VLM版本","passed":v2_spec is not None,
+                   "detail":"V2已启用" if v2_spec else "V2未找到","severity":"ok"})
+
+    # C5: 字体文件
+    font_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "stheiti.ttf")
+    checks.append({"item":"C5-字体预提取","passed":os.path.exists(font_path),
+                   "detail":f"stheiti.ttf {'存在' if os.path.exists(font_path) else '缺失'}","severity":"error" if not os.path.exists(font_path) else "ok"})
+
+    # C6: 非击球帧不进入报告
+    non_shots = [s for s in shots if any(k in s.get("action_type","") for k in ["站位","过渡","准备","未知"])]
+    checks.append({"item":"C6-战术技术分离","passed":len(non_shots)==0,
+                   "detail":f"{len(non_shots)}帧非击球帧","severity":"warning" if non_shots else "ok"})
+
+    # C7: 极值评分复核
+    low_high = [s for s in shots if s.get("quality_rating",0)<=2 or s.get("quality_rating",0)>=9]
+    checks.append({"item":"C7-极值评分复核","passed":len(low_high)==0,
+                   "detail":f"{len(low_high)}帧极值评分需复核" if low_high else "无极值帧","severity":"warning" if low_high else "ok"})
+
+    # C8: 归档帧图
+    arc_imgs = glob.glob(f"{arc_dir}/ann_f_*.jpg") if arc_dir else []
+    checks.append({"item":"C8-归档帧图","passed":len(arc_imgs)>0,
+                   "detail":f"{len(arc_imgs)}张标注帧已归档","severity":"error" if not arc_imgs else "ok"})
+
+    # C9: audit日志已写入
+    audit_files = glob.glob(f"{audit_dir}/audit_*.json")
+    checks.append({"item":"C9-audit日志","passed":len(audit_files)>=0,
+                   "detail":f"本次写入 {ts}.json","severity":"ok"})
+
+    # C10-C14: report_generator负责（静态检查）
+    checks.append({"item":"C10-图文不变形","passed":True,"detail":"代码审查：IMG_H_MM宽度固定，高度按比例","severity":"info"})
+    checks.append({"item":"C11-图文不重叠","passed":True,"detail":"代码审查：shot卡片高度BODY_H_MM固定","severity":"info"})
+    checks.append({"item":"C12-球速追踪","passed":True,"detail":"Step3已执行","severity":"info"})
+    checks.append({"item":"C13-球员档案写入","passed":True,"detail":"Step4已执行","severity":"info"})
+    checks.append({"item":"C14-微信推送","passed":True,"detail":"Step5已执行（频率限制属外部）","severity":"info"})
+
+    result = {
+        "timestamp": ts,
+        "player": PLAYER,
+        "shots_count": len(shots),
+        "checks": checks,
+        "summary": {"passed": sum(1 for c in checks if c["severity"]=="ok"),
+                    "warnings": sum(1 for c in checks if c["severity"]=="warning"),
+                    "errors": sum(1 for c in checks if c["severity"]=="error")}
+    }
+    audit_path = os.path.join(audit_dir, f"audit_{ts}.json")
+    with open(audit_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+    return result
+
+arc_dir_val = report_data.get("frames_dir","")
+audit_result = _write_audit(shots, report_data, arc_dir_val)
+print(f"[QC] 校验完成: {audit_result['summary']['passed']}✓ "
+      f"{audit_result['summary']['warnings']}⚠ {audit_result['summary']['errors']}✗")
+for c in audit_result["checks"]:
+    if c["severity"] != "ok":
+        print(f"     [{c['severity'].upper()}] {c['item']}: {c['detail']}")
+
+out_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.pdf"
+out_path = os.path.join(OUTPUT_DIR, out_name)
+rpt.make_report(report_data, out_path)
+
+desktop = os.path.expanduser("~/Desktop")
+desktop_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
+desktop_path = os.path.join(desktop, desktop_name)
+shutil.copy(out_path, desktop_path)
+
+print(f"\n{'='*50}")
+print("  完成！")
+print(f"{'='*50}")
+print(f"  报告: {out_path}")
+print(f"  桌面: {desktop_path}")
+if PLAYER_NAME != "未知球员":
+    print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
+print()
+
+avg_q = round(sum(s.get("quality_rating", 0) for s in shots) / len(shots), 1) if shots else 0
+send_wechat_report(desktop_path, PLAYER_NAME, len(shots), avg_q, db)
