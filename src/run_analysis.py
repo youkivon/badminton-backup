@@ -822,167 +822,170 @@ def aggregate_technical_patterns(shots):
     return summary
 
 
-# ── Step 4: 生成 PDF 报告 ────────────────────────────────────────
-if args.session_only:
-    print("\n[完成] 仅保存记录，跳过PDF生成")
-    print(f"  球员: {PLAYER_NAME}")
-    print(f"  帧数: {len(shots)}")
-    print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
-    sys.exit(0)
+if __name__ == "__main__":
+    args = parser.parse_args()
 
-print("[Step 4] 生成PDF报告...")
+    # ── Step 4: 生成 PDF 报告 ────────────────────────────────────────
+    if args.session_only:
+        print("\n[完成] 仅保存记录，跳过PDF生成")
+        print(f"  球员: {PLAYER_NAME}")
+        print(f"  帧数: {len(shots)}")
+        print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
+        sys.exit(0)
 
-try:
-    rpt = importlib.import_module("report_generator")
-    importlib.reload(rpt)
-except Exception as e:
-    print(f"[错误] report_generator模块加载失败: {e}")
-    sys.exit(1)
+    print("[Step 4] 生成PDF报告...")
 
-from collections import Counter  # noqa: E402
-err_cnt = Counter()
-for s in shots:
-    for e in s.get("errors", []):
-        k = e.strip()
-        if len(k) > 2:
-            err_cnt[k] += 1
-
-# ── 视频级技术问题聚合（放在这里：VLM结果之后、报告数据构建之前）──
-tech_summary = aggregate_technical_patterns(shots)
-print(f"[聚合] 发现 {len(tech_summary.get('top_errors',[]))} 种技术问题类型")
-for te in tech_summary.get("top_errors", []):
-    print(f"  → {te['code']} {te['name']}: {te['count']}次")
-
-report_data = {
-    "video": os.path.basename(VIDEO_PATH),
-    "duration": duration,
-    "date": datetime.now().strftime("%Y-%m-%d"),
-    "player_colors": ["近端白", "近端蓝", "远端白", "远端蓝"],
-    "player_name": PLAYER_NAME if PLAYER_NAME != "未知球员" else "",
-    "target_player": TARGET_PLAYER,  # 兜底过滤用（近端球员/远端球员）
-    "target_side": TARGET_SIDE,        # 分析时用的侧：near/far
-    "customer_side": CUSTOMER_SIDE,    # 客户确认侧：near/far/""
-    "shots": shots,
-    "frames_dir": arc_dir or SESSION_FRAMES_DIR,
-    "tech_summary": tech_summary,   # 视频级技术问题汇总（供报告渲染）
-}
-
-if db and profile and profile.get("total_sessions", 0) > 0:
     try:
-        prog = db.compute_progress(PLAYER_NAME)
-        session = profile["sessions"][-1] if profile["sessions"] else {}
-        report_data["session"] = session
-        report_data["sessions"] = profile.get("sessions", [])
-        report_data["progress"] = prog
-        report_data["badges"] = profile.get("badges", [])
-        report_data["new_badges"] = session.get("new_badges", [])
-        report_data["all_badges"] = db.get_all_badges(profile)
-    except Exception:
-        pass
+        rpt = importlib.import_module("report_generator")
+        importlib.reload(rpt)
+    except Exception as e:
+        print(f"[错误] report_generator模块加载失败: {e}")
+        sys.exit(1)
 
-# ── 质量控制校验（写入 audit 日志） ───────────────────
-def _write_audit(shots, report_data, arc_dir):
-    import glob
-    import json
-    PLAYER = report_data.get("player_name", "unknown")
-    audit_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                              "players", PLAYER, "audit")
-    os.makedirs(audit_dir, exist_ok=True)
-    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    checks = []
+    from collections import Counter  # noqa: E402
+    err_cnt = Counter()
+    for s in shots:
+        for e in s.get("errors", []):
+            k = e.strip()
+            if len(k) > 2:
+                err_cnt[k] += 1
 
-    # C1: 未知/疑似 action_type
-    unknown = [s for s in shots if any(k in s.get("action_type","") for k in ["未知","疑似","？？","**"])]
-    checks.append({"item":"C1-未知action_type","passed":len(unknown)==0,
-                   "detail":f"{len(unknown)}帧含未知标记","severity":"error" if unknown else "ok"})
+    # ── 视频级技术问题聚合（放在这里：VLM结果之后、报告数据构建之前）──
+    tech_summary = aggregate_technical_patterns(shots)
+    print(f"[聚合] 发现 {len(tech_summary.get('top_errors',[]))} 种技术问题类型")
+    for te in tech_summary.get("top_errors", []):
+        print(f"  → {te['code']} {te['name']}: {te['count']}次")
 
-    # C2: 过渡帧清理
-    transitions = [s for s in shots if any(k in s.get("action_type","") for k in ["准备","站位","过渡","等待","捡球","死球"])]
-    checks.append({"item":"C2-过渡帧","passed":len(transitions)==0,
-                   "detail":f"{len(transitions)}帧过渡动作已清空","severity":"warning" if transitions else "ok"})
-
-    # C3: 评分与动作类型矛盾
-    conflict = [s for s in shots if s.get("quality_rating",0)>=7 and any(k in s.get("action_type","") for k in ["站位","过渡","准备"])]
-    checks.append({"item":"C3-评分动作矛盾","passed":len(conflict)==0,
-                   "detail":f"{len(conflict)}帧存在矛盾","severity":"error" if conflict else "ok"})
-
-    # C4: VLM版本（检查模块）
-    import importlib.util
-    v2_spec = importlib.util.find_spec("vlm_analyzer_v2")
-    checks.append({"item":"C4-VLM版本","passed":v2_spec is not None,
-                   "detail":"V2已启用" if v2_spec else "V2未找到","severity":"ok"})
-
-    # C5: 字体文件
-    font_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "stheiti.ttf")
-    checks.append({"item":"C5-字体预提取","passed":os.path.exists(font_path),
-                   "detail":f"stheiti.ttf {'存在' if os.path.exists(font_path) else '缺失'}","severity":"error" if not os.path.exists(font_path) else "ok"})
-
-    # C6: 非击球帧不进入报告
-    non_shots = [s for s in shots if any(k in s.get("action_type","") for k in ["站位","过渡","准备","未知"])]
-    checks.append({"item":"C6-战术技术分离","passed":len(non_shots)==0,
-                   "detail":f"{len(non_shots)}帧非击球帧","severity":"warning" if non_shots else "ok"})
-
-    # C7: 极值评分复核
-    low_high = [s for s in shots if s.get("quality_rating",0)<=2 or s.get("quality_rating",0)>=9]
-    checks.append({"item":"C7-极值评分复核","passed":len(low_high)==0,
-                   "detail":f"{len(low_high)}帧极值评分需复核" if low_high else "无极值帧","severity":"warning" if low_high else "ok"})
-
-    # C8: 归档帧图
-    arc_imgs = glob.glob(f"{arc_dir}/ann_f_*.jpg") if arc_dir else []
-    checks.append({"item":"C8-归档帧图","passed":len(arc_imgs)>0,
-                   "detail":f"{len(arc_imgs)}张标注帧已归档","severity":"error" if not arc_imgs else "ok"})
-
-    # C9: audit日志已写入
-    audit_files = glob.glob(f"{audit_dir}/audit_*.json")
-    checks.append({"item":"C9-audit日志","passed":len(audit_files)>=0,
-                   "detail":f"本次写入 {ts}.json","severity":"ok"})
-
-    # C10-C14: report_generator负责（静态检查）
-    checks.append({"item":"C10-图文不变形","passed":True,"detail":"代码审查：IMG_H_MM宽度固定，高度按比例","severity":"info"})
-    checks.append({"item":"C11-图文不重叠","passed":True,"detail":"代码审查：shot卡片高度BODY_H_MM固定","severity":"info"})
-    checks.append({"item":"C12-球速追踪","passed":True,"detail":"Step3已执行","severity":"info"})
-    checks.append({"item":"C13-球员档案写入","passed":True,"detail":"Step4已执行","severity":"info"})
-    checks.append({"item":"C14-微信推送","passed":True,"detail":"Step5已执行（频率限制属外部）","severity":"info"})
-
-    result = {
-        "timestamp": ts,
-        "player": PLAYER,
-        "shots_count": len(shots),
-        "checks": checks,
-        "summary": {"passed": sum(1 for c in checks if c["severity"]=="ok"),
-                    "warnings": sum(1 for c in checks if c["severity"]=="warning"),
-                    "errors": sum(1 for c in checks if c["severity"]=="error")}
+    report_data = {
+        "video": os.path.basename(VIDEO_PATH),
+        "duration": duration,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "player_colors": ["近端白", "近端蓝", "远端白", "远端蓝"],
+        "player_name": PLAYER_NAME if PLAYER_NAME != "未知球员" else "",
+        "target_player": TARGET_PLAYER,  # 兜底过滤用（近端球员/远端球员）
+        "target_side": TARGET_SIDE,        # 分析时用的侧：near/far
+        "customer_side": CUSTOMER_SIDE,    # 客户确认侧：near/far/""
+        "shots": shots,
+        "frames_dir": arc_dir or SESSION_FRAMES_DIR,
+        "tech_summary": tech_summary,   # 视频级技术问题汇总（供报告渲染）
     }
-    audit_path = os.path.join(audit_dir, f"audit_{ts}.json")
-    with open(audit_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
-    return result
 
-arc_dir_val = report_data.get("frames_dir","")
-audit_result = _write_audit(shots, report_data, arc_dir_val)
-print(f"[QC] 校验完成: {audit_result['summary']['passed']}✓ "
-      f"{audit_result['summary']['warnings']}⚠ {audit_result['summary']['errors']}✗")
-for c in audit_result["checks"]:
-    if c["severity"] != "ok":
-        print(f"     [{c['severity'].upper()}] {c['item']}: {c['detail']}")
+    if db and profile and profile.get("total_sessions", 0) > 0:
+        try:
+            prog = db.compute_progress(PLAYER_NAME)
+            session = profile["sessions"][-1] if profile["sessions"] else {}
+            report_data["session"] = session
+            report_data["sessions"] = profile.get("sessions", [])
+            report_data["progress"] = prog
+            report_data["badges"] = profile.get("badges", [])
+            report_data["new_badges"] = session.get("new_badges", [])
+            report_data["all_badges"] = db.get_all_badges(profile)
+        except Exception:
+            pass
 
-out_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.pdf"
-out_path = os.path.join(OUTPUT_DIR, out_name)
-rpt.make_report(report_data, out_path)
+    # ── 质量控制校验（写入 audit 日志） ───────────────────
+    def _write_audit(shots, report_data, arc_dir):
+        import glob
+        import json
+        PLAYER = report_data.get("player_name", "unknown")
+        audit_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                  "players", PLAYER, "audit")
+        os.makedirs(audit_dir, exist_ok=True)
+        ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        checks = []
 
-desktop = os.path.expanduser("~/Desktop")
-desktop_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
-desktop_path = os.path.join(desktop, desktop_name)
-shutil.copy(out_path, desktop_path)
+        # C1: 未知/疑似 action_type
+        unknown = [s for s in shots if any(k in s.get("action_type","") for k in ["未知","疑似","？？","**"])]
+        checks.append({"item":"C1-未知action_type","passed":len(unknown)==0,
+                       "detail":f"{len(unknown)}帧含未知标记","severity":"error" if unknown else "ok"})
 
-print(f"\n{'='*50}")
-print("  完成！")
-print(f"{'='*50}")
-print(f"  报告: {out_path}")
-print(f"  桌面: {desktop_path}")
-if PLAYER_NAME != "未知球员":
-    print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
-print()
+        # C2: 过渡帧清理
+        transitions = [s for s in shots if any(k in s.get("action_type","") for k in ["准备","站位","过渡","等待","捡球","死球"])]
+        checks.append({"item":"C2-过渡帧","passed":len(transitions)==0,
+                       "detail":f"{len(transitions)}帧过渡动作已清空","severity":"warning" if transitions else "ok"})
 
-avg_q = round(sum(s.get("quality_rating", 0) for s in shots) / len(shots), 1) if shots else 0
-send_wechat_report(desktop_path, PLAYER_NAME, len(shots), avg_q, db)
+        # C3: 评分与动作类型矛盾
+        conflict = [s for s in shots if s.get("quality_rating",0)>=7 and any(k in s.get("action_type","") for k in ["站位","过渡","准备"])]
+        checks.append({"item":"C3-评分动作矛盾","passed":len(conflict)==0,
+                       "detail":f"{len(conflict)}帧存在矛盾","severity":"error" if conflict else "ok"})
+
+        # C4: VLM版本（检查模块）
+        import importlib.util
+        v2_spec = importlib.util.find_spec("vlm_analyzer_v2")
+        checks.append({"item":"C4-VLM版本","passed":v2_spec is not None,
+                       "detail":"V2已启用" if v2_spec else "V2未找到","severity":"ok"})
+
+        # C5: 字体文件
+        font_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "stheiti.ttf")
+        checks.append({"item":"C5-字体预提取","passed":os.path.exists(font_path),
+                       "detail":f"stheiti.ttf {'存在' if os.path.exists(font_path) else '缺失'}","severity":"error" if not os.path.exists(font_path) else "ok"})
+
+        # C6: 非击球帧不进入报告
+        non_shots = [s for s in shots if any(k in s.get("action_type","") for k in ["站位","过渡","准备","未知"])]
+        checks.append({"item":"C6-战术技术分离","passed":len(non_shots)==0,
+                       "detail":f"{len(non_shots)}帧非击球帧","severity":"warning" if non_shots else "ok"})
+
+        # C7: 极值评分复核
+        low_high = [s for s in shots if s.get("quality_rating",0)<=2 or s.get("quality_rating",0)>=9]
+        checks.append({"item":"C7-极值评分复核","passed":len(low_high)==0,
+                       "detail":f"{len(low_high)}帧极值评分需复核" if low_high else "无极值帧","severity":"warning" if low_high else "ok"})
+
+        # C8: 归档帧图
+        arc_imgs = glob.glob(f"{arc_dir}/ann_f_*.jpg") if arc_dir else []
+        checks.append({"item":"C8-归档帧图","passed":len(arc_imgs)>0,
+                       "detail":f"{len(arc_imgs)}张标注帧已归档","severity":"error" if not arc_imgs else "ok"})
+
+        # C9: audit日志已写入
+        audit_files = glob.glob(f"{audit_dir}/audit_*.json")
+        checks.append({"item":"C9-audit日志","passed":len(audit_files)>=0,
+                       "detail":f"本次写入 {ts}.json","severity":"ok"})
+
+        # C10-C14: report_generator负责（静态检查）
+        checks.append({"item":"C10-图文不变形","passed":True,"detail":"代码审查：IMG_H_MM宽度固定，高度按比例","severity":"info"})
+        checks.append({"item":"C11-图文不重叠","passed":True,"detail":"代码审查：shot卡片高度BODY_H_MM固定","severity":"info"})
+        checks.append({"item":"C12-球速追踪","passed":True,"detail":"Step3已执行","severity":"info"})
+        checks.append({"item":"C13-球员档案写入","passed":True,"detail":"Step4已执行","severity":"info"})
+        checks.append({"item":"C14-微信推送","passed":True,"detail":"Step5已执行（频率限制属外部）","severity":"info"})
+
+        result = {
+            "timestamp": ts,
+            "player": PLAYER,
+            "shots_count": len(shots),
+            "checks": checks,
+            "summary": {"passed": sum(1 for c in checks if c["severity"]=="ok"),
+                        "warnings": sum(1 for c in checks if c["severity"]=="warning"),
+                        "errors": sum(1 for c in checks if c["severity"]=="error")}
+        }
+        audit_path = os.path.join(audit_dir, f"audit_{ts}.json")
+        with open(audit_path, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        return result
+
+    arc_dir_val = report_data.get("frames_dir","")
+    audit_result = _write_audit(shots, report_data, arc_dir_val)
+    print(f"[QC] 校验完成: {audit_result['summary']['passed']}✓ "
+          f"{audit_result['summary']['warnings']}⚠ {audit_result['summary']['errors']}✗")
+    for c in audit_result["checks"]:
+        if c["severity"] != "ok":
+            print(f"     [{c['severity'].upper()}] {c['item']}: {c['detail']}")
+
+    out_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.pdf"
+    out_path = os.path.join(OUTPUT_DIR, out_name)
+    rpt.make_report(report_data, out_path)
+
+    desktop = os.path.expanduser("~/Desktop")
+    desktop_name = f"badminton_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
+    desktop_path = os.path.join(desktop, desktop_name)
+    shutil.copy(out_path, desktop_path)
+
+    print(f"\n{'='*50}")
+    print("  完成！")
+    print(f"{'='*50}")
+    print(f"  报告: {out_path}")
+    print(f"  桌面: {desktop_path}")
+    if PLAYER_NAME != "未知球员":
+        print(f"  档案: ~/Desktop/小程序/players/{PLAYER_NAME}/profile.json")
+    print()
+
+    avg_q = round(sum(s.get("quality_rating", 0) for s in shots) / len(shots), 1) if shots else 0
+    send_wechat_report(desktop_path, PLAYER_NAME, len(shots), avg_q, db)
